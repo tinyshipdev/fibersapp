@@ -1,14 +1,11 @@
 import React from 'react';
 import {TaskData} from "./RootTask";
 
-interface TaskProps {
-  id: string;
-  value: string;
-  path: number[];
+interface TaskProps extends TaskData {
   isRoot: boolean;
-  subtasks: TaskData[];
   onAddTask: (path: number[]) => void;
   onIndentRight: (path: number[]) => void;
+  onIndentLeft: (path: number[]) => void;
 }
 
 const Task: React.FC<TaskProps> = ({
@@ -19,6 +16,7 @@ const Task: React.FC<TaskProps> = ({
   subtasks,
   onAddTask,
   onIndentRight,
+  onIndentLeft,
 }) => {
 
   if(isRoot) {
@@ -34,6 +32,7 @@ const Task: React.FC<TaskProps> = ({
             subtasks={task?.subtasks}
             onAddTask={(path) => onAddTask(path)}
             onIndentRight={(path) => onIndentRight(path)}
+            onIndentLeft={(path) => onIndentLeft(path)}
           />
         ))}
       </ul>
@@ -43,7 +42,8 @@ const Task: React.FC<TaskProps> = ({
   return (
     <li key={id}>
       <p>
-        <span>{ `${value}` }</span>
+        <button onClick={() => onIndentLeft(path)}>Indent Left</button>
+        <span>----{ `${path}` }--{value}----</span>
         <button onClick={() => onAddTask(path)}>Add Task</button>
         {path[path.length - 1] > 0 && (
           <button onClick={() => onIndentRight(path)}>Indent Right</button>
@@ -60,6 +60,7 @@ const Task: React.FC<TaskProps> = ({
             subtasks={task?.subtasks}
             onAddTask={(path) => onAddTask(path)}
             onIndentRight={(path) => onIndentRight(path)}
+            onIndentLeft={(path) => onIndentLeft(path)}
           />
         ))}
       </ul>

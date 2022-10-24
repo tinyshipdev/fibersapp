@@ -120,8 +120,25 @@ const RootTask: React.FC = () => {
         parent.subtasks[i].path = p;
       }
 
+      // recompute path for parent subtasks of the previous task
+      for(let i = 0; i < currentTask.subtasks.length; i++) {
+        currentTask.subtasks[i].path = [...currentTask.path];
+        currentTask.subtasks[i].path.push(i);
+      }
+
       setTasks(newTasks);
     }
+  }
+
+  function indentLeft(path: number[]) {
+    console.log(path);
+    const newTasks = [...tasks];
+    const parent = findTaskParent(newTasks, path);
+    console.log(parent);
+    const parentsParent = findTaskParent(newTasks, parent.path);
+
+    console.log(parent, parentsParent);
+
   }
 
   return (
@@ -137,6 +154,7 @@ const RootTask: React.FC = () => {
             subtasks={task?.subtasks}
             onAddTask={(path) => addTask(path)}
             onIndentRight={(path) => indentRight(path)}
+            onIndentLeft={(path) => indentLeft(path)}
           />
         ))}
       </ul>
