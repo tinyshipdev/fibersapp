@@ -130,15 +130,30 @@ const RootTask: React.FC = () => {
     }
   }
 
+
+  // is there a way to do this without needing to update paths? otherwise we have to recursively update everything
   function indentLeft(path: number[]) {
-    console.log(path);
     const newTasks = [...tasks];
+
+    const current = findTask(newTasks, path);
     const parent = findTaskParent(newTasks, path);
-    console.log(parent);
-    const parentsParent = findTaskParent(newTasks, parent.path);
+    const grandparent = findTaskParent(newTasks, parent.path);
 
-    console.log(parent, parentsParent);
+    grandparent.subtasks.splice(parent.path[parent.path.length - 1] + 1, 0, current);
+    parent.subtasks.splice(current.path[current.path.length - 1], 1);
 
+    current.path.pop();
+
+    // recompute path for parent subtasks of the previous task
+    for(let i = 0; i < grandparent.subtasks.length; i++) {
+      let p = grandparent.subtasks[i].path;
+      p[p.length - 1] = i;
+      grandparent.subtasks[i].path = p;
+    }
+
+    console.log(current, grandparent, parent)
+
+    setTasks(newTasks);
   }
 
   return (
