@@ -1,177 +1,124 @@
 import React, {useState} from 'react';
 import Task from "./Task";
 
-export interface TaskData {
-  id: string;
-  value: string;
-  path: number[];
-  subtasks: TaskData[];
+const DEFAULT_GRAPH: { [key: string]: string[] } = {
+  'root': ['one'],
+  'one': ['two', 'three'],
+  'two': ['five'],
+  'three': [],
+  'five': []
 }
 
-const DEFAULT_TASKS: TaskData[] = [
-  {
-    id: 'root',
-    value: 'root',
-    path: [0],
-    subtasks: [
-      {
-        id: 'one',
-        value: 'one',
-        path: [0,0],
-        subtasks: [
-          {
-            id: 'two',
-            value: 'two',
-            path:[0,0,0],
-            subtasks: []
-          },
-          {
-            id: 'three',
-            value: 'three',
-            path: [0,0,1],
-            subtasks: []
-          }
-        ]
-      }
-    ]
+const DEFAULT_PARENT_GRAPH: { [key: string]: string } = {
+  'root': '',
+  'one': 'root',
+  'two': 'one',
+  'three': 'one',
+  'five': 'two'
+}
+
+const DEFAULT_NODES: { [key: string]: { value: string }} = {
+  'root': {
+    value: 'root'
+  },
+  'one': {
+    value: 'one'
+  },
+  'two': {
+    value: 'two'
+  },
+  'three': {
+    value: 'three'
+  },
+  'five': {
+    value: 'five'
   }
-]
+}
 
 const RootTask: React.FC = () => {
-  const [tasks, setTasks] = useState<TaskData[]>(DEFAULT_TASKS);
+  const [taskGraph, setTaskGraph] = useState(DEFAULT_GRAPH);
+  const [parentGraph, setParentGraph] = useState(DEFAULT_PARENT_GRAPH);
+  const [nodes, setNodes] = useState(DEFAULT_NODES);
 
-  function findTask(tasksCopy: TaskData[], path: number[]) {
-    let item: any = tasksCopy[path[0]];
+  function addTask(id: string) {
+    let parentId = parentGraph[id];
 
-    for(let i = 1; i < path.length; i++) {
-      item = item['subtasks'][path[i]];
-    }
+    let pg = { ...parentGraph };
+    let tg = { ...taskGraph };
+    let n = { ...nodes };
 
-    return item;
+    n['six'] = { value: 'six' };
+    pg['six'] = parentId;
+
+    let index = tg[parentId].indexOf(id);
+    tg[parentId].splice(index + 1, 0, 'six');
+
+    setNodes(n);
+    setParentGraph(pg);
+    setTaskGraph(tg);
   }
 
-  function findTaskParent(newTasks: TaskData[], path: number[]) {
+  function indentRight(id: string) {
+    let pg = { ...parentGraph };
+    let tg = { ...taskGraph };
 
-    let items: any = newTasks[path[0]];
+    let parentId = pg[id];
+    let subTasks = tg[parentId];
 
-    for(let i = 1; i < path.length - 1; i++) {
-      items = items['subtasks'][path[i]];
+    let index = subTasks.indexOf(id);
+    let previousKey = subTasks[index - 1];
+
+    if(!previousKey) {
+      return;
     }
 
-    return items;
+    tg[previousKey].push(id);
+    subTasks.splice(index, 1);
+
+    pg[id] = previousKey;
+
+    setParentGraph(pg);
+    setTaskGraph(tg);
   }
 
+  function indentLeft(id: string) {
+    let pg = { ...parentGraph };
+    let tg = { ...taskGraph };
 
-  function addTask(path: number[]) {
-    const newTasks = [...tasks];
-    const newPath = [...path];
+    // find parent
+    // find grandparent
+    let parent = pg[id];
+    let grandparent = pg[parent];
 
-    const parent: TaskData = findTaskParent(newTasks, newPath);
+    // find index of parent in grandparent
+    let indexOfParent = tg[grandparent].indexOf(parent);
 
-    // we don't want to push to end of array, we want to push in-between the current element
-    const insertAfter = newPath[newPath.length - 1];
-    newPath[newPath.length - 1] += 1;
+    // insert id after index of parent in grandparent
+    tg[grandparent].splice(indexOfParent + 1, 0, id);
 
-    parent.subtasks.splice(insertAfter + 1, 0, {
-      id: 'test1234'+Math.random(),
-      value: 'dynamic'+Math.random(),
-      path: newPath,
-      subtasks: []
-    });
+    // remove id as child of parent
+    let indexOfIdInParent = tg[parent].indexOf(id);
+    tg[parent].splice(indexOfIdInParent, 1);
 
-    // recompute the last digit in path array to keep it up to date for new list
-    for(let i = insertAfter + 1; i < parent.subtasks.length; i++) {
-      let p = parent.subtasks[i].path;
-      p[p.length - 1] = i;
-      parent.subtasks[i].path = p;
-    }
+    // update parent of id to be grandparent
+    pg[id] = grandparent;
 
-    setTasks(newTasks);
-  }
-
-  // this needs more testing, not confident that it works entirely
-  function indentRight(path: number[]) {
-    // if there is a previous task, move the current task to the subtasks of the previous task
-    const newTasks = [...tasks];
-
-    if(path[path.length - 1] > 0) {
-      const previousItemPath = [...path];
-      previousItemPath[previousItemPath.length - 1] -= 1;
-
-
-      const currentTask = findTask(newTasks, path);
-      const previousTask = findTask(newTasks, previousItemPath);
-      const parent = findTaskParent(newTasks, path);
-
-      previousTask.subtasks.push(currentTask);
-      parent.subtasks.splice(path[path.length - 1], 1);
-      currentTask.path.push(0);
-
-      // recompute path for subtasks of the previous task
-      for(let i = 0; i < previousTask.subtasks.length; i++) {
-        previousTask.subtasks[i].path = [...previousTask.path];
-        previousTask.subtasks[i].path.push(i);
-      }
-
-      // recompute path for parent subtasks of the previous task
-      for(let i = 0; i < parent.subtasks.length; i++) {
-        let p = parent.subtasks[i].path;
-        p[p.length - 1] = i;
-        parent.subtasks[i].path = p;
-      }
-
-      // recompute path for parent subtasks of the previous task
-      for(let i = 0; i < currentTask.subtasks.length; i++) {
-        currentTask.subtasks[i].path = [...currentTask.path];
-        currentTask.subtasks[i].path.push(i);
-      }
-
-      setTasks(newTasks);
-    }
-  }
-
-
-  // is there a way to do this without needing to update paths? otherwise we have to recursively update everything
-  function indentLeft(path: number[]) {
-    const newTasks = [...tasks];
-
-    const current = findTask(newTasks, path);
-    const parent = findTaskParent(newTasks, path);
-    const grandparent = findTaskParent(newTasks, parent.path);
-
-    grandparent.subtasks.splice(parent.path[parent.path.length - 1] + 1, 0, current);
-    parent.subtasks.splice(current.path[current.path.length - 1], 1);
-
-    current.path.pop();
-
-    // recompute path for parent subtasks of the previous task
-    for(let i = 0; i < grandparent.subtasks.length; i++) {
-      let p = grandparent.subtasks[i].path;
-      p[p.length - 1] = i;
-      grandparent.subtasks[i].path = p;
-    }
-
-    console.log(current, grandparent, parent)
-
-    setTasks(newTasks);
+    setParentGraph(pg);
+    setTaskGraph(tg);
   }
 
   return (
     <div>
       <ul>
-        {tasks?.map((task) => (
-          <Task
-            key={task?.id}
-            id={task?.value}
-            value={task?.value}
-            isRoot={true}
-            path={task?.path}
-            subtasks={task?.subtasks}
-            onAddTask={(path) => addTask(path)}
-            onIndentRight={(path) => indentRight(path)}
-            onIndentLeft={(path) => indentLeft(path)}
-          />
-        ))}
+        <Task
+          id={'root'}
+          value={nodes['root']?.value}
+          graph={taskGraph}
+          nodes={nodes}
+          onAddTask={(id) => addTask(id)}
+          onIndentRight={(id) => indentRight(id)}
+          onIndentLeft={(id) => indentLeft(id)}
+        />
       </ul>
     </div>
   );

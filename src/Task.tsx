@@ -1,69 +1,56 @@
 import React from 'react';
-import {TaskData} from "./RootTask";
 
-interface TaskProps extends TaskData {
-  isRoot: boolean;
-  onAddTask: (path: number[]) => void;
-  onIndentRight: (path: number[]) => void;
-  onIndentLeft: (path: number[]) => void;
+interface TaskNodeProps {
+  id: string;
+  value: string;
+  graph: any;
+  nodes: any;
+  onAddTask: (id: string) => void;
+  onIndentRight: (id: string) => void;
+  onIndentLeft: (id: string) => void;
 }
 
-const Task: React.FC<TaskProps> = ({
+
+const Task: React.FC<TaskNodeProps> = ({
   id,
   value,
-  path,
-  isRoot,
-  subtasks,
+  graph,
+  nodes,
   onAddTask,
   onIndentRight,
   onIndentLeft,
 }) => {
 
-  if(isRoot) {
-    return (
-      <ul>
-        {subtasks?.map((task) => (
-          <Task
-            key={task?.id}
-            id={task?.id}
-            value={task?.value}
-            path={task?.path}
-            isRoot={false}
-            subtasks={task?.subtasks}
-            onAddTask={(path) => onAddTask(path)}
-            onIndentRight={(path) => onIndentRight(path)}
-            onIndentLeft={(path) => onIndentLeft(path)}
-          />
-        ))}
-      </ul>
-    )
+  const graphMap = (
+    <ul>
+      {graph[id]?.map((n: any) => (
+        <Task
+          key={n}
+          id={n}
+          value={nodes[n].value}
+          graph={graph}
+          nodes={nodes}
+          onAddTask={(id) => onAddTask(id)}
+          onIndentRight={(id) => onIndentRight(id)}
+          onIndentLeft={(id) => onIndentLeft(id)}
+        />
+      ))}
+    </ul>
+  )
+
+  if(id === 'root') {
+    return graphMap;
   }
 
   return (
     <li key={id}>
       <p>
-        <button onClick={() => onIndentLeft(path)}>Indent Left</button>
-        <span>----{ `${path}` }--{value}----</span>
-        <button onClick={() => onAddTask(path)}>Add Task</button>
-        {path[path.length - 1] > 0 && (
-          <button onClick={() => onIndentRight(path)}>Indent Right</button>
-        )}
+        <button onClick={() => onIndentLeft(id)}>Indent Left</button>
+        <span>{value}</span>
+        <button onClick={() => onAddTask(id)}>Add Task</button>
+        <button onClick={() => onIndentRight(id)}>Indent Right</button>
       </p>
-      <ul>
-        {subtasks?.map((task) => (
-          <Task
-            key={task?.id}
-            id={task?.id}
-            value={task?.value}
-            path={task?.path}
-            isRoot={false}
-            subtasks={task?.subtasks}
-            onAddTask={(path) => onAddTask(path)}
-            onIndentRight={(path) => onIndentRight(path)}
-            onIndentLeft={(path) => onIndentLeft(path)}
-          />
-        ))}
-      </ul>
+      {graphMap}
     </li>
   );
 };
