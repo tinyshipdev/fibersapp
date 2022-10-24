@@ -15,19 +15,19 @@ const DEFAULT_TASKS: TaskData[] = [
     path: [0],
     subtasks: [
       {
-        id: 'test2',
-        value: 'test2',
+        id: 'one',
+        value: 'one',
         path: [0,0],
         subtasks: [
           {
-            id: 'test3',
-            value: 'test3',
+            id: 'two',
+            value: 'two',
             path:[0,0,0],
             subtasks: []
           },
           {
-            id: 'test4',
-            value: 'test4',
+            id: 'three',
+            value: 'three',
             path: [0,0,1],
             subtasks: []
           }
@@ -40,17 +40,15 @@ const DEFAULT_TASKS: TaskData[] = [
 const RootTask: React.FC = () => {
   const [tasks, setTasks] = useState<TaskData[]>(DEFAULT_TASKS);
 
-  // function findTask(path: number[]) {
-  //   const newTasks = [...tasks];
-  //
-  //   let item: any = newTasks[path[0]];
-  //
-  //   for(let i = 1; i < path.length; i++) {
-  //     item = item['subtasks'][path[i]];
-  //   }
-  //
-  //   return item;
-  // }
+  function findTask(tasksCopy: TaskData[], path: number[]) {
+    let item: any = tasksCopy[path[0]];
+
+    for(let i = 1; i < path.length; i++) {
+      item = item['subtasks'][path[i]];
+    }
+
+    return item;
+  }
 
   function findTaskParent(newTasks: TaskData[], path: number[]) {
 
@@ -91,6 +89,41 @@ const RootTask: React.FC = () => {
     setTasks(newTasks);
   }
 
+  // this needs more testing, not confident that it works entirely
+  function indentRight(path: number[]) {
+    // if there is a previous task, move the current task to the subtasks of the previous task
+    const newTasks = [...tasks];
+
+    if(path[path.length - 1] > 0) {
+      const previousItemPath = [...path];
+      previousItemPath[previousItemPath.length - 1] -= 1;
+
+
+      const currentTask = findTask(newTasks, path);
+      const previousTask = findTask(newTasks, previousItemPath);
+      const parent = findTaskParent(newTasks, path);
+
+      previousTask.subtasks.push(currentTask);
+      parent.subtasks.splice(path[path.length - 1], 1);
+      currentTask.path.push(0);
+
+      // recompute path for subtasks of the previous task
+      for(let i = 0; i < previousTask.subtasks.length; i++) {
+        previousTask.subtasks[i].path = [...previousTask.path];
+        previousTask.subtasks[i].path.push(i);
+      }
+
+      // recompute path for parent subtasks of the previous task
+      for(let i = 0; i < parent.subtasks.length; i++) {
+        let p = parent.subtasks[i].path;
+        p[p.length - 1] = i;
+        parent.subtasks[i].path = p;
+      }
+
+      setTasks(newTasks);
+    }
+  }
+
   return (
     <div>
       <ul>
@@ -103,6 +136,7 @@ const RootTask: React.FC = () => {
             path={task?.path}
             subtasks={task?.subtasks}
             onAddTask={(path) => addTask(path)}
+            onIndentRight={(path) => indentRight(path)}
           />
         ))}
       </ul>
