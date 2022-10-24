@@ -90,6 +90,10 @@ const RootTask: React.FC = () => {
     let parent = pg[id];
     let grandparent = pg[parent];
 
+    if(!grandparent) {
+      return;
+    }
+
     // find index of parent in grandparent
     let indexOfParent = tg[grandparent].indexOf(parent);
 
