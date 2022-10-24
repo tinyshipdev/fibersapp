@@ -82,7 +82,7 @@ const RootTask: React.FC = () => {
     });
 
     // recompute the last digit in path array to keep it up to date for new list
-    for(let i = 0; i < parent.subtasks.length; i++) {
+    for(let i = insertAfter + 1; i < parent.subtasks.length; i++) {
       let p = parent.subtasks[i].path;
       p[p.length - 1] = i;
       parent.subtasks[i].path = p;
