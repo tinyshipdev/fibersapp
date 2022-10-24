@@ -10,8 +10,8 @@ export interface TaskData {
 
 const DEFAULT_TASKS: TaskData[] = [
   {
-    id: 'test',
-    value: 'test',
+    id: 'root',
+    value: 'root',
     path: [0],
     subtasks: [
       {
@@ -40,21 +40,53 @@ const DEFAULT_TASKS: TaskData[] = [
 const RootTask: React.FC = () => {
   const [tasks, setTasks] = useState<TaskData[]>(DEFAULT_TASKS);
 
-  function addTask(path: number[]) {
-    const newTasks = [...tasks];
+  // function findTask(path: number[]) {
+  //   const newTasks = [...tasks];
+  //
+  //   let item: any = newTasks[path[0]];
+  //
+  //   for(let i = 1; i < path.length; i++) {
+  //     item = item['subtasks'][path[i]];
+  //   }
+  //
+  //   return item;
+  // }
 
-    let item: any = newTasks[path[0]];
+  function findTaskParent(newTasks: TaskData[], path: number[]) {
 
-    for(let i = 1; i < path.length; i++) {
-      item = item['subtasks'][path[i]];
+    let items: any = newTasks[path[0]];
+
+    for(let i = 1; i < path.length - 1; i++) {
+      items = items['subtasks'][path[i]];
     }
 
-    item['subtasks'].push({
+    return items;
+  }
+
+
+  function addTask(path: number[]) {
+    const newTasks = [...tasks];
+    const newPath = [...path];
+
+    const parent: TaskData = findTaskParent(newTasks, newPath);
+
+    // we don't want to push to end of array, we want to push in-between the current element
+    const insertAfter = newPath[newPath.length - 1];
+    newPath[newPath.length - 1] += 1;
+
+    parent.subtasks.splice(insertAfter + 1, 0, {
       id: 'test1234'+Math.random(),
       value: 'dynamic'+Math.random(),
-      path: [...path, 0],
+      path: newPath,
       subtasks: []
     });
+
+    // recompute the last digit in path array to keep it up to date for new list
+    for(let i = 0; i < parent.subtasks.length; i++) {
+      let p = parent.subtasks[i].path;
+      p[p.length - 1] = i;
+      parent.subtasks[i].path = p;
+    }
 
     setTasks(newTasks);
   }
@@ -67,9 +99,10 @@ const RootTask: React.FC = () => {
             key={task?.id}
             id={task?.value}
             value={task?.value}
+            isRoot={true}
             path={task?.path}
             subtasks={task?.subtasks}
-            onAddSubTask={(id) => addTask(id)}
+            onAddTask={(path) => addTask(path)}
           />
         ))}
       </ul>

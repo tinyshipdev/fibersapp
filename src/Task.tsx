@@ -5,8 +5,9 @@ interface TaskProps {
   id: string;
   value: string;
   path: number[];
+  isRoot: boolean;
   subtasks: TaskData[];
-  onAddSubTask: (path: number[]) => void;
+  onAddTask: (path: number[]) => void;
 }
 
 const Task: React.FC<TaskProps> = ({
@@ -14,11 +15,12 @@ const Task: React.FC<TaskProps> = ({
   value,
   path,
   subtasks,
-  onAddSubTask
+  onAddTask,
+  isRoot,
 }) => {
-  return (
-    <li key={id}>
-      <p>{ value }</p>
+
+  if(isRoot) {
+    return (
       <ul>
         {subtasks?.map((task) => (
           <Task
@@ -26,12 +28,32 @@ const Task: React.FC<TaskProps> = ({
             id={task?.id}
             value={task?.value}
             path={task?.path}
+            isRoot={false}
             subtasks={task?.subtasks}
-            onAddSubTask={(path) => onAddSubTask(path)}
+            onAddTask={(path) => onAddTask(path)}
           />
         ))}
       </ul>
-      <button onClick={() => onAddSubTask(path)}>Add Subtask</button>
+    )
+  }
+
+  return (
+    <li key={id}>
+      <p>{ `${path}` } --- { value }</p>
+      <ul>
+        {subtasks?.map((task) => (
+          <Task
+            key={task?.id}
+            id={task?.id}
+            value={task?.value}
+            path={task?.path}
+            isRoot={false}
+            subtasks={task?.subtasks}
+            onAddTask={(path) => onAddTask(path)}
+          />
+        ))}
+      </ul>
+      <button onClick={() => onAddTask(path)}>Add Task</button>
     </li>
   );
 };
