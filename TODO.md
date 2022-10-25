@@ -10,7 +10,7 @@ Stuff I need to do to make this app work
   - indent right
   - add task
 
-- make text editable and reflected in state
+- ~~make text editable and reflected in state~~
 
 **After key stuff is done**
 
