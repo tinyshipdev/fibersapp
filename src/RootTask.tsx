@@ -113,6 +113,12 @@ const RootTask: React.FC = () => {
     setTaskGraph(tg);
   }
 
+  function handleChange(id: string, value: string) {
+    let n = {...nodes};
+    n[id].value = value;
+    setNodes(n);
+  }
+
   return (
     <div>
       <ul>
@@ -124,6 +130,7 @@ const RootTask: React.FC = () => {
           onAddTask={(id) => addTask(id)}
           onIndentRight={(id) => indentRight(id)}
           onIndentLeft={(id) => indentLeft(id)}
+          onChange={(id, value) => handleChange(id, value)}
         />
       </ul>
     </div>

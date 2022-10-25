@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useRef} from 'react';
 
 interface TaskNodeProps {
   id: string;
@@ -8,6 +8,7 @@ interface TaskNodeProps {
   onAddTask: (id: string) => void;
   onIndentRight: (id: string) => void;
   onIndentLeft: (id: string) => void;
+  onChange: (id: string, value: string) => void;
 }
 
 
@@ -19,7 +20,10 @@ const Task: React.FC<TaskNodeProps> = ({
   onAddTask,
   onIndentRight,
   onIndentLeft,
+  onChange,
 }) => {
+
+  const ref = useRef<HTMLSpanElement>(null);
 
   const graphMap = (
     <ul>
@@ -33,6 +37,7 @@ const Task: React.FC<TaskNodeProps> = ({
           onAddTask={(id) => onAddTask(id)}
           onIndentRight={(id) => onIndentRight(id)}
           onIndentLeft={(id) => onIndentLeft(id)}
+          onChange={(id, value) => onChange(id, value)}
         />
       ))}
     </ul>
@@ -46,7 +51,12 @@ const Task: React.FC<TaskNodeProps> = ({
     <li key={id}>
       <p>
         <button onClick={() => onIndentLeft(id)}>Indent Left</button>
-        <span>{value}</span>
+        <span
+          ref={ref}
+          contentEditable
+          onBlur={() => onChange(id, ref.current ? ref.current.innerText : value)}
+          suppressContentEditableWarning={true} // feels a bit dangerous but tired of warnings
+        >{value}</span>
         <button onClick={() => onAddTask(id)}>Add Task</button>
         <button onClick={() => onIndentRight(id)}>Indent Right</button>
       </p>
