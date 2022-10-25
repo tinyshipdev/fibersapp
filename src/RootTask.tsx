@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import { nanoid } from 'nanoid'
 import Task from "./Task";
 
 const DEFAULT_GRAPH: { [key: string]: string[] } = {
@@ -47,12 +48,14 @@ const RootTask: React.FC = () => {
     let tg = { ...taskGraph };
     let n = { ...nodes };
 
-    n['six'] = { value: 'six' };
-    pg['six'] = parentId;
-    tg['six'] = [];
+    const taskId = nanoid();
+
+    n[taskId] = { value: '' };
+    pg[taskId] = parentId;
+    tg[taskId] = [];
 
     let index = tg[parentId].indexOf(id);
-    tg[parentId].splice(index + 1, 0, 'six');
+    tg[parentId].splice(index + 1, 0, taskId);
 
     setNodes(n);
     setParentGraph(pg);
