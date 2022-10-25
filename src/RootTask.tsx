@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import { nanoid } from 'nanoid'
 import Task from "./Task";
 
@@ -36,6 +36,16 @@ const DEFAULT_NODES: { [key: string]: { value: string }} = {
   }
 }
 
+function refocusInput(id: string) {
+  setTimeout( () => {
+    const element = document.getElementById(id);
+
+    if(element) {
+      element.focus();
+    }
+  }, 10)
+}
+
 const RootTask: React.FC = () => {
   const [taskGraph, setTaskGraph] = useState(DEFAULT_GRAPH);
   const [parentGraph, setParentGraph] = useState(DEFAULT_PARENT_GRAPH);
@@ -60,6 +70,7 @@ const RootTask: React.FC = () => {
     setNodes(n);
     setParentGraph(pg);
     setTaskGraph(tg);
+    refocusInput(taskId);
   }
 
   function indentRight(id: string) {
@@ -83,6 +94,7 @@ const RootTask: React.FC = () => {
 
     setParentGraph(pg);
     setTaskGraph(tg);
+    refocusInput(id);
   }
 
   function indentLeft(id: string) {
@@ -114,6 +126,7 @@ const RootTask: React.FC = () => {
 
     setParentGraph(pg);
     setTaskGraph(tg);
+    refocusInput(id);
   }
 
   function handleChange(id: string, value: string) {
