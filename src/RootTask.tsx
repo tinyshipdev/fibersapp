@@ -46,10 +46,55 @@ function refocusInput(id: string) {
   }, 10)
 }
 
+const OVERRIDDEN_KEYS = ['Tab', 'Enter'];
+
 const RootTask: React.FC = () => {
   const [taskGraph, setTaskGraph] = useState(DEFAULT_GRAPH);
   const [parentGraph, setParentGraph] = useState(DEFAULT_PARENT_GRAPH);
   const [nodes, setNodes] = useState(DEFAULT_NODES);
+  const [keys, setKeys] = useState<{ [key: string]: boolean}>({});
+  const [current, setCurrent] = useState('');
+
+  useEffect(() => {
+    if(keys['Shift'] && keys['Tab']) {
+      indentLeft(current);
+      return;
+    }
+
+    if(keys['Tab']) {
+      indentRight(current);
+      return;
+    }
+
+    if(keys['Enter']) {
+      addTask(current);
+      return;
+    }
+  }, [keys])
+
+  function handleKeyDown(e:  React.KeyboardEvent) {
+    if(OVERRIDDEN_KEYS.includes(e.key)) {
+      e.preventDefault();
+    }
+
+    if(!keys[e.key]) {
+      let k = {...keys};
+      k[e.key] = true;
+      setKeys(k);
+    }
+  }
+
+  function handleKeyUp(e:  React.KeyboardEvent) {
+    if(OVERRIDDEN_KEYS.includes(e.key)) {
+      e.preventDefault();
+    }
+
+    if(keys[e.key]) {
+      let k = {...keys};
+      delete k[e.key];
+      setKeys(k);
+    }
+  }
 
   function addTask(id: string) {
     let parentId = parentGraph[id];
@@ -147,6 +192,9 @@ const RootTask: React.FC = () => {
           onIndentRight={(id) => indentRight(id)}
           onIndentLeft={(id) => indentLeft(id)}
           onChange={(id, value) => handleChange(id, value)}
+          onKeyUp={(e) => handleKeyUp(e)}
+          onKeyDown={(e) => handleKeyDown(e)}
+          onFocus={(id) => setCurrent(id)}
         />
       </ul>
     </div>

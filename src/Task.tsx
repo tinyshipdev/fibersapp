@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef} from 'react';
 
 interface TaskNodeProps {
   id: string;
@@ -9,9 +9,26 @@ interface TaskNodeProps {
   onIndentRight: (id: string) => void;
   onIndentLeft: (id: string) => void;
   onChange: (id: string, value: string) => void;
+  onKeyDown: (e: React.KeyboardEvent) => void;
+  onKeyUp: (e: React.KeyboardEvent) => void;
+  onFocus: (id: string) => void;
 }
 
-const OVERRIDDEN_KEYS = ['Tab', 'Enter'];
+function setCaret(id: string) {
+  const el: any = document.getElementById(id)
+  const range: any = document.createRange()
+  const sel: any = window.getSelection()
+
+
+  // TODO: this needs to keep the same caret position, not just go to the end.
+  if(el.childNodes[0]) {
+    range.setStart(el.childNodes[0], el.childNodes[0].length)
+    range.collapse(true)
+
+    sel.removeAllRanges()
+    sel.addRange(range)
+  }
+}
 
 const Task: React.FC<TaskNodeProps> = ({
   id,
@@ -22,34 +39,15 @@ const Task: React.FC<TaskNodeProps> = ({
   onIndentRight,
   onIndentLeft,
   onChange,
+  onKeyDown,
+  onKeyUp,
+  onFocus,
 }) => {
   const ref = useRef<HTMLSpanElement>(null);
-  const [keys, setKeys] = useState<{ [key: string]: boolean}>({});
 
   useEffect(() => {
-    console.log(keys);
-    if(keys['Shift'] && keys['Tab']) {
-      onIndentLeft(id);
-    } else if(keys['Tab']) {
-      onIndentRight(id);
-      return;
-    } else if(keys['Enter']) {
-      onAddTask(id);
-      return;
-    }
-  }, [keys])
-
-  function handleKeyDown(e:  React.KeyboardEvent<HTMLSpanElement>) {
-    let k = {...keys};
-    k[e.key] = true;
-    setKeys(k);
-  }
-
-  function handleKeyUp(e:  React.KeyboardEvent<HTMLSpanElement>) {
-    let k = {...keys};
-    delete k[e.key];
-    setKeys(k);
-  }
+    setCaret(id)
+  }, [id, value])
 
   const graphMap = (
     <ul>
@@ -64,6 +62,9 @@ const Task: React.FC<TaskNodeProps> = ({
           onIndentRight={(id) => onIndentRight(id)}
           onIndentLeft={(id) => onIndentLeft(id)}
           onChange={(id, value) => onChange(id, value)}
+          onKeyDown={(e) => onKeyDown(e)}
+          onKeyUp={(e) => onKeyUp(e)}
+          onFocus={(id) => onFocus(id)}
         />
       ))}
     </ul>
@@ -76,19 +77,19 @@ const Task: React.FC<TaskNodeProps> = ({
   return (
     <li key={id}>
       <p>
-        {/*<button onClick={() => onIndentLeft(id)}>Indent Left</button>*/}
         <span
           id={id}
           style={{ width: 100, display: 'inline-block'}}
           ref={ref}
           contentEditable={true}
-          onBlur={() => {onChange(id, ref.current ? ref.current.innerText : value)}}
-          onKeyDown={(e) => handleKeyDown(e)}
-          onKeyUp={(e) => handleKeyUp(e)}
+          onFocus={() => onFocus(id)}
+          onInput={(e) => {
+            onChange(id, e.currentTarget.innerText);
+          }}
+          onKeyDown={(e) => onKeyDown(e)}
+          onKeyUp={(e) => onKeyUp(e)}
           suppressContentEditableWarning={true} // feels a bit dangerous but tired of warnings
         >{value}</span>
-        {/*<button onClick={() => onAddTask(id)}>Add Task</button>*/}
-        {/*<button onClick={() => onIndentRight(id)}>Indent Right</button>*/}
       </p>
       {graphMap}
     </li>
