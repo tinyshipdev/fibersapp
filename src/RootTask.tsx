@@ -180,7 +180,7 @@ const RootTask: React.FC = () => {
 
   return (
     <div>
-      <ul>
+      <ul className={'list-disc'}>
         <Task
           id={'root'}
           value={nodes['root']?.value}

@@ -50,7 +50,7 @@ const Task: React.FC<TaskNodeProps> = ({
   }, [id, value])
 
   const graphMap = (
-    <ul>
+    <ul className={'list-disc'}>
       {graph[id]?.map((n: any) => (
         <Task
           key={n}
@@ -75,9 +75,10 @@ const Task: React.FC<TaskNodeProps> = ({
   }
 
   return (
-    <li key={id}>
+    <li key={id} className={'ml-10'}>
       <p>
         <span
+          className={'focus:outline-none'}
           id={id}
           style={{ width: 100, display: 'inline-block'}}
           ref={ref}

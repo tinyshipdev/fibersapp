@@ -1,11 +1,12 @@
-import React, {useEffect, useState} from 'react';
-import './App.css';
+import React from 'react';
 import RootTask from "./RootTask";
 
 function App() {
   return (
     <div className="App">
-      <RootTask/>
+      <div className="p-10">
+        <RootTask/>
+      </div>
     </div>
   );
 }
