@@ -89,11 +89,9 @@ const RootTask: React.FC = () => {
       e.preventDefault();
     }
 
-    if(keys[e.key]) {
-      let k = {...keys};
-      delete k[e.key];
-      setKeys(k);
-    }
+    let k = {...keys};
+    delete k[e.key];
+    setKeys(k);
   }
 
   function addTask(id: string) {
