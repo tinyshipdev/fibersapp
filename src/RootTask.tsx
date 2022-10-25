@@ -49,6 +49,7 @@ const RootTask: React.FC = () => {
 
     n['six'] = { value: 'six' };
     pg['six'] = parentId;
+    tg['six'] = [];
 
     let index = tg[parentId].indexOf(id);
     tg[parentId].splice(index + 1, 0, 'six');
@@ -89,6 +90,7 @@ const RootTask: React.FC = () => {
     // find grandparent
     let parent = pg[id];
     let grandparent = pg[parent];
+
 
     if(!grandparent) {
       return;
