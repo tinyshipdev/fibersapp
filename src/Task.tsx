@@ -53,40 +53,37 @@ const Task: React.FC<TaskNodeProps> = ({
     return graphMap;
   }
 
-  if(!graph[id].isExpanded && graph[id].children.length > 0) {
-    return (
-      <li key={id} className={'ml-10'}>
-        <p className={'flex items-center mb-2'}>
-          <button className={'w-6 h-6 text-slate-400 hover:text-black'} onClick={() => onExpand(id)}>
-            <ChevronRightIcon/>
-          </button>
-          <span>{value}</span>
-        </p>
-      </li>
-    )
-  }
+  const textSpan = (
+    <span
+      className={'focus:outline-none inline-block w-full'}
+      id={id}
+      ref={ref}
+      contentEditable={true}
+      onFocus={() => onFocus(id)}
+      onInput={(e) => {
+        onChange(id, e.currentTarget.innerText);
+      }}
+      onKeyDown={(e) => onKeyDown(e)}
+      onKeyUp={(e) => onKeyUp(e)}
+      suppressContentEditableWarning={true} // feels a bit dangerous but tired of warnings
+    >{value}</span>
+  );
 
   return (
     <li key={id} className={'ml-10'}>
       <p className={'flex items-center mb-2'}>
-        <button className={'w-6 h-6 text-slate-400 hover:text-black'} onClick={() => onCollapse(id)}>
-          <ChevronDownIcon/>
-        </button>
-        <span
-          className={'focus:outline-none inline-block w-full'}
-          id={id}
-          ref={ref}
-          contentEditable={true}
-          onFocus={() => onFocus(id)}
-          onInput={(e) => {
-            onChange(id, e.currentTarget.innerText);
-          }}
-          onKeyDown={(e) => onKeyDown(e)}
-          onKeyUp={(e) => onKeyUp(e)}
-          suppressContentEditableWarning={true} // feels a bit dangerous but tired of warnings
-        >{value}</span>
+        {graph[id].isExpanded && graph[id].children.length > 0 ? (
+          <button className={'w-6 h-6 text-slate-400 hover:text-black'} onClick={() => onCollapse(id)}>
+            <ChevronDownIcon/>
+          </button>
+        ) : (
+          <button className={'w-6 h-6 text-slate-400 hover:text-black'} onClick={() => onExpand(id)}>
+            <ChevronRightIcon/>
+          </button>
+        )}
+        {textSpan}
       </p>
-      {graphMap}
+      {graph[id].isExpanded && graph[id].children.length > 0 && graphMap}
     </li>
   );
 };
