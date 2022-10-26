@@ -2,15 +2,23 @@ import React, {useLayoutEffect, useState} from 'react';
 import { nanoid } from 'nanoid'
 import Task from "./Task";
 
-const DEFAULT_GRAPH: { [key: string]: string[] } = {
-  'root': ['one'],
-  'one': ['two', 'three'],
-  'two': ['five'],
-  'three': [],
-  'five': []
+export type TaskGraphInterface = {
+  [key: string]: { isExpanded: boolean, children: string[] }
 }
 
-const DEFAULT_PARENT_GRAPH: { [key: string]: string } = {
+export type TaskParentMapInterface = { [key: string]: string }
+
+export type NodesInterface = { [key: string]: { value: string }}
+
+const DEFAULT_GRAPH: TaskGraphInterface = {
+  'root': { isExpanded: true, children: ['one'] },
+  'one': { isExpanded: true, children: ['two', 'three'] },
+  'two': { isExpanded: false, children: ['five'] },
+  'three': { isExpanded: true, children: [] },
+  'five': { isExpanded: true, children: [] }
+}
+
+const DEFAULT_PARENT_GRAPH: TaskParentMapInterface = {
   'root': '',
   'one': 'root',
   'two': 'one',
@@ -18,7 +26,7 @@ const DEFAULT_PARENT_GRAPH: { [key: string]: string } = {
   'five': 'two'
 }
 
-const DEFAULT_NODES: { [key: string]: { value: string }} = {
+const DEFAULT_NODES: NodesInterface = {
   'root': {
     value: 'root'
   },
@@ -131,10 +139,10 @@ const RootTask: React.FC = () => {
     n[id].value = firstHalf;
     n[taskId] = { value: secondHalf };
     pg[taskId] = parentId;
-    tg[taskId] = [];
+    tg[taskId] = { isExpanded: true, children: [] };
 
-    let index = tg[parentId].indexOf(id);
-    tg[parentId].splice(index + 1, 0, taskId);
+    let index = tg[parentId].children.indexOf(id);
+    tg[parentId].children.splice(index + 1, 0, taskId);
 
     setNodes(n);
     setParentGraph(pg);
@@ -147,7 +155,7 @@ const RootTask: React.FC = () => {
     let tg = { ...taskGraph };
 
     let parentId = pg[id];
-    let subTasks = tg[parentId];
+    let subTasks = tg[parentId].children;
 
     let index = subTasks.indexOf(id);
     let previousKey = subTasks[index - 1];
@@ -156,7 +164,7 @@ const RootTask: React.FC = () => {
       return;
     }
 
-    tg[previousKey].push(id);
+    tg[previousKey].children.push(id);
     subTasks.splice(index, 1);
 
     pg[id] = previousKey;
@@ -181,14 +189,14 @@ const RootTask: React.FC = () => {
     }
 
     // find index of parent in grandparent
-    let indexOfParent = tg[grandparent].indexOf(parent);
+    let indexOfParent = tg[grandparent].children.indexOf(parent);
 
     // insert id after index of parent in grandparent
-    tg[grandparent].splice(indexOfParent + 1, 0, id);
+    tg[grandparent].children.splice(indexOfParent + 1, 0, id);
 
     // remove id as child of parent
-    let indexOfIdInParent = tg[parent].indexOf(id);
-    tg[parent].splice(indexOfIdInParent, 1);
+    let indexOfIdInParent = tg[parent].children.indexOf(id);
+    tg[parent].children.splice(indexOfIdInParent, 1);
 
     // update parent of id to be grandparent
     pg[id] = grandparent;
@@ -204,6 +212,24 @@ const RootTask: React.FC = () => {
     setNodes(n);
   }
 
+  function handleExpand(id: string) {
+    let tg = { ...taskGraph };
+
+    if(!tg[id].isExpanded) {
+      tg[id].isExpanded = true;
+      setTaskGraph(tg);
+    }
+  }
+
+  function handleCollapse(id: string) {
+    let tg = { ...taskGraph };
+
+    if(tg[id].isExpanded) {
+      tg[id].isExpanded = false;
+      setTaskGraph(tg);
+    }
+  }
+
   return (
     <div>
       <ul className={'list-disc'}>
@@ -216,6 +242,8 @@ const RootTask: React.FC = () => {
           onKeyUp={(e) => handleKeyUp(e)}
           onKeyDown={(e) => handleKeyDown(e)}
           onFocus={(id) => setCurrentTaskId(id)}
+          onExpand={(id) => handleExpand(id)}
+          onCollapse={(id) => handleCollapse(id)}
         />
       </ul>
     </div>
