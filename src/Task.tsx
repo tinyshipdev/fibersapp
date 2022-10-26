@@ -14,15 +14,14 @@ interface TaskNodeProps {
   onFocus: (id: string) => void;
 }
 
-function setCaret(id: string) {
+function setCaret(id: string, pos: number) {
   const el: any = document.getElementById(id)
   const range: any = document.createRange()
   const sel: any = window.getSelection()
 
-
   // TODO: this needs to keep the same caret position, not just go to the end.
   if(el.childNodes[0]) {
-    range.setStart(el.childNodes[0], el.childNodes[0].length)
+    range.setStart(el.childNodes[0], pos)
     range.collapse(true)
 
     sel.removeAllRanges()
@@ -45,9 +44,16 @@ const Task: React.FC<TaskNodeProps> = ({
 }) => {
   const ref = useRef<HTMLSpanElement>(null);
 
+  let caretPos = 0;
+
+  // find the position of the cursor within this task
+  if(document?.getSelection()?.anchorNode?.parentNode === document.activeElement) {
+    caretPos = document?.getSelection()?.anchorOffset || 0;
+  }
+
   useEffect(() => {
-    setCaret(id)
-  }, [id, value])
+    setCaret(id, caretPos)
+  }, [])
 
   const graphMap = (
     <ul className={'list-disc'}>

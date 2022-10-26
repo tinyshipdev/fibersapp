@@ -95,6 +95,13 @@ const RootTask: React.FC = () => {
   }
 
   function addTask(id: string) {
+
+    // TODO: improve add task
+    /**
+     * when we add a task, we might be halfway through a word
+     * when we hit enter, we want to split the word and create a new task with the second
+     * half of that word.
+     */
     let parentId = parentGraph[id];
 
     let pg = { ...parentGraph };
