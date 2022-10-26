@@ -1,5 +1,6 @@
 import React, {useRef} from 'react';
 import {NodesInterface, TaskGraphInterface} from "./RootTask";
+import {ChevronDownIcon, ChevronRightIcon} from "@heroicons/react/20/solid";
 
 interface TaskNodeProps {
   id: string;
@@ -29,7 +30,7 @@ const Task: React.FC<TaskNodeProps> = ({
   const ref = useRef<HTMLSpanElement>(null);
 
   const graphMap = (
-    <ul className={'list-disc'}>
+    <ul className={'list-none'}>
       {graph[id]?.children?.map((n: any) => (
         <Task
           key={n}
@@ -52,21 +53,27 @@ const Task: React.FC<TaskNodeProps> = ({
     return graphMap;
   }
 
-  if(!graph[id].isExpanded) {
+  if(!graph[id].isExpanded && graph[id].children.length > 0) {
     return (
       <li key={id} className={'ml-10'}>
-        <button className={'bg-red-400'} onClick={() => onExpand(id)}>Expand</button>
-        <p className={'text-slate-400'}><span>{value}</span></p>
+        <p className={'flex items-center mb-2'}>
+          <button className={'w-6 h-6 text-slate-400 hover:text-black'} onClick={() => onExpand(id)}>
+            <ChevronRightIcon/>
+          </button>
+          <span>{value}</span>
+        </p>
       </li>
     )
   }
 
   return (
     <li key={id} className={'ml-10'}>
-      <p>
-        <button className={'bg-red-400'} onClick={() => onCollapse(id)}>Collapse</button>
+      <p className={'flex items-center mb-2'}>
+        <button className={'w-6 h-6 text-slate-400 hover:text-black'} onClick={() => onCollapse(id)}>
+          <ChevronDownIcon/>
+        </button>
         <span
-          className={'focus:outline-none inline-block'}
+          className={'focus:outline-none inline-block w-full'}
           id={id}
           ref={ref}
           contentEditable={true}

@@ -231,22 +231,18 @@ const RootTask: React.FC = () => {
   }
 
   return (
-    <div>
-      <ul className={'list-disc'}>
-        <Task
-          id={'root'}
-          value={nodes['root']?.value}
-          graph={taskGraph}
-          nodes={nodes}
-          onChange={(id, value) => handleChange(id, value)}
-          onKeyUp={(e) => handleKeyUp(e)}
-          onKeyDown={(e) => handleKeyDown(e)}
-          onFocus={(id) => setCurrentTaskId(id)}
-          onExpand={(id) => handleExpand(id)}
-          onCollapse={(id) => handleCollapse(id)}
-        />
-      </ul>
-    </div>
+    <Task
+      id={'root'}
+      value={nodes['root']?.value}
+      graph={taskGraph}
+      nodes={nodes}
+      onChange={(id, value) => handleChange(id, value)}
+      onKeyUp={(e) => handleKeyUp(e)}
+      onKeyDown={(e) => handleKeyDown(e)}
+      onFocus={(id) => setCurrentTaskId(id)}
+      onExpand={(id) => handleExpand(id)}
+      onCollapse={(id) => handleCollapse(id)}
+    />
   );
 };
 
