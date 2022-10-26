@@ -140,6 +140,14 @@ const RootTask: React.FC = () => {
       indentRight(currentTaskId);
     } else if(keys['Enter']) {
       addTask(currentTaskId);
+    } else if(keys['Backspace']) {
+      if(!nodes[currentTaskId].value) {
+        deleteTask(currentTaskId);
+      }
+    } else if(keys['ArrowUp']) {
+      moveUp(currentTaskId);
+    } else if(keys['ArrowDown']) {
+      moveDown(currentTaskId);
     }
   }, [keys]) // TODO: fix this deps array warning, it breaks whatever i try lol
 
@@ -187,8 +195,8 @@ const RootTask: React.FC = () => {
     pg[taskId] = parentId;
     tg[taskId] = { isExpanded: true, children: [] };
 
-    let index = tg[parentId].children.indexOf(id);
-    tg[parentId].children.splice(index + 1, 0, taskId);
+    let index = tg[parentId]?.children.indexOf(id);
+    tg[parentId]?.children.splice(index + 1, 0, taskId);
 
     setNodes(n);
     setParentMap(pg);
@@ -201,7 +209,7 @@ const RootTask: React.FC = () => {
     let tg = { ...taskGraph };
 
     let parentId = pg[id];
-    let subTasks = tg[parentId].children;
+    let subTasks = tg[parentId]?.children;
 
     let index = subTasks.indexOf(id);
     let previousKey = subTasks[index - 1];
@@ -210,7 +218,7 @@ const RootTask: React.FC = () => {
       return;
     }
 
-    tg[previousKey].children.push(id);
+    tg[previousKey]?.children.push(id);
     subTasks.splice(index, 1);
 
     pg[id] = previousKey;
@@ -235,14 +243,14 @@ const RootTask: React.FC = () => {
     }
 
     // find index of parent in grandparent
-    let indexOfParent = tg[grandparent].children.indexOf(parent);
+    let indexOfParent = tg[grandparent]?.children.indexOf(parent);
 
     // insert id after index of parent in grandparent
-    tg[grandparent].children.splice(indexOfParent + 1, 0, id);
+    tg[grandparent]?.children.splice(indexOfParent + 1, 0, id);
 
     // remove id as child of parent
-    let indexOfIdInParent = tg[parent].children.indexOf(id);
-    tg[parent].children.splice(indexOfIdInParent, 1);
+    let indexOfIdInParent = tg[parent]?.children.indexOf(id);
+    tg[parent]?.children.splice(indexOfIdInParent, 1);
 
     // update parent of id to be grandparent
     pg[id] = grandparent;
@@ -250,6 +258,52 @@ const RootTask: React.FC = () => {
     setParentMap(pg);
     setTaskGraph(tg);
     refocusInput(id, caretOffset);
+  }
+
+  function moveUp(id: string) {
+    if(caretOffset === 0) {
+
+      const parent = parentMap[id];
+      const previousSiblingIndex = taskGraph[parent]?.children?.indexOf(id) - 1;
+      const previousSibling = taskGraph[parent]?.children[previousSiblingIndex];
+
+      if(previousSibling) {
+        if(taskGraph[previousSibling].children.length > 0) {
+          // TODO: recursively find the last child of previous sibling
+          refocusInput(taskGraph[previousSibling].children[taskGraph[previousSibling].children.length - 1], 0);
+        } else {
+          refocusInput(previousSibling, 0);
+        }
+      } else {
+        refocusInput(parent, 0);
+      }
+    }
+  }
+
+  function moveDown(id: string) {
+    if(caretOffset === nodes[id].value.length) {
+      const parent = parentMap[id];
+      const index = taskGraph[parent]?.children.indexOf(id);
+      const sibling = taskGraph[parent]?.children[index + 1];
+      const grandparent = parentMap[parent];
+      const parentIndex = taskGraph[grandparent]?.children.indexOf(parent);
+      const parentSibling = taskGraph[grandparent]?.children[parentIndex + 1];
+
+      // TODO: recursively find correct next focus
+      if(taskGraph[id]?.children.length > 0) {
+          refocusInput(taskGraph[id]?.children[0], 0);
+      } else if (sibling) {
+        refocusInput(sibling, 0);
+      } else if (parentSibling){
+        refocusInput(parentSibling, 0);
+      }
+    }
+  }
+
+  function deleteTask(id: string) {
+    // remove task as child of parent
+    // move all children to same level as task
+    // remove all references to task
   }
 
   function handleChange(id: string, value: string) {
