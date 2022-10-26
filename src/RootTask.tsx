@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useLayoutEffect, useState} from 'react';
 import { nanoid } from 'nanoid'
 import Task from "./Task";
 
@@ -73,28 +73,21 @@ const RootTask: React.FC = () => {
   const caretOffset = window?.getSelection()?.anchorOffset || 0;
 
   // weird thing to handle keeping the caret and the end when typing
-  useEffect(() => {
+  useLayoutEffect(() => {
     if(currentTaskId) {
       setCaret(currentTaskId, nodes[currentTaskId].value.length)
     }
   }, [currentTaskId, nodes]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if(keys['Shift'] && keys['Tab']) {
       indentLeft(currentTaskId);
-      return;
-    }
-
-    if(keys['Tab']) {
+    } else if(keys['Tab']) {
       indentRight(currentTaskId);
-      return;
-    }
-
-    if(keys['Enter']) {
+    } else if(keys['Enter']) {
       addTask(currentTaskId);
-      return;
     }
-  }, [keys])
+  }, [keys]) // TODO: fix this deps array warning, it breaks whatever i try lol
 
   function handleKeyDown(e:  React.KeyboardEvent) {
     if(OVERRIDDEN_KEYS.includes(e.key)) {
