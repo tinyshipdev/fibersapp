@@ -36,7 +36,8 @@ const DEFAULT_NODES: { [key: string]: { value: string }} = {
   }
 }
 
-function setCaret(el: HTMLElement, pos: number) {
+function setCaret(id: string, pos: number) {
+  const el: any = document.getElementById(id);
   const range: any = document.createRange()
   const sel: any = window.getSelection()
 
@@ -55,7 +56,7 @@ function refocusInput(id: string, pos: number) {
 
     if(element) {
       element.focus();
-      setCaret(element, pos)
+      setCaret(id, pos)
     }
   }, 10)
 }
@@ -70,6 +71,13 @@ const RootTask: React.FC = () => {
   const [currentTaskId, setCurrentTaskId] = useState('');
 
   const caretOffset = window?.getSelection()?.anchorOffset || 0;
+
+  // weird thing to handle keeping the caret and the end when typing
+  useEffect(() => {
+    if(currentTaskId) {
+      setCaret(currentTaskId, nodes[currentTaskId].value.length)
+    }
+  }, [currentTaskId, nodes]);
 
   useEffect(() => {
     if(keys['Shift'] && keys['Tab']) {

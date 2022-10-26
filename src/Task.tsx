@@ -11,8 +11,6 @@ interface TaskNodeProps {
   onFocus: (id: string) => void;
 }
 
-
-
 const Task: React.FC<TaskNodeProps> = ({
   id,
   value,
