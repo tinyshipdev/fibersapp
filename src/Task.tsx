@@ -49,9 +49,8 @@ const Task: React.FC<TaskNodeProps> = ({
     <li key={id} className={'ml-10'}>
       <p>
         <span
-          className={'focus:outline-none'}
+          className={'focus:outline-none inline-block'}
           id={id}
-          style={{ width: 100, display: 'inline-block'}}
           ref={ref}
           contentEditable={true}
           onFocus={() => onFocus(id)}
