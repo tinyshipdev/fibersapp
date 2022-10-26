@@ -36,12 +36,26 @@ const DEFAULT_NODES: { [key: string]: { value: string }} = {
   }
 }
 
-function refocusInput(id: string) {
+function setCaret(el: HTMLElement, pos: number) {
+  const range: any = document.createRange()
+  const sel: any = window.getSelection()
+
+  if(el.childNodes[0]) {
+    range.setStart(el.childNodes[0], pos)
+    range.collapse(true)
+
+    sel.removeAllRanges()
+    sel.addRange(range)
+  }
+}
+
+function refocusInput(id: string, pos: number) {
   setTimeout( () => {
     const element = document.getElementById(id);
 
     if(element) {
       element.focus();
+      setCaret(element, pos)
     }
   }, 10)
 }
@@ -53,21 +67,23 @@ const RootTask: React.FC = () => {
   const [parentGraph, setParentGraph] = useState(DEFAULT_PARENT_GRAPH);
   const [nodes, setNodes] = useState(DEFAULT_NODES);
   const [keys, setKeys] = useState<{ [key: string]: boolean}>({});
-  const [current, setCurrent] = useState('');
+  const [currentTaskId, setCurrentTaskId] = useState('');
+
+  const caretOffset = window?.getSelection()?.anchorOffset || 0;
 
   useEffect(() => {
     if(keys['Shift'] && keys['Tab']) {
-      indentLeft(current);
+      indentLeft(currentTaskId);
       return;
     }
 
     if(keys['Tab']) {
-      indentRight(current);
+      indentRight(currentTaskId);
       return;
     }
 
     if(keys['Enter']) {
-      addTask(current);
+      addTask(currentTaskId);
       return;
     }
   }, [keys])
@@ -95,8 +111,6 @@ const RootTask: React.FC = () => {
   }
 
   function addTask(id: string) {
-
-    // TODO: improve add task
     /**
      * when we add a task, we might be halfway through a word
      * when we hit enter, we want to split the word and create a new task with the second
@@ -108,9 +122,13 @@ const RootTask: React.FC = () => {
     let tg = { ...taskGraph };
     let n = { ...nodes };
 
+    let firstHalf = n[id].value.slice(0, caretOffset);
+    let secondHalf = n[id].value.slice(caretOffset);
+
     const taskId = nanoid();
 
-    n[taskId] = { value: '' };
+    n[id].value = firstHalf;
+    n[taskId] = { value: secondHalf };
     pg[taskId] = parentId;
     tg[taskId] = [];
 
@@ -120,7 +138,7 @@ const RootTask: React.FC = () => {
     setNodes(n);
     setParentGraph(pg);
     setTaskGraph(tg);
-    refocusInput(taskId);
+    refocusInput(taskId, 0);
   }
 
   function indentRight(id: string) {
@@ -144,7 +162,7 @@ const RootTask: React.FC = () => {
 
     setParentGraph(pg);
     setTaskGraph(tg);
-    refocusInput(id);
+    refocusInput(id, caretOffset);
   }
 
   function indentLeft(id: string) {
@@ -176,7 +194,7 @@ const RootTask: React.FC = () => {
 
     setParentGraph(pg);
     setTaskGraph(tg);
-    refocusInput(id);
+    refocusInput(id, caretOffset);
   }
 
   function handleChange(id: string, value: string) {
@@ -193,13 +211,10 @@ const RootTask: React.FC = () => {
           value={nodes['root']?.value}
           graph={taskGraph}
           nodes={nodes}
-          onAddTask={(id) => addTask(id)}
-          onIndentRight={(id) => indentRight(id)}
-          onIndentLeft={(id) => indentLeft(id)}
           onChange={(id, value) => handleChange(id, value)}
           onKeyUp={(e) => handleKeyUp(e)}
           onKeyDown={(e) => handleKeyDown(e)}
-          onFocus={(id) => setCurrent(id)}
+          onFocus={(id) => setCurrentTaskId(id)}
         />
       </ul>
     </div>
