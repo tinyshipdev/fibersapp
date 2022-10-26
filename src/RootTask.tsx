@@ -119,19 +119,12 @@ const RootTask: React.FC = () => {
   useEffect(() => {
     const timer = setInterval(() => {
       saveState(taskGraph, parentMap, nodes);
-    }, 1000);
+    }, 5000);
 
     return () => {
       clearTimeout(timer);
     }
   }, [nodes, parentMap, taskGraph]);
-
-  // weird thing to handle keeping the caret and the end when typing
-  useLayoutEffect(() => {
-    if(currentTaskId) {
-      setCaret(currentTaskId, nodes[currentTaskId].value.length)
-    }
-  }, [currentTaskId, nodes]);
 
   useLayoutEffect(() => {
     if(keys['Shift'] && keys['Tab']) {
@@ -281,22 +274,31 @@ const RootTask: React.FC = () => {
   }
 
   function moveDown(id: string) {
-    if(caretOffset === nodes[id].value.length) {
-      const parent = parentMap[id];
-      const index = taskGraph[parent]?.children.indexOf(id);
-      const sibling = taskGraph[parent]?.children[index + 1];
-      const grandparent = parentMap[parent];
-      const parentIndex = taskGraph[grandparent]?.children.indexOf(parent);
-      const parentSibling = taskGraph[grandparent]?.children[parentIndex + 1];
+    if(caretOffset !== nodes[id].value.length) {
+      return;
+    }
 
-      // TODO: recursively find correct next focus
-      if(taskGraph[id]?.children.length > 0) {
-          refocusInput(taskGraph[id]?.children[0], 0);
-      } else if (sibling) {
-        refocusInput(sibling, 0);
-      } else if (parentSibling){
-        refocusInput(parentSibling, 0);
-      }
+    // if the current item is collapsed, move to the next sibling
+    const parent = parentMap[id];
+    const index = taskGraph[parent]?.children.indexOf(id);
+    const sibling = taskGraph[parent]?.children[index + 1];
+
+    if(!taskGraph[id].isExpanded) {
+      refocusInput(sibling, 0);
+      return;
+    }
+
+    const grandparent = parentMap[parent];
+    const parentIndex = taskGraph[grandparent]?.children.indexOf(parent);
+    const parentSibling = taskGraph[grandparent]?.children[parentIndex + 1];
+
+    // TODO: recursively find correct next focus
+    if(taskGraph[id]?.children.length > 0) {
+        refocusInput(taskGraph[id]?.children[0], 0);
+    } else if (sibling) {
+      refocusInput(sibling, 0);
+    } else if (parentSibling){
+      refocusInput(parentSibling, 0);
     }
   }
 

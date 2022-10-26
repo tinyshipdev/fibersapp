@@ -60,9 +60,7 @@ const Task: React.FC<TaskNodeProps> = ({
       ref={ref}
       contentEditable={true}
       onFocus={() => onFocus(id)}
-      onInput={(e) => {
-        onChange(id, e.currentTarget.innerText);
-      }}
+      onBlur={(e) => onChange(id, e.currentTarget.innerText)}
       onKeyDown={(e) => onKeyDown(e)}
       onKeyUp={(e) => onKeyUp(e)}
       suppressContentEditableWarning={true} // feels a bit dangerous but tired of warnings
