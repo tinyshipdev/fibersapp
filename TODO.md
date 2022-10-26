@@ -2,8 +2,8 @@ Stuff I need to do to make this app work
 
 **Most urgent**
 
-- expand and collapse items
-  - add attribute to taskGraph to set whether expanded or collapsed
+- ~~expand and collapse items~~
+  - ~~add attribute to taskGraph to set whether expanded or collapsed~~
 
 - ~~add key listeners to perform actions:~~
   - ~~indent left~~
