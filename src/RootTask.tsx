@@ -119,7 +119,7 @@ const RootTask: React.FC = () => {
   useEffect(() => {
     const timer = setInterval(() => {
       saveState(taskGraph, parentMap, nodes);
-    }, 5000);
+    }, 1000);
 
     return () => {
       clearTimeout(timer);
