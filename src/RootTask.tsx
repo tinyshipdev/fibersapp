@@ -1,4 +1,4 @@
-import React, {useLayoutEffect, useState} from 'react';
+import React, {useEffect, useLayoutEffect, useState} from 'react';
 import { nanoid } from 'nanoid'
 import Task from "./Task";
 
@@ -69,16 +69,62 @@ function refocusInput(id: string, pos: number) {
   }, 10)
 }
 
+function getDefaultTaskGraph() {
+  if(window.localStorage.getItem('tasks')) {
+    return JSON.parse(window.localStorage.getItem('tasks') || '')?.taskGraph;
+  } else {
+    return DEFAULT_GRAPH;
+  }
+}
+
+function getDefaultParentMap() {
+  if(window.localStorage.getItem('tasks')) {
+    return JSON.parse(window.localStorage.getItem('tasks') || '')?.parentMap;
+  } else {
+    return DEFAULT_PARENT_GRAPH;
+  }
+}
+
+function getDefaultNodes() {
+  if(window.localStorage.getItem('tasks')) {
+    return JSON.parse(window.localStorage.getItem('tasks') || '')?.nodes;
+  } else {
+    return DEFAULT_NODES;
+  }
+}
+
+function saveState(taskGraph: TaskGraphInterface, parentMap: TaskParentMapInterface, nodes: NodesInterface) {
+  window.localStorage.setItem('tasks', JSON.stringify({
+    taskGraph,
+    parentMap,
+    nodes
+  }));
+}
+
 const OVERRIDDEN_KEYS = ['Tab', 'Enter'];
 
 const RootTask: React.FC = () => {
-  const [taskGraph, setTaskGraph] = useState(DEFAULT_GRAPH);
-  const [parentGraph, setParentGraph] = useState(DEFAULT_PARENT_GRAPH);
-  const [nodes, setNodes] = useState(DEFAULT_NODES);
+  const [taskGraph, setTaskGraph] = useState<TaskGraphInterface>(() => getDefaultTaskGraph());
+  const [parentMap, setParentMap] = useState<TaskParentMapInterface>(() => getDefaultParentMap());
+  const [nodes, setNodes] = useState<NodesInterface>(() => getDefaultNodes());
   const [keys, setKeys] = useState<{ [key: string]: boolean}>({});
   const [currentTaskId, setCurrentTaskId] = useState('');
 
   const caretOffset = window?.getSelection()?.anchorOffset || 0;
+
+  /**
+   * I'm not sure how this works, but somehow it's working perfectly
+   * it saves every second, but only if you're not editing.
+   */
+  useEffect(() => {
+    const timer = setInterval(() => {
+      saveState(taskGraph, parentMap, nodes);
+    }, 1000);
+
+    return () => {
+      clearTimeout(timer);
+    }
+  }, [nodes, parentMap, taskGraph]);
 
   // weird thing to handle keeping the caret and the end when typing
   useLayoutEffect(() => {
@@ -125,9 +171,9 @@ const RootTask: React.FC = () => {
      * when we hit enter, we want to split the word and create a new task with the second
      * half of that word.
      */
-    let parentId = parentGraph[id];
+    let parentId = parentMap[id];
 
-    let pg = { ...parentGraph };
+    let pg = { ...parentMap };
     let tg = { ...taskGraph };
     let n = { ...nodes };
 
@@ -145,13 +191,13 @@ const RootTask: React.FC = () => {
     tg[parentId].children.splice(index + 1, 0, taskId);
 
     setNodes(n);
-    setParentGraph(pg);
+    setParentMap(pg);
     setTaskGraph(tg);
     refocusInput(taskId, 0);
   }
 
   function indentRight(id: string) {
-    let pg = { ...parentGraph };
+    let pg = { ...parentMap };
     let tg = { ...taskGraph };
 
     let parentId = pg[id];
@@ -169,13 +215,13 @@ const RootTask: React.FC = () => {
 
     pg[id] = previousKey;
 
-    setParentGraph(pg);
+    setParentMap(pg);
     setTaskGraph(tg);
     refocusInput(id, caretOffset);
   }
 
   function indentLeft(id: string) {
-    let pg = { ...parentGraph };
+    let pg = { ...parentMap };
     let tg = { ...taskGraph };
 
     // find parent
@@ -201,7 +247,7 @@ const RootTask: React.FC = () => {
     // update parent of id to be grandparent
     pg[id] = grandparent;
 
-    setParentGraph(pg);
+    setParentMap(pg);
     setTaskGraph(tg);
     refocusInput(id, caretOffset);
   }
