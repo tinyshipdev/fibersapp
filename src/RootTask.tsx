@@ -291,15 +291,29 @@ const RootTask: React.FC = () => {
       const previousSiblingIndex = taskGraph[parent]?.children?.indexOf(id) - 1;
       const previousSibling = taskGraph[parent]?.children[previousSiblingIndex];
 
-      if(previousSibling) {
-        if(taskGraph[previousSibling].children.length > 0) {
-          const lastChild = findLastChild(taskGraph, previousSibling);
-          refocusInput(lastChild, nodes[lastChild].value.length);
-        } else {
-          refocusInput(previousSibling, nodes[previousSibling].value.length);
-        }
-      } else {
+      // if there is no previous sibling, go to parent
+      if(!previousSibling) {
         refocusInput(parent, nodes[parent].value.length);
+        return;
+      }
+
+      // if previous sibling is collapsed, go to previous sibling
+      if(!taskGraph[previousSibling].isExpanded) {
+        refocusInput(previousSibling, nodes[previousSibling].value.length);
+        return;
+      }
+
+      // if current has previous sibling and previous sibling has children, find the very last child recursively
+      if(previousSibling && taskGraph[previousSibling].children.length > 0) {
+        const lastChild = findLastChild(taskGraph, previousSibling);
+        refocusInput(lastChild, nodes[lastChild].value.length);
+        return;
+      }
+
+      // if current has previous sibling, but previous sibling has no children, move to previous sibling
+      if(previousSibling && taskGraph[previousSibling].children.length === 0) {
+        refocusInput(previousSibling, nodes[previousSibling].value.length);
+        return;
       }
     }
   }
