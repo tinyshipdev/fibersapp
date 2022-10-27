@@ -82,11 +82,11 @@ const Task: React.FC<TaskNodeProps> = ({
     <li key={id} className={'ml-10'}>
       <p className={'flex items-center mb-2'}>
         {graph[id].isExpanded && graph[id].children.length > 0 ? (
-          <button className={'w-6 h-6 text-slate-400 hover:text-black'} onClick={() => onCollapse(id)}>
+          <button className={'w-6 h-6 text-slate-300 hover:text-black'} onClick={() => onCollapse(id)}>
             <ChevronDownIcon/>
           </button>
         ) : (
-          <button className={'w-6 h-6 text-slate-400 hover:text-black'} onClick={() => onExpand(id)}>
+          <button className={`w-6 h-6 ${graph[id].children.length > 0 ? 'text-slate-300 hover:text-black' : 'text-slate-100'}`} onClick={() => onExpand(id)}>
             <ChevronRightIcon/>
           </button>
         )}
