@@ -140,6 +140,7 @@ const RootTask: React.FC = () => {
   const [nodes, setNodes] = useState<NodesInterface>(() => getDefaultNodes());
   const [keys, setKeys] = useState<{ [key: string]: boolean}>({});
   const [currentTaskId, setCurrentTaskId] = useState('');
+  const [focusedNode, setFocusedNode] = useState('root');
 
   const caretOffset = window?.getSelection()?.anchorOffset || 0;
 
@@ -428,20 +429,32 @@ const RootTask: React.FC = () => {
     }
   }
 
+  function handleZoom(id: string) {
+    // TODO: generate breadcrumbs
+    setFocusedNode(id);
+  }
+
   return (
-    <Task
-      id={'root'}
-      value={nodes['root']?.value}
-      graph={taskGraph}
-      nodes={nodes}
-      onChange={(id, value) => handleChange(id, value)}
-      onKeyUp={(e) => handleKeyUp(e)}
-      onKeyDown={(e) => handleKeyDown(e)}
-      onFocus={(id) => setCurrentTaskId(id)}
-      onExpand={(id) => handleExpand(id)}
-      onCollapse={(id) => handleCollapse(id)}
-      onDelete={(id) => handleDelete(id)}
-    />
+    <ul>
+      <button
+        className={'mb-10 bg-slate-300 p-3 rounded py-2'}
+        onClick={() => handleZoom('root')}
+      >Reset View</button>
+      <Task
+        id={focusedNode}
+        value={nodes[focusedNode]?.value}
+        graph={taskGraph}
+        nodes={nodes}
+        onChange={(id, value) => handleChange(id, value)}
+        onKeyUp={(e) => handleKeyUp(e)}
+        onKeyDown={(e) => handleKeyDown(e)}
+        onFocus={(id) => setCurrentTaskId(id)}
+        onExpand={(id) => handleExpand(id)}
+        onCollapse={(id) => handleCollapse(id)}
+        onDelete={(id) => handleDelete(id)}
+        onZoom={(id) => handleZoom(id)}
+      />
+    </ul>
   );
 };
 

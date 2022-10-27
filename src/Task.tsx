@@ -15,6 +15,7 @@ interface TaskNodeProps {
   onExpand: (id: string) => void;
   onCollapse: (id: string) => void;
   onDelete: (id: string) => void;
+  onZoom: (id: string) => void;
 }
 
 const Task: React.FC<TaskNodeProps> = ({
@@ -29,6 +30,7 @@ const Task: React.FC<TaskNodeProps> = ({
   onExpand,
   onCollapse,
   onDelete,
+  onZoom,
 }) => {
   const ref = useRef<HTMLSpanElement>(null);
 
@@ -48,6 +50,7 @@ const Task: React.FC<TaskNodeProps> = ({
           onExpand={(id) => onExpand(id)}
           onCollapse={(id) => onCollapse(id)}
           onDelete={(id) => onDelete(id)}
+          onZoom={(id) => onZoom(id)}
         />
       ))}
     </ul>
@@ -82,7 +85,7 @@ const Task: React.FC<TaskNodeProps> = ({
   return (
     <li key={id} className={'ml-10'}>
       <p className={'flex items-center mb-2 group'}>
-        <button>
+        <button onClick={() => onZoom(id)}>
           <MagnifyingGlassPlusIcon className={'w-4 h-4 text-slate-400 opacity-0 group-hover:opacity-100 ease-in duration-100'}/>
         </button>
         {graph[id].isExpanded && graph[id].children.length > 0 ? (
