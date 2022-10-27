@@ -1,6 +1,7 @@
 import React, {useRef} from 'react';
 import {ACTION_KEYS, NodesInterface, TaskGraphInterface} from "./RootTask";
 import {ChevronDownIcon, ChevronRightIcon} from "@heroicons/react/20/solid";
+import {MagnifyingGlassPlusIcon} from "@heroicons/react/24/outline";
 
 interface TaskNodeProps {
   id: string;
@@ -80,7 +81,10 @@ const Task: React.FC<TaskNodeProps> = ({
 
   return (
     <li key={id} className={'ml-10'}>
-      <p className={'flex items-center mb-2'}>
+      <p className={'flex items-center mb-2 group'}>
+        <button>
+          <MagnifyingGlassPlusIcon className={'w-4 h-4 text-slate-400 opacity-0 group-hover:opacity-100 ease-in duration-100'}/>
+        </button>
         {graph[id].isExpanded && graph[id].children.length > 0 ? (
           <button className={'w-6 h-6 text-slate-400 hover:text-black'} onClick={() => onCollapse(id)}>
             <ChevronDownIcon/>
