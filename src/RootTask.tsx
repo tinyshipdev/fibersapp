@@ -132,7 +132,7 @@ function saveState(taskGraph: TaskGraphInterface, parentMap: TaskParentMapInterf
   }));
 }
 
-const OVERRIDDEN_KEYS = ['Tab', 'Enter'];
+export const ACTION_KEYS = ['Tab', 'Enter'];
 
 const RootTask: React.FC = () => {
   const [taskGraph, setTaskGraph] = useState<TaskGraphInterface>(() => getDefaultTaskGraph());
@@ -176,7 +176,7 @@ const RootTask: React.FC = () => {
   }, [keys]) // TODO: fix this deps array warning, it breaks whatever i try lol
 
   function handleKeyDown(e:  React.KeyboardEvent) {
-    if(OVERRIDDEN_KEYS.includes(e.key)) {
+    if(ACTION_KEYS.includes(e.key)) {
       e.preventDefault();
     }
 
@@ -188,7 +188,7 @@ const RootTask: React.FC = () => {
   }
 
   function handleKeyUp(e:  React.KeyboardEvent) {
-    if(OVERRIDDEN_KEYS.includes(e.key)) {
+    if(ACTION_KEYS.includes(e.key)) {
       e.preventDefault();
     }
 

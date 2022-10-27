@@ -1,5 +1,5 @@
 import React, {useRef} from 'react';
-import {NodesInterface, TaskGraphInterface} from "./RootTask";
+import {ACTION_KEYS, NodesInterface, TaskGraphInterface} from "./RootTask";
 import {ChevronDownIcon, ChevronRightIcon} from "@heroicons/react/20/solid";
 
 interface TaskNodeProps {
@@ -62,8 +62,8 @@ const Task: React.FC<TaskNodeProps> = ({
       onFocus={() => onFocus(id)}
       onBlur={(e) => onChange(id, e.currentTarget.innerText)}
       onKeyDown={(e) => {
-        // this forces the text to be saved if we indent
-        if(e.key === 'Tab') { onChange(id, e.currentTarget.innerText) }
+        // this forces the text to be saved to state if we move
+        if(ACTION_KEYS.includes(e.key)) { onChange(id, e.currentTarget.innerText) }
         onKeyDown(e);
       }}
       onKeyUp={(e) => onKeyUp(e)}
