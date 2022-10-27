@@ -132,7 +132,7 @@ function saveState(taskGraph: TaskGraphInterface, parentMap: TaskParentMapInterf
   }));
 }
 
-export const ACTION_KEYS = ['Tab', 'Enter', 'ArrowUp', 'ArrowDown'];
+export const ACTION_KEYS = ['Tab', 'Enter'];
 
 const RootTask: React.FC = () => {
   const [taskGraph, setTaskGraph] = useState<TaskGraphInterface>(() => getDefaultTaskGraph());
@@ -165,9 +165,17 @@ const RootTask: React.FC = () => {
     } else if(keys['Enter']) {
       addTask(currentTaskId);
     } else if(keys['ArrowUp']) {
-      moveUp(currentTaskId);
+      const moveTo = moveUp(currentTaskId);
+      if(moveTo) {
+        refocusInput(moveTo[0], moveTo[1]);
+      }
+      return;
     } else if(keys['ArrowDown']) {
-      moveDown(currentTaskId);
+      const moveTo = moveDown(currentTaskId);
+      if(moveTo) {
+        refocusInput(moveTo[0], moveTo[1]);
+      }
+      return;
     }
   }, [keys]) // TODO: fix this deps array warning, it breaks whatever i try lol
 
@@ -280,7 +288,7 @@ const RootTask: React.FC = () => {
     refocusInput(id, caretOffset);
   }
 
-  function moveUp(id: string) {
+  function moveUp(id: string): [id: string, offset: number] | null {
     if(caretOffset === 0) {
 
       const parent = parentMap[id];
@@ -289,34 +297,32 @@ const RootTask: React.FC = () => {
 
       // if there is no previous sibling, go to parent
       if(!previousSibling) {
-        refocusInput(parent, nodes[parent].value.length);
-        return;
+        return [parent, nodes[parent].value.length];
       }
 
       // if previous sibling is collapsed, go to previous sibling
       if(!taskGraph[previousSibling].isExpanded) {
-        refocusInput(previousSibling, nodes[previousSibling].value.length);
-        return;
+        return [previousSibling, nodes[previousSibling].value.length];
       }
 
       // if current has previous sibling and previous sibling has children, find the very last child recursively
       if(previousSibling && taskGraph[previousSibling].children.length > 0) {
         const lastChild = findLastChild(taskGraph, previousSibling);
-        refocusInput(lastChild, nodes[lastChild].value.length);
-        return;
+        return [lastChild, nodes[lastChild].value.length];
       }
 
       // if current has previous sibling, but previous sibling has no children, move to previous sibling
       if(previousSibling && taskGraph[previousSibling].children.length === 0) {
-        refocusInput(previousSibling, nodes[previousSibling].value.length);
-        return;
+        return [previousSibling, nodes[previousSibling].value.length];
       }
     }
+
+    return null;
   }
 
-  function moveDown(id: string) {
+  function moveDown(id: string): [id: string, offset: number] | null {
     if(caretOffset !== nodes[id].value.length) {
-      return;
+      return null;
     }
 
     const parent = parentMap[id];
@@ -325,27 +331,23 @@ const RootTask: React.FC = () => {
 
     // if the current item is collapsed, and has a next sibling to the next sibling
     if(!taskGraph[id].isExpanded && sibling) {
-      refocusInput(sibling, 0);
-      return;
+      return [sibling, 0];
     }
 
     // if current item is collapsed, but doesn't have next sibling, go to nearest parent sibling
     if(!taskGraph[id].isExpanded && !sibling) {
       const nearestParentSibling = findNearestParentSibling(taskGraph, parentMap, id);
-      refocusInput(nearestParentSibling, 0);
-      return;
+      return [nearestParentSibling, 0];
     }
 
     // if the current node has children, move to first child
     if(taskGraph[id].children.length > 0) {
-      refocusInput(taskGraph[id]?.children[0], 0);
-      return;
+      return [taskGraph[id]?.children[0], 0];
     }
 
     // if the current node does not have children, but has a sibling, move to sibling
     if(taskGraph[id].children.length === 0 && sibling) {
-      refocusInput(sibling, 0);
-      return;
+      return [sibling, 0];
     }
 
     // if the current node does not have children, and does not have a sibling
@@ -358,11 +360,16 @@ const RootTask: React.FC = () => {
       finalCaretPosition = nodes[nearestParentSibling].value.length;
     }
 
-    refocusInput(nearestParentSibling, finalCaretPosition);
-    return;
+    return [nearestParentSibling, finalCaretPosition];
   }
 
   function handleDelete(id: string) {
+    console.log(taskGraph[id].children.length);
+
+    if(!taskGraph[id].isExpanded) {
+      return;
+    }
+
     if(taskGraph[id].children.length > 0) {
       return;
     }
@@ -373,23 +380,27 @@ const RootTask: React.FC = () => {
 
     // remove task as child of parent
     const parent = pg[id];
-    const indexOfCurrent = tg[parent].children.indexOf(id);
-    const previousSiblingIndex = taskGraph[parent]?.children?.indexOf(id) - 1;
-    const previousSibling = taskGraph[parent]?.children[previousSiblingIndex];
 
+    if(parent === 'root') {
+      return;
+    }
+
+    const indexOfCurrent = tg[parent].children.indexOf(id);
+
+    const moveTo = moveUp(currentTaskId);
     tg[parent].children.splice(indexOfCurrent, 1);
 
     // delete node
     delete n[id];
+    delete tg[id];
+    delete pg[id];
 
     setParentMap(pg);
+    setTaskGraph(tg);
     setNodes(n);
 
-    // if there's a previousSibling, move to that,
-    if(previousSibling) {
-      refocusInput(previousSibling, nodes[previousSibling].value.length);
-    } else {
-      refocusInput(parent, nodes[parent].value.length);
+    if(moveTo) {
+      refocusInput(moveTo[0], moveTo[1]);
     }
   }
 
