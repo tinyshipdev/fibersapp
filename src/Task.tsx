@@ -13,6 +13,7 @@ interface TaskNodeProps {
   onFocus: (id: string) => void;
   onExpand: (id: string) => void;
   onCollapse: (id: string) => void;
+  onDelete: (id: string) => void;
 }
 
 const Task: React.FC<TaskNodeProps> = ({
@@ -26,6 +27,7 @@ const Task: React.FC<TaskNodeProps> = ({
   onFocus,
   onExpand,
   onCollapse,
+  onDelete,
 }) => {
   const ref = useRef<HTMLSpanElement>(null);
 
@@ -44,6 +46,7 @@ const Task: React.FC<TaskNodeProps> = ({
           onFocus={(id) => onFocus(id)}
           onExpand={(id) => onExpand(id)}
           onCollapse={(id) => onCollapse(id)}
+          onDelete={(id) => onDelete(id)}
         />
       ))}
     </ul>
@@ -65,6 +68,10 @@ const Task: React.FC<TaskNodeProps> = ({
         // this forces the text to be saved to state if we move
         if(ACTION_KEYS.includes(e.key)) { onChange(id, e.currentTarget.innerText) }
         onKeyDown(e);
+
+        if(e.key === 'Backspace' && e.currentTarget.innerText === '') {
+          onDelete(id);
+        }
       }}
       onKeyUp={(e) => onKeyUp(e)}
       suppressContentEditableWarning={true} // feels a bit dangerous but tired of warnings

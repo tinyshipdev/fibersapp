@@ -164,10 +164,6 @@ const RootTask: React.FC = () => {
       indentRight(currentTaskId);
     } else if(keys['Enter']) {
       addTask(currentTaskId);
-    } else if(keys['Backspace']) {
-      if(!nodes[currentTaskId].value) {
-        deleteTask(currentTaskId);
-      }
     } else if(keys['ArrowUp']) {
       moveUp(currentTaskId);
     } else if(keys['ArrowDown']) {
@@ -366,10 +362,35 @@ const RootTask: React.FC = () => {
     return;
   }
 
-  function deleteTask(id: string) {
+  function handleDelete(id: string) {
+    if(taskGraph[id].children.length > 0) {
+      return;
+    }
+
+    let pg = { ...parentMap };
+    let tg = { ...taskGraph };
+    let n = { ...nodes };
+
     // remove task as child of parent
-    // move all children to same level as task
-    // remove all references to task
+    const parent = pg[id];
+    const indexOfCurrent = tg[parent].children.indexOf(id);
+    const previousSiblingIndex = taskGraph[parent]?.children?.indexOf(id) - 1;
+    const previousSibling = taskGraph[parent]?.children[previousSiblingIndex];
+
+    tg[parent].children.splice(indexOfCurrent, 1);
+
+    // delete node
+    delete n[id];
+
+    setParentMap(pg);
+    setNodes(n);
+
+    // if there's a previousSibling, move to that,
+    if(previousSibling) {
+      refocusInput(previousSibling, nodes[previousSibling].value.length);
+    } else {
+      refocusInput(parent, nodes[parent].value.length);
+    }
   }
 
   function handleChange(id: string, value: string) {
@@ -408,6 +429,7 @@ const RootTask: React.FC = () => {
       onFocus={(id) => setCurrentTaskId(id)}
       onExpand={(id) => handleExpand(id)}
       onCollapse={(id) => handleCollapse(id)}
+      onDelete={(id) => handleDelete(id)}
     />
   );
 };
