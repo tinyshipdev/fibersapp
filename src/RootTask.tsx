@@ -44,6 +44,14 @@ const DEFAULT_NODES: NodesInterface = {
   }
 }
 
+function findLastChild(graph: TaskGraphInterface, id: string): string {
+  if(graph[id].children.length === 0) {
+    return id;
+  }
+
+  return findLastChild(graph, graph[id]?.children[graph[id]?.children.length - 1]);
+}
+
 function setCaret(id: string, pos: number) {
   const el: any = document.getElementById(id);
   const range: any = document.createRange()
@@ -262,8 +270,7 @@ const RootTask: React.FC = () => {
 
       if(previousSibling) {
         if(taskGraph[previousSibling].children.length > 0) {
-          // TODO: recursively find the last child of previous sibling
-          const lastChild = taskGraph[previousSibling].children[taskGraph[previousSibling].children.length - 1]
+          const lastChild = findLastChild(taskGraph, previousSibling);
           refocusInput(lastChild, nodes[lastChild].value.length);
         } else {
           refocusInput(previousSibling, nodes[previousSibling].value.length);
