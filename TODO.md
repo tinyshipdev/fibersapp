@@ -3,7 +3,8 @@ Taskflowy To do.
 ---
 
 BUGS
-- when you create a task and try to move the cursor down, it doesn't move
+
+- fix movement after deleting a task
 
 ---
 
@@ -12,18 +13,21 @@ TODO
 - work out a way of adding tasks to a todo list
 - click a task to focus on it
   - show a breadcrumb trail leading to this task in the header
-- delete tasks
+
 
 ---
 
 DOING
 
-- use arrow keys to move around the screen
+- refactor moveUp and moveDown to return id of element to move to
 
 ---
 
 DONE
 
+- ~~when you create a task and try to move the cursor down, it doesn't move~~
+- ~~delete tasks~~
+- ~~use arrow keys to move around the screen~~
 - ~~when you create a task and indent whilst editing, the text is deleted~~
 - ~~fix the weird caret position that causes flipped words~~
 - ~~expand and collapse items~~
