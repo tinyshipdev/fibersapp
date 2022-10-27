@@ -132,7 +132,7 @@ function saveState(taskGraph: TaskGraphInterface, parentMap: TaskParentMapInterf
   }));
 }
 
-export const ACTION_KEYS = ['Tab', 'Enter'];
+export const ACTION_KEYS = ['Tab', 'Enter', 'ArrowUp', 'ArrowDown'];
 
 const RootTask: React.FC = () => {
   const [taskGraph, setTaskGraph] = useState<TaskGraphInterface>(() => getDefaultTaskGraph());
