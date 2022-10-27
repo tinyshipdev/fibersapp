@@ -2,6 +2,12 @@ Taskflowy To do.
 
 ---
 
+BUGS
+- when you create a task and try to move the cursor down, it doesn't move
+- when you create a task and indent whilst editing, the text is deleted
+
+---
+
 TODO
 
 - work out a way of adding tasks to a todo list
