@@ -6,6 +6,7 @@ import {MagnifyingGlassPlusIcon} from "@heroicons/react/24/outline";
 interface TaskNodeProps {
   id: string;
   value: string;
+  focusedNode: string;
   graph: TaskGraphInterface;
   nodes: NodesInterface;
   onChange: (id: string, value: string) => void;
@@ -21,6 +22,7 @@ interface TaskNodeProps {
 const Task: React.FC<TaskNodeProps> = ({
   id,
   value,
+  focusedNode,
   graph,
   nodes,
   onChange,
@@ -41,6 +43,7 @@ const Task: React.FC<TaskNodeProps> = ({
           key={n}
           id={n}
           value={nodes[n].value}
+          focusedNode={focusedNode}
           graph={graph}
           nodes={nodes}
           onChange={(id, value) => onChange(id, value)}
@@ -56,7 +59,7 @@ const Task: React.FC<TaskNodeProps> = ({
     </ul>
   )
 
-  if(id === 'root') {
+  if(id === focusedNode) {
     return graphMap;
   }
 

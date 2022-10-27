@@ -430,7 +430,6 @@ const RootTask: React.FC = () => {
   }
 
   function handleZoom(id: string) {
-    // TODO: generate breadcrumbs
     setFocusedNode(id);
   }
 
@@ -440,8 +439,12 @@ const RootTask: React.FC = () => {
         className={'mb-10 bg-slate-300 p-3 rounded py-2'}
         onClick={() => handleZoom('root')}
       >Reset View</button>
+      {focusedNode !== 'root' && (
+        <h3 className={'text-xl font-bold mb-6'}>{nodes[focusedNode]?.value}</h3>
+      )}
       <Task
         id={focusedNode}
+        focusedNode={focusedNode}
         value={nodes[focusedNode]?.value}
         graph={taskGraph}
         nodes={nodes}
