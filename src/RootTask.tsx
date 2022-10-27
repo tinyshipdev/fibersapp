@@ -263,12 +263,13 @@ const RootTask: React.FC = () => {
       if(previousSibling) {
         if(taskGraph[previousSibling].children.length > 0) {
           // TODO: recursively find the last child of previous sibling
-          refocusInput(taskGraph[previousSibling].children[taskGraph[previousSibling].children.length - 1], 0);
+          const lastChild = taskGraph[previousSibling].children[taskGraph[previousSibling].children.length - 1]
+          refocusInput(lastChild, nodes[lastChild].value.length);
         } else {
-          refocusInput(previousSibling, 0);
+          refocusInput(previousSibling, nodes[previousSibling].value.length);
         }
       } else {
-        refocusInput(parent, 0);
+        refocusInput(parent, nodes[parent].value.length);
       }
     }
   }
