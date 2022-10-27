@@ -52,6 +52,29 @@ function findLastChild(graph: TaskGraphInterface, id: string): string {
   return findLastChild(graph, graph[id]?.children[graph[id]?.children.length - 1]);
 }
 
+function findNearestParentSibling(
+  graph: TaskGraphInterface,
+  parentMap: TaskParentMapInterface,
+  id: string
+): string {
+  // keep searching up until the parent has a sibling
+  const parent = parentMap[id];
+  const grandparent = parentMap[parent];
+
+  if(parent === 'root') {
+    return id;
+  }
+
+  const parentIndex = graph[grandparent]?.children?.indexOf(parent);
+  const sibling = graph[grandparent]?.children[parentIndex + 1];
+
+  if(sibling) {
+    return sibling;
+  }
+
+  return findNearestParentSibling(graph, parentMap, parent);
+}
+
 function setCaret(id: string, pos: number) {
   const el: any = document.getElementById(id);
   const range: any = document.createRange()
@@ -286,28 +309,47 @@ const RootTask: React.FC = () => {
       return;
     }
 
-    // if the current item is collapsed, move to the next sibling
     const parent = parentMap[id];
-    const index = taskGraph[parent]?.children.indexOf(id);
-    const sibling = taskGraph[parent]?.children[index + 1];
+    const currentIndex = taskGraph[parent]?.children.indexOf(id);
+    const sibling = taskGraph[parent]?.children[currentIndex + 1];
 
-    if(!taskGraph[id].isExpanded) {
+    // if the current item is collapsed, and has a next sibling to the next sibling
+    if(!taskGraph[id].isExpanded && sibling) {
       refocusInput(sibling, 0);
       return;
     }
 
-    const grandparent = parentMap[parent];
-    const parentIndex = taskGraph[grandparent]?.children.indexOf(parent);
-    const parentSibling = taskGraph[grandparent]?.children[parentIndex + 1];
-
-    // TODO: recursively find correct next focus
-    if(taskGraph[id]?.children.length > 0) {
-        refocusInput(taskGraph[id]?.children[0], 0);
-    } else if (sibling) {
-      refocusInput(sibling, 0);
-    } else if (parentSibling){
-      refocusInput(parentSibling, 0);
+    // if current item is collapsed, but doesn't have next sibling, go to nearest parent sibling
+    if(!taskGraph[id].isExpanded && !sibling) {
+      const nearestParentSibling = findNearestParentSibling(taskGraph, parentMap, id);
+      refocusInput(nearestParentSibling, 0);
+      return;
     }
+
+    // if the current node has children, move to first child
+    if(taskGraph[id].children.length > 0) {
+      refocusInput(taskGraph[id]?.children[0], 0);
+      return;
+    }
+
+    // if the current node does not have children, but has a sibling, move to sibling
+    if(taskGraph[id].children.length === 0 && sibling) {
+      refocusInput(sibling, 0);
+      return;
+    }
+
+    // if the current node does not have children, and does not have a sibling
+    // find the nearest parent with a sibling
+    const nearestParentSibling = findNearestParentSibling(taskGraph, parentMap, id);
+    // the finalCaretPosition is so if we're on the last element the caret stays at the end
+    let finalCaretPosition = 0;
+
+    if(id === nearestParentSibling) {
+      finalCaretPosition = nodes[nearestParentSibling].value.length;
+    }
+
+    refocusInput(nearestParentSibling, finalCaretPosition);
+    return;
   }
 
   function deleteTask(id: string) {
