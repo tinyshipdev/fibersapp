@@ -61,7 +61,11 @@ const Task: React.FC<TaskNodeProps> = ({
       contentEditable={true}
       onFocus={() => onFocus(id)}
       onBlur={(e) => onChange(id, e.currentTarget.innerText)}
-      onKeyDown={(e) => onKeyDown(e)}
+      onKeyDown={(e) => {
+        // this forces the text to be saved if we indent
+        if(e.key === 'Tab') { onChange(id, e.currentTarget.innerText) }
+        onKeyDown(e);
+      }}
       onKeyUp={(e) => onKeyUp(e)}
       suppressContentEditableWarning={true} // feels a bit dangerous but tired of warnings
     >{value}</span>

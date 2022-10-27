@@ -18,13 +18,13 @@ TODO
 
 DOING
 
-- when you create a task and indent whilst editing, the text is deleted
 - use arrow keys to move around the screen
 
 ---
 
 DONE
 
+- ~~when you create a task and indent whilst editing, the text is deleted~~
 - ~~fix the weird caret position that causes flipped words~~
 - ~~expand and collapse items~~
   - ~~add attribute to taskGraph to set whether expanded or collapsed~~
