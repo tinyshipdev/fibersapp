@@ -14,7 +14,7 @@ const BreadcrumbTrail: React.FC<BreadcrumbTrailProps> = ({
   return (
     <ul className={'mb-6 bg-slate-500 p-4'}>
       { links?.map((link) => (
-        <li>
+        <li key={link?.id}>
           <button className={'bg-white text-black'} onClick={() => onClick(link?.id)}>{link?.value}</button>
         </li>
       ))}
