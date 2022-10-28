@@ -362,8 +362,6 @@ const RootTask: React.FC = () => {
 
   function handleDelete(id: string) {
 
-    console.log(nodes[id]);
-
     if(!nodes[id].isExpanded) {
       return;
     }
