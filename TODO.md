@@ -6,6 +6,7 @@ TODO
 
 - work out a way of adding tasks to a todo list
 - if you attempt to delete a task that has children, you can't, therefore we need to show an alert or something explaining why you can't delete it
+- caret position doesn't get set when you select with mouse, need to fix this
 
 ---
 
