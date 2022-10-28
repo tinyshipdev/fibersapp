@@ -23,6 +23,7 @@ DOING
 
 DONE
 
+- ~~refactor graphs to combine into single nodes map~~
 - ~~fix movement after deleting a task~~
 - ~~refactor moveUp and moveDown to return id of element to move to~~
 - ~~when you create a task and try to move the cursor down, it doesn't move~~
