@@ -122,6 +122,7 @@ const RootTask: React.FC = () => {
   const [currentTaskId, setCurrentTaskId] = useState('');
   const [focusedNode, setFocusedNode] = useState('root');
 
+  // I wrote this in a rush, might want to refactor at some point
   const generateBreadcrumbTrail = useCallback((id: string): {id: string, value: string}[] => {
     let links = [{ id: 'root', value: 'root' }];
 
