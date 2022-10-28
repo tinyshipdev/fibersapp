@@ -362,6 +362,8 @@ const RootTask: React.FC = () => {
 
   function handleDelete(id: string) {
 
+    console.log(nodes[id]);
+
     if(!nodes[id].isExpanded) {
       return;
     }
@@ -375,7 +377,9 @@ const RootTask: React.FC = () => {
     // remove task as child of parent
     const parent = n[id].parent;
 
-    if(parent === 'root') {
+    // if the parent is root, and id is first child of root
+
+    if(parent === 'root' && id === nodes[parent].children[0]) {
       return;
     }
 
