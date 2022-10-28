@@ -1,4 +1,4 @@
-import React, {useEffect, useLayoutEffect, useState} from 'react';
+import React, {useCallback, useEffect, useLayoutEffect, useMemo, useState} from 'react';
 import { nanoid } from 'nanoid'
 import Task from "./Task";
 import BreadcrumbTrail from "./BreadcrumbTrail";
@@ -118,9 +118,32 @@ export const ACTION_KEYS = ['Tab', 'Enter'];
 
 const RootTask: React.FC = () => {
   const [nodes, setNodes] = useState<NodesInterface>(() => getDefaultNodes());
-  const [keys, setKeys] = useState<{ [key: string]: boolean}>({});
+  const [keys, setKeys] = useState<{ [key: string]: boolean }>({});
   const [currentTaskId, setCurrentTaskId] = useState('');
   const [focusedNode, setFocusedNode] = useState('root');
+
+  const generateBreadcrumbTrail = useCallback((id: string): {id: string, value: string}[] => {
+    let links = [{ id: 'root', value: 'root' }];
+
+    if(id === 'root') {
+      return links;
+    }
+
+    let l = [];
+
+    let curr = id;
+
+    while(nodes[curr].parent !== 'root') {
+      l.push({ id: curr, value: nodes[curr].value });
+      curr = nodes[curr].parent;
+    }
+
+    return [...links, ...l.reverse()];
+  }, [nodes]);
+
+  const breadcrumbs = useMemo(() =>
+    generateBreadcrumbTrail(focusedNode), [focusedNode, generateBreadcrumbTrail]
+  );
 
   const caretOffset = window?.getSelection()?.anchorOffset || 0;
 
@@ -402,7 +425,7 @@ const RootTask: React.FC = () => {
     <ul>
       {focusedNode !== 'root' && (
         <>
-          <BreadcrumbTrail onClick={(id) => handleZoom(id)} />
+          <BreadcrumbTrail focusedNode={focusedNode} links={breadcrumbs} onClick={(id) => handleZoom(id)} />
           <h3 className={'text-xl font-bold mb-6'}>{nodes[focusedNode]?.value}</h3>
         </>
       )}
