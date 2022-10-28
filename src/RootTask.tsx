@@ -1,6 +1,7 @@
 import React, {useEffect, useLayoutEffect, useState} from 'react';
 import { nanoid } from 'nanoid'
 import Task from "./Task";
+import BreadcrumbTrail from "./BreadcrumbTrail";
 
 export type NodesInterface = {
   [key: string]: {
@@ -399,12 +400,11 @@ const RootTask: React.FC = () => {
 
   return (
     <ul>
-      <button
-        className={'mb-10 bg-slate-300 p-3 rounded py-2'}
-        onClick={() => handleZoom('root')}
-      >Reset View</button>
       {focusedNode !== 'root' && (
-        <h3 className={'text-xl font-bold mb-6'}>{nodes[focusedNode]?.value}</h3>
+        <>
+          <BreadcrumbTrail onClick={(id) => handleZoom(id)} />
+          <h3 className={'text-xl font-bold mb-6'}>{nodes[focusedNode]?.value}</h3>
+        </>
       )}
       <Task
         id={focusedNode}
