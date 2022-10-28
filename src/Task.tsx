@@ -1,5 +1,5 @@
 import React, {useRef} from 'react';
-import {ACTION_KEYS, NodesInterface, TaskGraphInterface} from "./RootTask";
+import {ACTION_KEYS, NodesInterface} from "./RootTask";
 import {ChevronDownIcon, ChevronRightIcon} from "@heroicons/react/20/solid";
 import {MagnifyingGlassPlusIcon} from "@heroicons/react/24/outline";
 
@@ -7,7 +7,6 @@ interface TaskNodeProps {
   id: string;
   value: string;
   focusedNode: string;
-  graph: TaskGraphInterface;
   nodes: NodesInterface;
   onChange: (id: string, value: string) => void;
   onKeyDown: (e: React.KeyboardEvent) => void;
@@ -23,7 +22,6 @@ const Task: React.FC<TaskNodeProps> = ({
   id,
   value,
   focusedNode,
-  graph,
   nodes,
   onChange,
   onKeyDown,
@@ -38,13 +36,12 @@ const Task: React.FC<TaskNodeProps> = ({
 
   const graphMap = (
     <ul className={'list-none'}>
-      {graph[id]?.children?.map((n: any) => (
+      {nodes[id]?.children?.map((n: any) => (
         <Task
           key={n}
           id={n}
           value={nodes[n].value}
           focusedNode={focusedNode}
-          graph={graph}
           nodes={nodes}
           onChange={(id, value) => onChange(id, value)}
           onKeyDown={(e) => onKeyDown(e)}
@@ -91,18 +88,18 @@ const Task: React.FC<TaskNodeProps> = ({
         <button onClick={() => onZoom(id)}>
           <MagnifyingGlassPlusIcon className={'w-4 h-4 text-slate-400 opacity-0 group-hover:opacity-100 ease-in duration-100'}/>
         </button>
-        {graph[id].isExpanded && graph[id].children.length > 0 ? (
+        {nodes[id].isExpanded && nodes[id].children.length > 0 ? (
           <button className={'w-6 h-6 text-slate-400 hover:text-black'} onClick={() => onCollapse(id)}>
             <ChevronDownIcon/>
           </button>
         ) : (
-          <button className={`w-6 h-6 ${graph[id].children.length > 0 ? 'text-slate-400 hover:text-black' : 'text-slate-200'}`} onClick={() => onExpand(id)}>
+          <button className={`w-6 h-6 ${nodes[id].children.length > 0 ? 'text-slate-400 hover:text-black' : 'text-slate-200'}`} onClick={() => onExpand(id)}>
             <ChevronRightIcon/>
           </button>
         )}
         {textSpan}
       </p>
-      {graph[id].isExpanded && graph[id].children.length > 0 && graphMap}
+      {nodes[id].isExpanded && nodes[id].children.length > 0 && graphMap}
     </li>
   );
 };

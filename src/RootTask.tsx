@@ -2,77 +2,76 @@ import React, {useEffect, useLayoutEffect, useState} from 'react';
 import { nanoid } from 'nanoid'
 import Task from "./Task";
 
-export type TaskGraphInterface = {
-  [key: string]: { isExpanded: boolean, children: string[] }
-}
-
-export type TaskParentMapInterface = { [key: string]: string }
-
-export type NodesInterface = { [key: string]: { value: string }}
-
-const DEFAULT_GRAPH: TaskGraphInterface = {
-  'root': { isExpanded: true, children: ['one'] },
-  'one': { isExpanded: true, children: ['two', 'three'] },
-  'two': { isExpanded: false, children: ['five'] },
-  'three': { isExpanded: true, children: [] },
-  'five': { isExpanded: true, children: [] }
-}
-
-const DEFAULT_PARENT_GRAPH: TaskParentMapInterface = {
-  'root': '',
-  'one': 'root',
-  'two': 'one',
-  'three': 'one',
-  'five': 'two'
+export type NodesInterface = {
+  [key: string]: {
+    value: string,
+    parent: string,
+    isExpanded: boolean,
+    children: string[],
+  }
 }
 
 const DEFAULT_NODES: NodesInterface = {
   'root': {
-    value: 'root'
+    value: 'root',
+    parent: '',
+    isExpanded: true,
+    children: ['one']
   },
   'one': {
-    value: 'one'
+    value: 'one',
+    parent: 'root',
+    isExpanded: true,
+    children: ['two', 'three']
   },
   'two': {
-    value: 'two'
+    value: 'two',
+    parent: 'one',
+    isExpanded: false,
+    children: ['five']
   },
   'three': {
-    value: 'three'
+    value: 'three',
+    parent: 'one',
+    isExpanded: true,
+    children: [],
   },
   'five': {
-    value: 'five'
+    value: 'five',
+    parent: 'two',
+    isExpanded: true,
+    children: [],
   }
 }
 
-function findLastChild(graph: TaskGraphInterface, id: string): string {
-  if(graph[id].children.length === 0) {
+function findLastChild(nodes: NodesInterface, id: string): string {
+  if(nodes[id].children.length === 0) {
     return id;
   }
 
-  return findLastChild(graph, graph[id]?.children[graph[id]?.children.length - 1]);
+  return findLastChild(nodes, nodes[id]?.children[nodes[id]?.children.length - 1]);
 }
 
 function findNearestParentSibling(
-  graph: TaskGraphInterface,
-  parentMap: TaskParentMapInterface,
+  nodes: NodesInterface,
   id: string
 ): string {
   // keep searching up until the parent has a sibling
-  const parent = parentMap[id];
-  const grandparent = parentMap[parent];
+  const parent = nodes[id].parent;
+  const grandparent = nodes[parent].parent;
 
   if(parent === 'root') {
     return id;
   }
 
-  const parentIndex = graph[grandparent]?.children?.indexOf(parent);
-  const sibling = graph[grandparent]?.children[parentIndex + 1];
+  const parentIndex = nodes[grandparent]?.children?.indexOf(parent);
+  const sibling = nodes[grandparent]?.children[parentIndex + 1];
 
   if(sibling) {
     return sibling;
   }
 
-  return findNearestParentSibling(graph, parentMap, parent);
+  return findNearestParentSibling(nodes, parent);
 }
 
 function setCaret(id: string, pos: number) {
@@ -100,34 +99,16 @@ function refocusInput(id: string, pos: number) {
   }, 10)
 }
 
-function getDefaultTaskGraph() {
-  if(window.localStorage.getItem('tasks')) {
-    return JSON.parse(window.localStorage.getItem('tasks') || '')?.taskGraph;
-  } else {
-    return DEFAULT_GRAPH;
-  }
-}
-
-function getDefaultParentMap() {
-  if(window.localStorage.getItem('tasks')) {
-    return JSON.parse(window.localStorage.getItem('tasks') || '')?.parentMap;
-  } else {
-    return DEFAULT_PARENT_GRAPH;
-  }
-}
-
 function getDefaultNodes() {
-  if(window.localStorage.getItem('tasks')) {
-    return JSON.parse(window.localStorage.getItem('tasks') || '')?.nodes;
+  if(window.localStorage.getItem('nodes')) {
+    return JSON.parse(window.localStorage.getItem('nodes') || '')?.nodes;
   } else {
     return DEFAULT_NODES;
   }
 }
 
-function saveState(taskGraph: TaskGraphInterface, parentMap: TaskParentMapInterface, nodes: NodesInterface) {
-  window.localStorage.setItem('tasks', JSON.stringify({
-    taskGraph,
-    parentMap,
+function saveState(nodes: NodesInterface) {
+  window.localStorage.setItem('nodes', JSON.stringify({
     nodes
   }));
 }
@@ -135,8 +116,6 @@ function saveState(taskGraph: TaskGraphInterface, parentMap: TaskParentMapInterf
 export const ACTION_KEYS = ['Tab', 'Enter'];
 
 const RootTask: React.FC = () => {
-  const [taskGraph, setTaskGraph] = useState<TaskGraphInterface>(() => getDefaultTaskGraph());
-  const [parentMap, setParentMap] = useState<TaskParentMapInterface>(() => getDefaultParentMap());
   const [nodes, setNodes] = useState<NodesInterface>(() => getDefaultNodes());
   const [keys, setKeys] = useState<{ [key: string]: boolean}>({});
   const [currentTaskId, setCurrentTaskId] = useState('');
@@ -150,13 +129,13 @@ const RootTask: React.FC = () => {
    */
   useEffect(() => {
     const timer = setInterval(() => {
-      saveState(taskGraph, parentMap, nodes);
+      saveState(nodes);
     }, 1000);
 
     return () => {
       clearTimeout(timer);
     }
-  }, [nodes, parentMap, taskGraph]);
+  }, [nodes]);
 
   useLayoutEffect(() => {
     if(keys['Shift'] && keys['Tab']) {
@@ -208,11 +187,8 @@ const RootTask: React.FC = () => {
      * when we hit enter, we want to split the word and create a new task with the second
      * half of that word.
      */
-    let parentId = parentMap[id];
-
-    let pg = { ...parentMap };
-    let tg = { ...taskGraph };
-    let n = { ...nodes };
+    let parentId = nodes[id].parent;
+    const n = { ...nodes };
 
     let firstHalf = n[id].value.slice(0, caretOffset);
     let secondHalf = n[id].value.slice(caretOffset);
@@ -220,25 +196,20 @@ const RootTask: React.FC = () => {
     const taskId = nanoid();
 
     n[id].value = firstHalf;
-    n[taskId] = { value: secondHalf };
-    pg[taskId] = parentId;
-    tg[taskId] = { isExpanded: true, children: [] };
+    n[taskId] = { value: secondHalf, isExpanded: true, children: [], parent: parentId };
 
-    let index = tg[parentId]?.children.indexOf(id);
-    tg[parentId]?.children.splice(index + 1, 0, taskId);
+    let index = nodes[parentId]?.children.indexOf(id);
+    nodes[parentId]?.children.splice(index + 1, 0, taskId);
 
     setNodes(n);
-    setParentMap(pg);
-    setTaskGraph(tg);
     refocusInput(taskId, 0);
   }
 
   function indentRight(id: string) {
-    let pg = { ...parentMap };
-    let tg = { ...taskGraph };
+    const n = { ...nodes };
 
-    let parentId = pg[id];
-    let subTasks = tg[parentId]?.children;
+    let parentId = nodes[id].parent;
+    let subTasks = nodes[parentId]?.children;
 
     let index = subTasks.indexOf(id);
     let previousKey = subTasks[index - 1];
@@ -247,24 +218,22 @@ const RootTask: React.FC = () => {
       return;
     }
 
-    tg[previousKey]?.children.push(id);
+    n[previousKey]?.children.push(id);
     subTasks.splice(index, 1);
 
-    pg[id] = previousKey;
+    n[id].parent = previousKey;
 
-    setParentMap(pg);
-    setTaskGraph(tg);
+    setNodes(n);
     refocusInput(id, caretOffset);
   }
 
   function indentLeft(id: string) {
-    let pg = { ...parentMap };
-    let tg = { ...taskGraph };
+    const n = { ...nodes };
 
     // find parent
     // find grandparent
-    let parent = pg[id];
-    let grandparent = pg[parent];
+    let parent = n[id].parent;
+    let grandparent = n[parent].parent;
 
 
     if(!grandparent) {
@@ -272,49 +241,50 @@ const RootTask: React.FC = () => {
     }
 
     // find index of parent in grandparent
-    let indexOfParent = tg[grandparent]?.children.indexOf(parent);
+    let indexOfParent = n[grandparent]?.children.indexOf(parent);
 
     // insert id after index of parent in grandparent
-    tg[grandparent]?.children.splice(indexOfParent + 1, 0, id);
+    n[grandparent]?.children.splice(indexOfParent + 1, 0, id);
 
     // remove id as child of parent
-    let indexOfIdInParent = tg[parent]?.children.indexOf(id);
-    tg[parent]?.children.splice(indexOfIdInParent, 1);
+    let indexOfIdInParent = n[parent]?.children.indexOf(id);
+    n[parent]?.children.splice(indexOfIdInParent, 1);
 
     // update parent of id to be grandparent
-    pg[id] = grandparent;
+    n[id].parent = grandparent;
 
-    setParentMap(pg);
-    setTaskGraph(tg);
+    setNodes(n);
     refocusInput(id, caretOffset);
   }
 
   function moveUp(id: string): [id: string, offset: number] | null {
     if(caretOffset === 0) {
 
-      const parent = parentMap[id];
-      const previousSiblingIndex = taskGraph[parent]?.children?.indexOf(id) - 1;
-      const previousSibling = taskGraph[parent]?.children[previousSiblingIndex];
+      const n = { ...nodes };
+
+      const parent = n[id].parent;
+      const previousSiblingIndex = n[parent]?.children?.indexOf(id) - 1;
+      const previousSibling = n[parent]?.children[previousSiblingIndex];
 
       // if there is no previous sibling, go to parent
       if(!previousSibling) {
-        return [parent, nodes[parent].value.length];
+        return [parent, n[parent].value.length];
       }
 
       // if previous sibling is collapsed, go to previous sibling
-      if(!taskGraph[previousSibling].isExpanded) {
-        return [previousSibling, nodes[previousSibling].value.length];
+      if(!n[previousSibling].isExpanded) {
+        return [previousSibling, n[previousSibling].value.length];
       }
 
       // if current has previous sibling and previous sibling has children, find the very last child recursively
-      if(previousSibling && taskGraph[previousSibling].children.length > 0) {
-        const lastChild = findLastChild(taskGraph, previousSibling);
-        return [lastChild, nodes[lastChild].value.length];
+      if(previousSibling && n[previousSibling].children.length > 0) {
+        const lastChild = findLastChild(n, previousSibling);
+        return [lastChild, n[lastChild].value.length];
       }
 
       // if current has previous sibling, but previous sibling has no children, move to previous sibling
-      if(previousSibling && taskGraph[previousSibling].children.length === 0) {
-        return [previousSibling, nodes[previousSibling].value.length];
+      if(previousSibling && n[previousSibling].children.length === 0) {
+        return [previousSibling, n[previousSibling].value.length];
       }
     }
 
@@ -326,78 +296,72 @@ const RootTask: React.FC = () => {
       return null;
     }
 
-    const parent = parentMap[id];
-    const currentIndex = taskGraph[parent]?.children.indexOf(id);
-    const sibling = taskGraph[parent]?.children[currentIndex + 1];
+    const n = { ...nodes };
+    const parent = n[id].parent;
+    const currentIndex = n[parent]?.children.indexOf(id);
+    const sibling = n[parent]?.children[currentIndex + 1];
 
     // if the current item is collapsed, and has a next sibling to the next sibling
-    if(!taskGraph[id].isExpanded && sibling) {
+    if(!n[id].isExpanded && sibling) {
       return [sibling, 0];
     }
 
     // if current item is collapsed, but doesn't have next sibling, go to nearest parent sibling
-    if(!taskGraph[id].isExpanded && !sibling) {
-      const nearestParentSibling = findNearestParentSibling(taskGraph, parentMap, id);
+    if(!n[id].isExpanded && !sibling) {
+      const nearestParentSibling = findNearestParentSibling(n, id);
       return [nearestParentSibling, 0];
     }
 
     // if the current node has children, move to first child
-    if(taskGraph[id].children.length > 0) {
-      return [taskGraph[id]?.children[0], 0];
+    if(n[id].children.length > 0) {
+      return [n[id]?.children[0], 0];
     }
 
     // if the current node does not have children, but has a sibling, move to sibling
-    if(taskGraph[id].children.length === 0 && sibling) {
+    if(n[id].children.length === 0 && sibling) {
       return [sibling, 0];
     }
 
     // if the current node does not have children, and does not have a sibling
     // find the nearest parent with a sibling
-    const nearestParentSibling = findNearestParentSibling(taskGraph, parentMap, id);
+    const nearestParentSibling = findNearestParentSibling(n, id);
     // the finalCaretPosition is so if we're on the last element the caret stays at the end
     let finalCaretPosition = 0;
 
     if(id === nearestParentSibling) {
-      finalCaretPosition = nodes[nearestParentSibling].value.length;
+      finalCaretPosition = n[nearestParentSibling].value.length;
     }
 
     return [nearestParentSibling, finalCaretPosition];
   }
 
   function handleDelete(id: string) {
-    console.log(taskGraph[id].children.length);
 
-    if(!taskGraph[id].isExpanded) {
+    if(!nodes[id].isExpanded) {
       return;
     }
 
-    if(taskGraph[id].children.length > 0) {
+    if(nodes[id].children.length > 0) {
       return;
     }
 
-    let pg = { ...parentMap };
-    let tg = { ...taskGraph };
-    let n = { ...nodes };
+    const n = { ...nodes };
 
     // remove task as child of parent
-    const parent = pg[id];
+    const parent = n[id].parent;
 
     if(parent === 'root') {
       return;
     }
 
-    const indexOfCurrent = tg[parent].children.indexOf(id);
+    const indexOfCurrent = n[parent].children.indexOf(id);
 
     const moveTo = moveUp(currentTaskId);
-    tg[parent].children.splice(indexOfCurrent, 1);
+    n[parent].children.splice(indexOfCurrent, 1);
 
     // delete node
     delete n[id];
-    delete tg[id];
-    delete pg[id];
 
-    setParentMap(pg);
-    setTaskGraph(tg);
     setNodes(n);
 
     if(moveTo) {
@@ -412,20 +376,20 @@ const RootTask: React.FC = () => {
   }
 
   function handleExpand(id: string) {
-    let tg = { ...taskGraph };
+    const n = { ...nodes };
 
-    if(!tg[id].isExpanded) {
-      tg[id].isExpanded = true;
-      setTaskGraph(tg);
+    if(!n[id].isExpanded) {
+      n[id].isExpanded = true;
+      setNodes(n);
     }
   }
 
   function handleCollapse(id: string) {
-    let tg = { ...taskGraph };
+    const n = { ...nodes };
 
-    if(tg[id].isExpanded) {
-      tg[id].isExpanded = false;
-      setTaskGraph(tg);
+    if(n[id].isExpanded) {
+      n[id].isExpanded = false;
+      setNodes(n);
     }
   }
 
@@ -446,7 +410,6 @@ const RootTask: React.FC = () => {
         id={focusedNode}
         focusedNode={focusedNode}
         value={nodes[focusedNode]?.value}
-        graph={taskGraph}
         nodes={nodes}
         onChange={(id, value) => handleChange(id, value)}
         onKeyUp={(e) => handleKeyUp(e)}
