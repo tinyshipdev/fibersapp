@@ -1,7 +1,9 @@
-import React, {useCallback, useEffect, useLayoutEffect, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import { nanoid } from 'nanoid'
 import Task from "./Task";
 import BreadcrumbTrail from "./BreadcrumbTrail";
+
+type KeyMapInterface = { [key: string]: boolean };
 
 export type NodesInterface = {
   [key: string]: {
@@ -118,7 +120,7 @@ export const ACTION_KEYS = ['Tab', 'Enter'];
 
 const RootTask: React.FC = () => {
   const [nodes, setNodes] = useState<NodesInterface>(() => getDefaultNodes());
-  const [keys, setKeys] = useState<{ [key: string]: boolean }>({});
+  const [keys, setKeys] = useState<KeyMapInterface>({});
   const [currentTaskId, setCurrentTaskId] = useState('');
   const [focusedNode, setFocusedNode] = useState('root');
 
@@ -162,7 +164,7 @@ const RootTask: React.FC = () => {
     }
   }, [nodes]);
 
-  useLayoutEffect(() => {
+  function handleActions(keys: KeyMapInterface) {
     if(keys['Shift'] && keys['Tab']) {
       indentLeft(currentTaskId);
     } else if(keys['Tab']) {
@@ -174,15 +176,13 @@ const RootTask: React.FC = () => {
       if(moveTo) {
         refocusInput(moveTo[0], moveTo[1]);
       }
-      return;
     } else if(keys['ArrowDown']) {
       const moveTo = moveDown(currentTaskId);
       if(moveTo) {
         refocusInput(moveTo[0], moveTo[1]);
       }
-      return;
     }
-  }, [keys]) // TODO: fix this deps array warning, it breaks whatever i try lol
+  }
 
   function handleKeyDown(e:  React.KeyboardEvent) {
     if(ACTION_KEYS.includes(e.key)) {
@@ -193,6 +193,7 @@ const RootTask: React.FC = () => {
       let k = {...keys};
       k[e.key] = true;
       setKeys(k);
+      handleActions(k);
     }
   }
 
