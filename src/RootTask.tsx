@@ -429,7 +429,12 @@ const RootTask: React.FC = () => {
     <ul>
       <BreadcrumbTrail focusedNode={focusedNode} links={breadcrumbs} onClick={(id) => handleZoom(id)} />
       {focusedNode !== 'root' && (
-        <h3 className={'text-xl font-bold mb-6'}>{nodes[focusedNode]?.value}</h3>
+        <input
+          className={'text-xl font-bold mb-6 focus:outline-none'}
+          value={nodes[focusedNode]?.value}
+          placeholder={!nodes[focusedNode]?.value ? 'Untitled' : ''}
+          onChange={(e) => handleChange(focusedNode, e.target.value)}
+        />
       )}
       <div className={'-ml-10'}>
       <Task
