@@ -427,12 +427,11 @@ const RootTask: React.FC = () => {
 
   return (
     <ul>
+      <BreadcrumbTrail focusedNode={focusedNode} links={breadcrumbs} onClick={(id) => handleZoom(id)} />
       {focusedNode !== 'root' && (
-        <>
-          <BreadcrumbTrail focusedNode={focusedNode} links={breadcrumbs} onClick={(id) => handleZoom(id)} />
-          <h3 className={'text-xl font-bold mb-6'}>{nodes[focusedNode]?.value}</h3>
-        </>
+        <h3 className={'text-xl font-bold mb-6'}>{nodes[focusedNode]?.value}</h3>
       )}
+      <div className={'-ml-10'}>
       <Task
         id={focusedNode}
         focusedNode={focusedNode}
@@ -447,6 +446,7 @@ const RootTask: React.FC = () => {
         onDelete={(id) => handleDelete(id)}
         onZoom={(id) => handleZoom(id)}
       />
+      </div>
     </ul>
   );
 };

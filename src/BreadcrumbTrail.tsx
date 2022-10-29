@@ -1,4 +1,5 @@
 import React from 'react';
+import {HomeIcon} from "@heroicons/react/24/outline";
 
 interface BreadcrumbTrailProps {
   focusedNode: string,
@@ -12,10 +13,16 @@ const BreadcrumbTrail: React.FC<BreadcrumbTrailProps> = ({
   onClick
 }) => {
   return (
-    <ul className={'mb-6 flex'}>
+    <ul className={'mb-6 flex items-center'}>
       { links?.map((link) => (
-        <li key={`${link?.id}`} className={'mr-4'}>
-          <button className={`bg-white text-black p-2 py-1 ${focusedNode === link.id && 'font-bold'}`} onClick={() => onClick(link?.id)}>{link?.value}</button> |
+        <li key={`${link?.id}`} className={'mr-4 py-4'}>
+          <button className={`bg-white text-black ${focusedNode === link.id && 'font-bold'}`} onClick={() => onClick(link?.id)}>
+            {link.id === 'root' ? (
+              <HomeIcon className={'w-4 h-4 text-slate-800'}/>
+            ) : (
+              <span>{link?.value}</span>
+            )}
+          </button>
         </li>
       ))}
     </ul>
