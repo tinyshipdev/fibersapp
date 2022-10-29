@@ -84,7 +84,7 @@ const Task: React.FC<TaskNodeProps> = ({
 
   return (
     <li key={id} className={'ml-10'}>
-      <p className={'flex items-center mb-2 group'}>
+      <p className={`flex items-center mb-2 group ${!nodes[id].isExpanded && nodes[id].children.length > 0 && 'text-slate-800 font-bold'}`}>
         <button onClick={() => onZoom(id)}>
           <MagnifyingGlassPlusIcon className={'w-4 h-4 text-slate-400 opacity-0 group-hover:opacity-100 ease-in duration-100'}/>
         </button>
@@ -93,7 +93,7 @@ const Task: React.FC<TaskNodeProps> = ({
             <ChevronDownIcon/>
           </button>
         ) : (
-          <button className={`w-6 h-6 ${nodes[id].children.length > 0 ? 'text-slate-400 hover:text-black' : 'text-slate-200'}`} onClick={() => onExpand(id)}>
+          <button className={`w-6 h-6 ${nodes[id].children.length > 0 ? 'text-black hover:text-black' : 'text-slate-100'}`} onClick={() => onExpand(id)}>
             <ChevronRightIcon/>
           </button>
         )}

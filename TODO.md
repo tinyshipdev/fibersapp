@@ -5,13 +5,13 @@ Taskflowy To do.
 TODO
 
 - work out a way of adding tasks to a todo list
-- if you attempt to delete a task that has children, you can't, therefore we need to show an alert or something explaining why you can't delete it
 - caret position doesn't get set when you select with mouse, need to fix this
 
 ---
 
 DOING
 
+- make it more visibly obvious when something is collapsed
 - click a task to focus on it
   - when selecting a task it will show subtasks, with the selected task as a heading
   - show a breadcrumb trail leading to this task in the header
