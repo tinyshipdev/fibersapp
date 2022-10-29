@@ -5,21 +5,22 @@ Taskflowy To do.
 TODO
 
 - work out a way of adding tasks to a todo list
-- caret position doesn't get set when you select with mouse, need to fix this
+
 
 ---
 
 DOING
 
-- make it more visibly obvious when something is collapsed
-- click a task to focus on it
-  - when selecting a task it will show subtasks, with the selected task as a heading
-  - show a breadcrumb trail leading to this task in the header
+- caret position doesn't get set when you select with mouse, need to fix this
 
 ---
 
 DONE
 
+- ~~click a task to focus on it~~
+  - ~~when selecting a task it will show subtasks, with the selected task as a heading~~
+  - ~~show a breadcrumb trail leading to this task in the header~~
+- ~~make it more visibly obvious when something is collapsed~~
 - ~~refactor graphs to combine into single nodes map~~
 - ~~fix movement after deleting a task~~
 - ~~refactor moveUp and moveDown to return id of element to move to~~
