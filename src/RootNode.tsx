@@ -170,12 +170,12 @@ const RootNode: React.FC = () => {
     } else if(keys['Enter']) {
       addNode(currentNodeId);
     } else if(keys['ArrowUp']) {
-      const moveTo = moveUp(currentNodeId);
+      const moveTo = findPreviousVisibleNode(currentNodeId);
       if(moveTo) {
         refocusInput(moveTo[0], moveTo[1]);
       }
     } else if(keys['ArrowDown']) {
-      const moveTo = moveDown(currentNodeId);
+      const moveTo = findNextVisibleNode(currentNodeId);
       if(moveTo) {
         refocusInput(moveTo[0], moveTo[1]);
       }
@@ -284,7 +284,7 @@ const RootNode: React.FC = () => {
     refocusInput(id, caretOffset);
   }
 
-  function moveUp(id: string): [id: string, offset: number] | null {
+  function findPreviousVisibleNode(id: string): [id: string, offset: number] | null {
     const caretOffset = window?.getSelection()?.anchorOffset || 0;
     if(caretOffset === 0) {
 
@@ -319,7 +319,7 @@ const RootNode: React.FC = () => {
     return null;
   }
 
-  function moveDown(id: string): [id: string, offset: number] | null {
+  function findNextVisibleNode(id: string): [id: string, offset: number] | null {
     const caretOffset = window?.getSelection()?.anchorOffset || 0;
     if(caretOffset !== nodes[id].value.length) {
       return null;
@@ -387,7 +387,7 @@ const RootNode: React.FC = () => {
 
     const indexOfCurrent = n[parent].children.indexOf(id);
 
-    const moveTo = moveUp(currentNodeId);
+    const moveTo = findPreviousVisibleNode(currentNodeId);
     n[parent].children.splice(indexOfCurrent, 1);
 
     // delete node
