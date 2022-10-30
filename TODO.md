@@ -11,12 +11,11 @@ TODO
 
 DOING
 
-- caret position doesn't get set when you select with mouse, need to fix this
-
 ---
 
 DONE
 
+- ~~caret position doesn't get set when you select with mouse, need to fix this~~
 - ~~click a task to focus on it~~
   - ~~when selecting a task it will show subtasks, with the selected task as a heading~~
   - ~~show a breadcrumb trail leading to this task in the header~~

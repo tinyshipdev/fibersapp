@@ -148,8 +148,6 @@ const RootTask: React.FC = () => {
     generateBreadcrumbTrail(focusedNode), [focusedNode, generateBreadcrumbTrail]
   );
 
-  const caretOffset = window?.getSelection()?.anchorOffset || 0;
-
   /**
    * I'm not sure how this works, but somehow it's working perfectly
    * it saves every second, but only if you're not editing.
@@ -208,6 +206,7 @@ const RootTask: React.FC = () => {
   }
 
   function addTask(id: string) {
+    const caretOffset = window?.getSelection()?.anchorOffset || 0;
     /**
      * when we add a task, we might be halfway through a word
      * when we hit enter, we want to split the word and create a new task with the second
@@ -232,6 +231,7 @@ const RootTask: React.FC = () => {
   }
 
   function indentRight(id: string) {
+    const caretOffset = window?.getSelection()?.anchorOffset || 0;
     const n = { ...nodes };
 
     let parentId = nodes[id].parent;
@@ -254,6 +254,7 @@ const RootTask: React.FC = () => {
   }
 
   function indentLeft(id: string) {
+    const caretOffset = window?.getSelection()?.anchorOffset || 0;
     const n = { ...nodes };
 
     // find parent
@@ -284,6 +285,7 @@ const RootTask: React.FC = () => {
   }
 
   function moveUp(id: string): [id: string, offset: number] | null {
+    const caretOffset = window?.getSelection()?.anchorOffset || 0;
     if(caretOffset === 0) {
 
       const n = { ...nodes };
@@ -318,6 +320,7 @@ const RootTask: React.FC = () => {
   }
 
   function moveDown(id: string): [id: string, offset: number] | null {
+    const caretOffset = window?.getSelection()?.anchorOffset || 0;
     if(caretOffset !== nodes[id].value.length) {
       return null;
     }
