@@ -1,11 +1,14 @@
 Taskflowy To do.
 
+BACKLOG
+
+- work out a way of adding tasks to a todo list
+
 ---
 
 TODO
 
-- work out a way of adding tasks to a todo list
-
+- drag and drop tasks to change order
 
 ---
 
