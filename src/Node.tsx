@@ -1,7 +1,7 @@
-import React, {useRef} from 'react';
+import React, {useRef, useState} from 'react';
 import {ACTION_KEYS, NodesInterface} from "./RootNode";
 import {ChevronDownIcon, ChevronRightIcon} from "@heroicons/react/20/solid";
-import {MagnifyingGlassPlusIcon} from "@heroicons/react/24/outline";
+import {ArrowsPointingOutIcon, MagnifyingGlassPlusIcon} from "@heroicons/react/24/outline";
 
 interface NodeProps {
   id: string;
@@ -16,6 +16,8 @@ interface NodeProps {
   onCollapse: (id: string) => void;
   onDelete: (id: string) => void;
   onZoom: (id: string) => void;
+  onDrag: (id: string) => void;
+  onDrop: (id: string) => void;
 }
 
 const Node: React.FC<NodeProps> = ({
@@ -31,7 +33,10 @@ const Node: React.FC<NodeProps> = ({
   onCollapse,
   onDelete,
   onZoom,
+  onDrag,
+  onDrop,
 }) => {
+  const [isDraggedOver, setIsDraggedOver] = useState(false);
   const ref = useRef<HTMLSpanElement>(null);
 
   const graphMap = (
@@ -51,6 +56,8 @@ const Node: React.FC<NodeProps> = ({
           onCollapse={(id) => onCollapse(id)}
           onDelete={(id) => onDelete(id)}
           onZoom={(id) => onZoom(id)}
+          onDrag={(id) => onDrag(id)}
+          onDrop={(id) => onDrop(id)}
         />
       ))}
     </ul>
@@ -83,22 +90,55 @@ const Node: React.FC<NodeProps> = ({
   );
 
   return (
-    <li key={id} className={'ml-10'}>
-      <p className={`flex items-center mb-2 group ${!nodes[id].isExpanded && nodes[id].children.length > 0 && 'text-slate-800 font-bold'}`}>
-        <button onClick={() => onZoom(id)}>
-          <MagnifyingGlassPlusIcon className={'w-4 h-4 text-slate-400 opacity-0 group-hover:opacity-100 ease-in duration-100'}/>
-        </button>
-        {nodes[id].isExpanded && nodes[id].children.length > 0 ? (
-          <button className={'w-6 h-6 text-slate-400 hover:text-black'} onClick={() => onCollapse(id)}>
-            <ChevronDownIcon/>
+    <li
+      key={id}
+      className={'ml-10'}
+    >
+      <div
+        data-id={id}
+        draggable={true}
+        onDrag={(e: any) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onDrag(e.target.dataset.id);
+        }}
+      >
+        <p className={`flex items-center group ${!nodes[id].isExpanded && nodes[id].children.length > 0 && 'text-slate-800 font-bold'}`}>
+          <button>
+            <ArrowsPointingOutIcon className={'w-4 h-4 text-slate-400 mr-2 opacity-0 group-hover:opacity-100 ease-in duration-100'}/>
           </button>
-        ) : (
-          <button className={`w-6 h-6 ${nodes[id].children.length > 0 ? 'text-black hover:text-black' : 'text-slate-100'}`} onClick={() => onExpand(id)}>
-            <ChevronRightIcon/>
+          <button onClick={() => onZoom(id)}>
+            <MagnifyingGlassPlusIcon className={'w-4 h-4 text-slate-400 opacity-0 group-hover:opacity-100 ease-in duration-100'}/>
           </button>
-        )}
-        {textSpan}
-      </p>
+          {nodes[id].isExpanded && nodes[id].children.length > 0 ? (
+            <button className={'w-6 h-6 text-slate-400 hover:text-black'} onClick={() => onCollapse(id)}>
+              <ChevronDownIcon/>
+            </button>
+          ) : (
+            <button className={`w-6 h-6 ${nodes[id].children.length > 0 ? 'text-black hover:text-black' : 'text-slate-100'}`} onClick={() => onExpand(id)}>
+              <ChevronRightIcon/>
+            </button>
+          )}
+          {textSpan}
+        </p>
+      </div>
+      <div
+        className={`py-2 transition-spacing ease-in-out duration-100 ${isDraggedOver ? 'py-5' : ''}`}
+        onDragEnter={(e) => e.preventDefault()}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setIsDraggedOver(true);
+        }}
+        onDragLeave={(e) => {
+          e.preventDefault();
+          setIsDraggedOver(false);
+        }}
+        onDrop={(e: any) => {
+          e.preventDefault();
+          setIsDraggedOver(false);
+          onDrop(id);
+        }}
+      ></div>
       {nodes[id].isExpanded && nodes[id].children.length > 0 && graphMap}
     </li>
   );

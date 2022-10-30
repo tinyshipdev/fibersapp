@@ -123,6 +123,7 @@ const RootNode: React.FC = () => {
   const [keys, setKeys] = useState<KeyMapInterface>({});
   const [currentNodeId, setCurrentNodeId] = useState('');
   const [focusedNode, setFocusedNode] = useState('root');
+  const [draggedNode, setDraggedNode] = useState('');
 
   // I wrote this in a rush, might want to refactor at some point
   const generateBreadcrumbTrail = useCallback((id: string): {id: string, value: string}[] => {
@@ -227,6 +228,7 @@ const RootNode: React.FC = () => {
     nodes[parentId]?.children.splice(index + 1, 0, nodeId);
 
     setNodes(n);
+
     refocusInput(nodeId, 0);
   }
 
@@ -428,6 +430,32 @@ const RootNode: React.FC = () => {
     setFocusedNode(id);
   }
 
+  function handleDrag(id: string) {
+    setDraggedNode(id);
+  }
+
+  function handleDrop(dropTarget: string) {
+    if(nodes['root'].children[0] === draggedNode) {
+      return;
+    }
+
+    if(dropTarget === draggedNode) {
+      return;
+    }
+
+    const n = { ...nodes };
+
+    // remove dragged node from child of it's parent
+    const parent = n[draggedNode].parent;
+    const indexOfDraggedNode = n[parent].children.indexOf(draggedNode);
+    n[parent].children.splice(indexOfDraggedNode, 1);
+
+    n[dropTarget].children.splice(0, 0, draggedNode);
+    n[draggedNode].parent = dropTarget;
+
+    setNodes(n);
+  }
+
   return (
     <ul>
       <BreadcrumbTrail focusedNode={focusedNode} links={breadcrumbs} onClick={(id) => handleZoom(id)} />
@@ -440,6 +468,15 @@ const RootNode: React.FC = () => {
         />
       )}
       <div className={'-ml-10'}>
+      <div
+        className={'h-3'}
+        onDragEnter={(e) => e.preventDefault()}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={(e: any) => {
+          e.preventDefault();
+          handleDrop('root');
+        }}
+      ></div>
       <Node
         id={focusedNode}
         focusedNode={focusedNode}
@@ -453,6 +490,8 @@ const RootNode: React.FC = () => {
         onCollapse={(id) => handleCollapse(id)}
         onDelete={(id) => handleDelete(id)}
         onZoom={(id) => handleZoom(id)}
+        onDrag={(id) => handleDrag(id)}
+        onDrop={(id) => handleDrop(id)}
       />
       </div>
     </ul>
