@@ -17,7 +17,8 @@ interface NodeProps {
   onDelete: (id: string) => void;
   onZoom: (id: string) => void;
   onDrag: (id: string) => void;
-  onDrop: (id: string) => void;
+  onDropSibling: (id: string) => void;
+  onDropChild:(id: string) => void;
 }
 
 const Node: React.FC<NodeProps> = ({
@@ -34,9 +35,11 @@ const Node: React.FC<NodeProps> = ({
   onDelete,
   onZoom,
   onDrag,
-  onDrop,
+  onDropChild,
+  onDropSibling,
 }) => {
-  const [isDraggedOver, setIsDraggedOver] = useState(false);
+  const [isSiblingDraggedOver, setIsSiblingDraggedOver] = useState(false);
+  const [isChildDraggedOver, setIsChildDraggedOver] = useState(false);
   const ref = useRef<HTMLSpanElement>(null);
 
   const graphMap = (
@@ -57,7 +60,8 @@ const Node: React.FC<NodeProps> = ({
           onDelete={(id) => onDelete(id)}
           onZoom={(id) => onZoom(id)}
           onDrag={(id) => onDrag(id)}
-          onDrop={(id) => onDrop(id)}
+          onDropChild={(id) => onDropChild(id)}
+          onDropSibling={(id) => onDropSibling(id)}
         />
       ))}
     </ul>
@@ -92,7 +96,7 @@ const Node: React.FC<NodeProps> = ({
   return (
     <li
       key={id}
-      className={'ml-10'}
+      className={'ml-10 relative'}
     >
       <div
         data-id={id}
@@ -122,23 +126,42 @@ const Node: React.FC<NodeProps> = ({
           {textSpan}
         </p>
       </div>
-      <div
-        className={`py-2 transition-spacing ease-in-out duration-100 ${isDraggedOver ? 'py-5' : ''}`}
-        onDragEnter={(e) => e.preventDefault()}
-        onDragOver={(e) => {
-          e.preventDefault();
-          setIsDraggedOver(true);
-        }}
-        onDragLeave={(e) => {
-          e.preventDefault();
-          setIsDraggedOver(false);
-        }}
-        onDrop={(e: any) => {
-          e.preventDefault();
-          setIsDraggedOver(false);
-          onDrop(id);
-        }}
-      ></div>
+      <div className="flex relative">
+        <div
+          className={`py-2 w-24 transition-spacing ease-in-out duration-100 ${isSiblingDraggedOver ? 'py-5' : ''}`}
+          onDragEnter={(e) => e.preventDefault()}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setIsSiblingDraggedOver(true);
+          }}
+          onDragLeave={(e) => {
+            e.preventDefault();
+            setIsSiblingDraggedOver(false);
+          }}
+          onDrop={(e: any) => {
+            e.preventDefault();
+            setIsSiblingDraggedOver(false);
+            onDropSibling(id);
+          }}
+        ></div>
+        <div
+          className={`py-2 w-full transition-spacing ease-in-out duration-100 ${isChildDraggedOver ? 'py-5' : ''}`}
+          onDragEnter={(e) => e.preventDefault()}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setIsChildDraggedOver(true);
+          }}
+          onDragLeave={(e) => {
+            e.preventDefault();
+            setIsChildDraggedOver(false);
+          }}
+          onDrop={(e: any) => {
+            e.preventDefault();
+            setIsChildDraggedOver(false);
+            onDropChild(id);
+          }}
+        ></div>
+      </div>
       {nodes[id].isExpanded && nodes[id].children.length > 0 && graphMap}
     </li>
   );

@@ -8,7 +8,7 @@ BACKLOG
 
 TODO
 
-- add more drop areas to decide if node should be sibling or child
+- fix bug that deletes nodes if you try to move a node to be a child of its own child
 
 ---
 
@@ -18,6 +18,7 @@ DOING
 
 DONE
 
+- ~~add more drop areas to decide if node should be sibling or child~~
 - ~~drag and drop tasks to change order~~
 - ~~caret position doesn't get set when you select with mouse, need to fix this~~
 - ~~click a task to focus on it~~

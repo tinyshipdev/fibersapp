@@ -434,12 +434,16 @@ const RootNode: React.FC = () => {
     setDraggedNode(id);
   }
 
-  function handleDrop(dropTarget: string) {
+  function validateDropConditions(dropTarget: string) {
     if(nodes['root'].children[0] === draggedNode) {
-      return;
+      return false;
     }
 
-    if(dropTarget === draggedNode) {
+    return dropTarget !== draggedNode;
+  }
+
+  function handleDropChild(dropTarget: string) {
+    if(!validateDropConditions(dropTarget)) {
       return;
     }
 
@@ -452,6 +456,26 @@ const RootNode: React.FC = () => {
 
     n[dropTarget].children.splice(0, 0, draggedNode);
     n[draggedNode].parent = dropTarget;
+
+    setNodes(n);
+  }
+
+  function handleDropSibling(dropTarget: string) {
+    if(!validateDropConditions(dropTarget)) {
+      return;
+    }
+
+    const n = {...nodes};
+
+    // remove dragged node from child of it's parent
+    const parent = n[draggedNode].parent;
+    const indexOfDraggedNode = n[parent].children.indexOf(draggedNode);
+    n[parent].children.splice(indexOfDraggedNode, 1);
+
+    const parentOfDropTarget = n[dropTarget].parent;
+    const indexOfDropTarget = n[parentOfDropTarget].children.indexOf(dropTarget);
+    n[parentOfDropTarget].children.splice(indexOfDropTarget + 1, 0, draggedNode);
+    n[draggedNode].parent = parentOfDropTarget;
 
     setNodes(n);
   }
@@ -474,7 +498,7 @@ const RootNode: React.FC = () => {
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e: any) => {
           e.preventDefault();
-          handleDrop('root');
+          handleDropChild('root');
         }}
       ></div>
       <Node
@@ -491,7 +515,8 @@ const RootNode: React.FC = () => {
         onDelete={(id) => handleDelete(id)}
         onZoom={(id) => handleZoom(id)}
         onDrag={(id) => handleDrag(id)}
-        onDrop={(id) => handleDrop(id)}
+        onDropChild={(id) => handleDropChild(id)}
+        onDropSibling={(id) => handleDropSibling(id)}
       />
       </div>
     </ul>
