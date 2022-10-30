@@ -1,11 +1,11 @@
 import React from 'react';
-import RootTask from "./RootTask";
+import RootNode from "./RootNode";
 
 function App() {
   return (
     <div className="App">
       <div className="p-10">
-        <RootTask/>
+        <RootNode/>
       </div>
     </div>
   );

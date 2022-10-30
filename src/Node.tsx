@@ -1,9 +1,9 @@
 import React, {useRef} from 'react';
-import {ACTION_KEYS, NodesInterface} from "./RootTask";
+import {ACTION_KEYS, NodesInterface} from "./RootNode";
 import {ChevronDownIcon, ChevronRightIcon} from "@heroicons/react/20/solid";
 import {MagnifyingGlassPlusIcon} from "@heroicons/react/24/outline";
 
-interface TaskNodeProps {
+interface NodeProps {
   id: string;
   value: string;
   focusedNode: string;
@@ -18,7 +18,7 @@ interface TaskNodeProps {
   onZoom: (id: string) => void;
 }
 
-const Task: React.FC<TaskNodeProps> = ({
+const Node: React.FC<NodeProps> = ({
   id,
   value,
   focusedNode,
@@ -37,7 +37,7 @@ const Task: React.FC<TaskNodeProps> = ({
   const graphMap = (
     <ul className={'list-none'}>
       {nodes[id]?.children?.map((n: any) => (
-        <Task
+        <Node
           key={n}
           id={n}
           value={nodes[n].value}
@@ -104,4 +104,4 @@ const Task: React.FC<TaskNodeProps> = ({
   );
 };
 
-export default Task;
+export default Node;

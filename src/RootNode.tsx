@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import { nanoid } from 'nanoid'
-import Task from "./Task";
+import Node from "./Node";
 import BreadcrumbTrail from "./BreadcrumbTrail";
 
 type KeyMapInterface = { [key: string]: boolean };
@@ -118,10 +118,10 @@ function saveState(nodes: NodesInterface) {
 
 export const ACTION_KEYS = ['Tab', 'Enter'];
 
-const RootTask: React.FC = () => {
+const RootNode: React.FC = () => {
   const [nodes, setNodes] = useState<NodesInterface>(() => getDefaultNodes());
   const [keys, setKeys] = useState<KeyMapInterface>({});
-  const [currentTaskId, setCurrentTaskId] = useState('');
+  const [currentNodeId, setCurrentNodeId] = useState('');
   const [focusedNode, setFocusedNode] = useState('root');
 
   // I wrote this in a rush, might want to refactor at some point
@@ -164,18 +164,18 @@ const RootTask: React.FC = () => {
 
   function handleActions(keys: KeyMapInterface) {
     if(keys['Shift'] && keys['Tab']) {
-      indentLeft(currentTaskId);
+      indentLeft(currentNodeId);
     } else if(keys['Tab']) {
-      indentRight(currentTaskId);
+      indentRight(currentNodeId);
     } else if(keys['Enter']) {
-      addTask(currentTaskId);
+      addNode(currentNodeId);
     } else if(keys['ArrowUp']) {
-      const moveTo = moveUp(currentTaskId);
+      const moveTo = moveUp(currentNodeId);
       if(moveTo) {
         refocusInput(moveTo[0], moveTo[1]);
       }
     } else if(keys['ArrowDown']) {
-      const moveTo = moveDown(currentTaskId);
+      const moveTo = moveDown(currentNodeId);
       if(moveTo) {
         refocusInput(moveTo[0], moveTo[1]);
       }
@@ -205,11 +205,11 @@ const RootTask: React.FC = () => {
     setKeys(k);
   }
 
-  function addTask(id: string) {
+  function addNode(id: string) {
     const caretOffset = window?.getSelection()?.anchorOffset || 0;
     /**
-     * when we add a task, we might be halfway through a word
-     * when we hit enter, we want to split the word and create a new task with the second
+     * when we add a node, we might be halfway through a word
+     * when we hit enter, we want to split the word and create a new node with the second
      * half of that word.
      */
     let parentId = nodes[id].parent;
@@ -218,16 +218,16 @@ const RootTask: React.FC = () => {
     let firstHalf = n[id].value.slice(0, caretOffset);
     let secondHalf = n[id].value.slice(caretOffset);
 
-    const taskId = nanoid();
+    const nodeId = nanoid();
 
     n[id].value = firstHalf;
-    n[taskId] = { value: secondHalf, isExpanded: true, children: [], parent: parentId };
+    n[nodeId] = { value: secondHalf, isExpanded: true, children: [], parent: parentId };
 
     let index = nodes[parentId]?.children.indexOf(id);
-    nodes[parentId]?.children.splice(index + 1, 0, taskId);
+    nodes[parentId]?.children.splice(index + 1, 0, nodeId);
 
     setNodes(n);
-    refocusInput(taskId, 0);
+    refocusInput(nodeId, 0);
   }
 
   function indentRight(id: string) {
@@ -235,17 +235,17 @@ const RootTask: React.FC = () => {
     const n = { ...nodes };
 
     let parentId = nodes[id].parent;
-    let subTasks = nodes[parentId]?.children;
+    let subNodes = nodes[parentId]?.children;
 
-    let index = subTasks.indexOf(id);
-    let previousKey = subTasks[index - 1];
+    let index = subNodes.indexOf(id);
+    let previousKey = subNodes[index - 1];
 
     if(!previousKey) {
       return;
     }
 
     n[previousKey]?.children.push(id);
-    subTasks.splice(index, 1);
+    subNodes.splice(index, 1);
 
     n[id].parent = previousKey;
 
@@ -376,7 +376,7 @@ const RootTask: React.FC = () => {
 
     const n = { ...nodes };
 
-    // remove task as child of parent
+    // remove node as child of parent
     const parent = n[id].parent;
 
     // if the parent is root, and id is first child of root
@@ -387,7 +387,7 @@ const RootTask: React.FC = () => {
 
     const indexOfCurrent = n[parent].children.indexOf(id);
 
-    const moveTo = moveUp(currentTaskId);
+    const moveTo = moveUp(currentNodeId);
     n[parent].children.splice(indexOfCurrent, 1);
 
     // delete node
@@ -440,7 +440,7 @@ const RootTask: React.FC = () => {
         />
       )}
       <div className={'-ml-10'}>
-      <Task
+      <Node
         id={focusedNode}
         focusedNode={focusedNode}
         value={nodes[focusedNode]?.value}
@@ -448,7 +448,7 @@ const RootTask: React.FC = () => {
         onChange={(id, value) => handleChange(id, value)}
         onKeyUp={(e) => handleKeyUp(e)}
         onKeyDown={(e) => handleKeyDown(e)}
-        onFocus={(id) => setCurrentTaskId(id)}
+        onFocus={(id) => setCurrentNodeId(id)}
         onExpand={(id) => handleExpand(id)}
         onCollapse={(id) => handleCollapse(id)}
         onDelete={(id) => handleDelete(id)}
@@ -459,4 +459,4 @@ const RootTask: React.FC = () => {
   );
 };
 
-export default RootTask;
+export default RootNode;
