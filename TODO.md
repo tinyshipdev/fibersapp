@@ -8,7 +8,7 @@ BACKLOG
 
 TODO
 
-- drag and drop tasks to change order
+- add more drop areas to decide if node should be sibling or child
 
 ---
 
@@ -18,6 +18,7 @@ DOING
 
 DONE
 
+- ~~drag and drop tasks to change order~~
 - ~~caret position doesn't get set when you select with mouse, need to fix this~~
 - ~~click a task to focus on it~~
   - ~~when selecting a task it will show subtasks, with the selected task as a heading~~
