@@ -6,12 +6,12 @@ import {MagnifyingGlassPlusIcon} from "@heroicons/react/24/outline";
 interface NodeProps {
   id: string;
   value: string;
-  focusedNode: string;
+  zoomedNode: string;
   nodes: NodesInterface;
   onChange: (id: string, value: string) => void;
   onKeyDown: (e: React.KeyboardEvent) => void;
   onKeyUp: (e: React.KeyboardEvent) => void;
-  onFocus: (id: string) => void;
+  onSelect: (id: string) => void;
   onExpand: (id: string) => void;
   onCollapse: (id: string) => void;
   onDelete: (id: string) => void;
@@ -24,12 +24,12 @@ interface NodeProps {
 const Node: React.FC<NodeProps> = ({
   id,
   value,
-  focusedNode,
+  zoomedNode,
   nodes,
   onChange,
   onKeyDown,
   onKeyUp,
-  onFocus,
+  onSelect,
   onExpand,
   onCollapse,
   onDelete,
@@ -50,12 +50,12 @@ const Node: React.FC<NodeProps> = ({
           key={n}
           id={n}
           value={nodes[n].value}
-          focusedNode={focusedNode}
+          zoomedNode={zoomedNode}
           nodes={nodes}
           onChange={(id, value) => onChange(id, value)}
           onKeyDown={(e) => onKeyDown(e)}
           onKeyUp={(e) => onKeyUp(e)}
-          onFocus={(id) => onFocus(id)}
+          onSelect={(id) => onSelect(id)}
           onExpand={(id) => onExpand(id)}
           onCollapse={(id) => onCollapse(id)}
           onDelete={(id) => onDelete(id)}
@@ -68,7 +68,7 @@ const Node: React.FC<NodeProps> = ({
     </ul>
   )
 
-  if(id === focusedNode) {
+  if(id === zoomedNode) {
     return graphMap;
   }
 
@@ -78,7 +78,7 @@ const Node: React.FC<NodeProps> = ({
       id={id}
       ref={ref}
       contentEditable={true}
-      onFocus={() => onFocus(id)}
+      onFocus={() => onSelect(id)}
       onBlur={(e) => onChange(id, e.currentTarget.innerText)}
       onKeyDown={(e) => {
         // this forces the text to be saved to state if we move

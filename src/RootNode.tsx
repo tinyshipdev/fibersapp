@@ -121,8 +121,8 @@ export const ACTION_KEYS = ['Tab', 'Enter'];
 const RootNode: React.FC = () => {
   const [nodes, setNodes] = useState<NodesInterface>(() => getDefaultNodes());
   const [keys, setKeys] = useState<KeyMapInterface>({});
-  const [currentNodeId, setCurrentNodeId] = useState('');
-  const [focusedNode, setFocusedNode] = useState('root');
+  const [selectedNode, setSelectedNode] = useState('');
+  const [zoomedNode, setZoomedNode] = useState('root');
   const [draggedNode, setDraggedNode] = useState('');
 
   // I wrote this in a rush, might want to refactor at some point
@@ -146,7 +146,7 @@ const RootNode: React.FC = () => {
   }, [nodes]);
 
   const breadcrumbs = useMemo(() =>
-    generateBreadcrumbTrail(focusedNode), [focusedNode, generateBreadcrumbTrail]
+    generateBreadcrumbTrail(zoomedNode), [zoomedNode, generateBreadcrumbTrail]
   );
 
   /**
@@ -165,18 +165,18 @@ const RootNode: React.FC = () => {
 
   function handleActions(keys: KeyMapInterface) {
     if(keys['Shift'] && keys['Tab']) {
-      indentLeft(currentNodeId);
+      indentLeft(selectedNode);
     } else if(keys['Tab']) {
-      indentRight(currentNodeId);
+      indentRight(selectedNode);
     } else if(keys['Enter']) {
-      addNode(currentNodeId);
+      addNode(selectedNode);
     } else if(keys['ArrowUp']) {
-      const moveTo = findPreviousVisibleNode(currentNodeId);
+      const moveTo = findPreviousVisibleNode(selectedNode);
       if(moveTo) {
         refocusInput(moveTo[0], moveTo[1]);
       }
     } else if(keys['ArrowDown']) {
-      const moveTo = findNextVisibleNode(currentNodeId);
+      const moveTo = findNextVisibleNode(selectedNode);
       if(moveTo) {
         refocusInput(moveTo[0], moveTo[1]);
       }
@@ -389,7 +389,7 @@ const RootNode: React.FC = () => {
 
     const indexOfCurrent = n[parent].children.indexOf(id);
 
-    const moveTo = findPreviousVisibleNode(currentNodeId);
+    const moveTo = findPreviousVisibleNode(selectedNode);
     n[parent].children.splice(indexOfCurrent, 1);
 
     // delete node
@@ -427,7 +427,7 @@ const RootNode: React.FC = () => {
   }
 
   function handleZoom(id: string) {
-    setFocusedNode(id);
+    setZoomedNode(id);
   }
 
   function handleDrag(id: string) {
@@ -482,25 +482,25 @@ const RootNode: React.FC = () => {
 
   return (
     <div>
-      <BreadcrumbTrail focusedNode={focusedNode} links={breadcrumbs} onClick={(id) => handleZoom(id)} />
-      {focusedNode !== 'root' && (
+      <BreadcrumbTrail zoomedNode={zoomedNode} links={breadcrumbs} onClick={(id) => handleZoom(id)} />
+      {zoomedNode !== 'root' && (
         <input
           className={'text-xl font-bold mb-6 focus:outline-none'}
-          value={nodes[focusedNode]?.value}
-          placeholder={!nodes[focusedNode]?.value ? 'Untitled' : ''}
-          onChange={(e) => handleChange(focusedNode, e.target.value)}
+          value={nodes[zoomedNode]?.value}
+          placeholder={!nodes[zoomedNode]?.value ? 'Untitled' : ''}
+          onChange={(e) => handleChange(zoomedNode, e.target.value)}
         />
       )}
       <div className={'-ml-10'}>
         <Node
-          id={focusedNode}
-          focusedNode={focusedNode}
-          value={nodes[focusedNode]?.value}
+          id={zoomedNode}
+          zoomedNode={zoomedNode}
+          value={nodes[zoomedNode]?.value}
           nodes={nodes}
           onChange={(id, value) => handleChange(id, value)}
           onKeyUp={(e) => handleKeyUp(e)}
           onKeyDown={(e) => handleKeyDown(e)}
-          onFocus={(id) => setCurrentNodeId(id)}
+          onSelect={(id) => setSelectedNode(id)}
           onExpand={(id) => handleExpand(id)}
           onCollapse={(id) => handleCollapse(id)}
           onDelete={(id) => handleDelete(id)}
