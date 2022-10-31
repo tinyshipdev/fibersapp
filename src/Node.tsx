@@ -94,9 +94,6 @@ const Node: React.FC<NodeProps> = ({
     >{value}</span>
   );
 
-  // if we are dragging this node, and it has children,
-  // only put a drop area below this node, not it's children
-
   return (
     <li
       key={id}

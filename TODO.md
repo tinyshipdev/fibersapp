@@ -8,16 +8,18 @@ BACKLOG
 
 TODO
 
-- fix bug that deletes nodes if you try to move a node to be a child of its own child
-
 ---
 
 DOING
+
+- Select multiple lines for deletion
+  - need to remove content editable and draggable when not editing or dragging
 
 ---
 
 DONE
 
+- ~~fix bug that deletes nodes if you try to move a node to be a child of its own child~~
 - ~~add more drop areas to decide if node should be sibling or child~~
 - ~~drag and drop tasks to change order~~
 - ~~caret position doesn't get set when you select with mouse, need to fix this~~
