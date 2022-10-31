@@ -8,6 +8,9 @@ BACKLOG
 
 TODO
 
+- undo, redo
+
+
 ---
 
 DOING
@@ -19,6 +22,7 @@ DOING
 
 DONE
 
+- ~~if a task is empty and you press enter, indent left instead of making a new task~~
 - ~~fix bug that deletes nodes if you try to move a node to be a child of its own child~~
 - ~~add more drop areas to decide if node should be sibling or child~~
 - ~~drag and drop tasks to change order~~

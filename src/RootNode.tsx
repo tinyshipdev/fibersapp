@@ -169,7 +169,11 @@ const RootNode: React.FC = () => {
     } else if(keys['Tab']) {
       indentRight(selectedNode);
     } else if(keys['Enter']) {
-      addNode(selectedNode);
+      if(!nodes[selectedNode].value) {
+        indentLeft(selectedNode);
+      } else {
+        addNode(selectedNode);
+      }
     } else if(keys['ArrowUp']) {
       const moveTo = findPreviousVisibleNode(selectedNode);
       if(moveTo) {
