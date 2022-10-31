@@ -131,10 +131,33 @@ const Node: React.FC<NodeProps> = ({
         )}
         {textSpan}
       </p>
-      {nodes[id].isExpanded && nodes[id].children.length > 0 && !isDragging && graphMap}
       {!isDragging && (
-        <div>drop area for {id}</div>
+        <div className={'relative left-10'}>
+          <div className="flex">
+            <div
+              className={`w-10 py-1 transition ease-in-out duration-100 ${isSiblingDraggedOver ? 'bg-slate-300' : ''}`}
+              onDragEnter={() => setIsSiblingDraggedOver(true)}
+              onDragLeave={() => setIsSiblingDraggedOver(false)}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={() => {
+                onDropSibling(id);
+                setIsSiblingDraggedOver(false)
+              }}
+            />
+            <div
+              className={`w-10 py-1 transition ease-in-out duration-100 ${isChildDraggedOver ? 'bg-slate-300' : ''}`}
+              onDragEnter={() => setIsChildDraggedOver(true)}
+              onDragLeave={() => setIsChildDraggedOver(false)}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={() => {
+                onDropChild(id);
+                setIsChildDraggedOver(false)
+              }}
+            />
+          </div>
+        </div>
       )}
+      {nodes[id].isExpanded && nodes[id].children.length > 0 && !isDragging && graphMap}
     </li>
   );
 };
