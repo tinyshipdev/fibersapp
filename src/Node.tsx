@@ -38,6 +38,7 @@ const Node: React.FC<NodeProps> = ({
   onDropChild,
   onDropSibling,
 }) => {
+  const [isDragging, setIsDragging] = useState(false);
   const [isSiblingDraggedOver, setIsSiblingDraggedOver] = useState(false);
   const [isChildDraggedOver, setIsChildDraggedOver] = useState(false);
   const ref = useRef<HTMLSpanElement>(null);
@@ -93,76 +94,47 @@ const Node: React.FC<NodeProps> = ({
     >{value}</span>
   );
 
+  // if we are dragging this node, and it has children,
+  // only put a drop area below this node, not it's children
+
   return (
     <li
       key={id}
       className={'ml-10 relative'}
+      data-id={id}
+      draggable={true}
+      onDragStart={(e: any) => {
+        e.stopPropagation();
+        setIsDragging(true);
+        onDrag(e.target.dataset.id);
+      }}
+      onDragEnd={(e) => {
+        e.stopPropagation();
+        setIsDragging(false)
+      }}
     >
-      <div
-        data-id={id}
-        draggable={true}
-        onDrag={(e: any) => {
-          e.preventDefault();
-          e.stopPropagation();
-          onDrag(e.target.dataset.id);
-        }}
-      >
-        <p className={`flex items-center group ${!nodes[id].isExpanded && nodes[id].children.length > 0 && 'text-slate-800 font-bold'}`}>
-          <button>
-            <ArrowsPointingOutIcon className={'w-4 h-4 text-slate-400 mr-2 opacity-0 group-hover:opacity-100 ease-in duration-100'}/>
+      <p className={`flex items-center group ${!nodes[id].isExpanded && nodes[id].children.length > 0 && 'text-slate-800 font-bold'}`}>
+        <button>
+          <ArrowsPointingOutIcon className={'w-4 h-4 text-slate-400 mr-2 opacity-0 group-hover:opacity-100 ease-in duration-100'}/>
+        </button>
+        <button onClick={() => onZoom(id)}>
+          <MagnifyingGlassPlusIcon className={'w-4 h-4 text-slate-400 opacity-0 group-hover:opacity-100 ease-in duration-100'}/>
+        </button>
+        {nodes[id].isExpanded && nodes[id].children.length > 0 ? (
+          <button className={'w-6 h-6 text-slate-400 hover:text-black'} onClick={() => onCollapse(id)}>
+            <ChevronDownIcon/>
           </button>
-          <button onClick={() => onZoom(id)}>
-            <MagnifyingGlassPlusIcon className={'w-4 h-4 text-slate-400 opacity-0 group-hover:opacity-100 ease-in duration-100'}/>
+        ) : (
+          <button className={`w-6 h-6 ${nodes[id].children.length > 0 ? 'text-black hover:text-black' : 'text-slate-100'}`} onClick={() => onExpand(id)}>
+            <ChevronRightIcon/>
           </button>
-          {nodes[id].isExpanded && nodes[id].children.length > 0 ? (
-            <button className={'w-6 h-6 text-slate-400 hover:text-black'} onClick={() => onCollapse(id)}>
-              <ChevronDownIcon/>
-            </button>
-          ) : (
-            <button className={`w-6 h-6 ${nodes[id].children.length > 0 ? 'text-black hover:text-black' : 'text-slate-100'}`} onClick={() => onExpand(id)}>
-              <ChevronRightIcon/>
-            </button>
-          )}
-          {textSpan}
-        </p>
-      </div>
-      <div className="flex relative">
-        <div
-          className={`py-2 w-24 transition-spacing ease-in-out duration-100 ${isSiblingDraggedOver ? 'py-5' : ''}`}
-          onDragEnter={(e) => e.preventDefault()}
-          onDragOver={(e) => {
-            e.preventDefault();
-            setIsSiblingDraggedOver(true);
-          }}
-          onDragLeave={(e) => {
-            e.preventDefault();
-            setIsSiblingDraggedOver(false);
-          }}
-          onDrop={(e: any) => {
-            e.preventDefault();
-            setIsSiblingDraggedOver(false);
-            onDropSibling(id);
-          }}
-        ></div>
-        <div
-          className={`py-2 w-full transition-spacing ease-in-out duration-100 ${isChildDraggedOver ? 'py-5' : ''}`}
-          onDragEnter={(e) => e.preventDefault()}
-          onDragOver={(e) => {
-            e.preventDefault();
-            setIsChildDraggedOver(true);
-          }}
-          onDragLeave={(e) => {
-            e.preventDefault();
-            setIsChildDraggedOver(false);
-          }}
-          onDrop={(e: any) => {
-            e.preventDefault();
-            setIsChildDraggedOver(false);
-            onDropChild(id);
-          }}
-        ></div>
-      </div>
-      {nodes[id].isExpanded && nodes[id].children.length > 0 && graphMap}
+        )}
+        {textSpan}
+      </p>
+      {nodes[id].isExpanded && nodes[id].children.length > 0 && !isDragging && graphMap}
+      {!isDragging && (
+        <div>drop area for {id}</div>
+      )}
     </li>
   );
 };

@@ -481,7 +481,7 @@ const RootNode: React.FC = () => {
   }
 
   return (
-    <ul>
+    <div>
       <BreadcrumbTrail focusedNode={focusedNode} links={breadcrumbs} onClick={(id) => handleZoom(id)} />
       {focusedNode !== 'root' && (
         <input
@@ -519,7 +519,7 @@ const RootNode: React.FC = () => {
         onDropSibling={(id) => handleDropSibling(id)}
       />
       </div>
-    </ul>
+    </div>
   );
 };
 
