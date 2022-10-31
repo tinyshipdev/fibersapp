@@ -492,32 +492,23 @@ const RootNode: React.FC = () => {
         />
       )}
       <div className={'-ml-10'}>
-      <div
-        className={'h-3'}
-        onDragEnter={(e) => e.preventDefault()}
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={(e: any) => {
-          e.preventDefault();
-          handleDropChild('root');
-        }}
-      ></div>
-      <Node
-        id={focusedNode}
-        focusedNode={focusedNode}
-        value={nodes[focusedNode]?.value}
-        nodes={nodes}
-        onChange={(id, value) => handleChange(id, value)}
-        onKeyUp={(e) => handleKeyUp(e)}
-        onKeyDown={(e) => handleKeyDown(e)}
-        onFocus={(id) => setCurrentNodeId(id)}
-        onExpand={(id) => handleExpand(id)}
-        onCollapse={(id) => handleCollapse(id)}
-        onDelete={(id) => handleDelete(id)}
-        onZoom={(id) => handleZoom(id)}
-        onDrag={(id) => handleDrag(id)}
-        onDropChild={(id) => handleDropChild(id)}
-        onDropSibling={(id) => handleDropSibling(id)}
-      />
+        <Node
+          id={focusedNode}
+          focusedNode={focusedNode}
+          value={nodes[focusedNode]?.value}
+          nodes={nodes}
+          onChange={(id, value) => handleChange(id, value)}
+          onKeyUp={(e) => handleKeyUp(e)}
+          onKeyDown={(e) => handleKeyDown(e)}
+          onFocus={(id) => setCurrentNodeId(id)}
+          onExpand={(id) => handleExpand(id)}
+          onCollapse={(id) => handleCollapse(id)}
+          onDelete={(id) => handleDelete(id)}
+          onZoom={(id) => handleZoom(id)}
+          onDrag={(id) => handleDrag(id)}
+          onDropChild={(id) => handleDropChild(id)}
+          onDropSibling={(id) => handleDropSibling(id)}
+        />
       </div>
     </div>
   );
