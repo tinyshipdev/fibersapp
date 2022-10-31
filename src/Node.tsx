@@ -1,7 +1,7 @@
 import React, {useRef, useState} from 'react';
 import {ACTION_KEYS, NodesInterface} from "./RootNode";
 import {ChevronDownIcon, ChevronRightIcon} from "@heroicons/react/20/solid";
-import {ArrowsPointingOutIcon, MagnifyingGlassPlusIcon} from "@heroicons/react/24/outline";
+import {MagnifyingGlassPlusIcon} from "@heroicons/react/24/outline";
 
 interface NodeProps {
   id: string;
@@ -114,9 +114,6 @@ const Node: React.FC<NodeProps> = ({
       }}
     >
       <p className={`flex items-center group ${!nodes[id].isExpanded && nodes[id].children.length > 0 && 'text-slate-800 font-bold'}`}>
-        <button>
-          <ArrowsPointingOutIcon className={'w-4 h-4 text-slate-400 mr-2 opacity-0 group-hover:opacity-100 ease-in duration-100'}/>
-        </button>
         <button onClick={() => onZoom(id)}>
           <MagnifyingGlassPlusIcon className={'w-4 h-4 text-slate-400 opacity-0 group-hover:opacity-100 ease-in duration-100'}/>
         </button>
@@ -125,14 +122,14 @@ const Node: React.FC<NodeProps> = ({
             <ChevronDownIcon/>
           </button>
         ) : (
-          <button className={`w-6 h-6 ${nodes[id].children.length > 0 ? 'text-black hover:text-black' : 'text-slate-100'}`} onClick={() => onExpand(id)}>
+          <button className={`w-6 h-6 ${nodes[id].children.length > 0 ? 'text-black hover:text-black' : 'text-slate-100 hover:text-slate-300'}`} onClick={() => onExpand(id)}>
             <ChevronRightIcon/>
           </button>
         )}
         {textSpan}
       </p>
       {!isDragging && (
-        <div className={'relative left-10'}>
+        <div className={'relative left-9'}>
           <div className="flex">
             <div
               className={`w-10 py-1 transition ease-in-out duration-100 ${isSiblingDraggedOver ? 'bg-slate-300' : ''}`}
