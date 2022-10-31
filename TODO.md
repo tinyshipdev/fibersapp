@@ -9,7 +9,9 @@ BACKLOG
 TODO
 
 - undo, redo
-
+- breadcrumbs don't show full path
+- if you press enter on a node with text when the cursor is at index 0, add a new node BEFORE
+- arrows on nodes without children are a little hard to see 
 
 ---
 
