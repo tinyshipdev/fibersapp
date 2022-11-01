@@ -13,14 +13,14 @@ const BreadcrumbTrail: React.FC<BreadcrumbTrailProps> = ({
   onClick
 }) => {
   return (
-    <ul className={'mb-6 flex items-center'}>
+    <ul className={'flex items-center'}>
       { links?.map((link) => (
         <li key={`${link?.id}`} className={'mr-4 py-4'}>
-          <button className={`bg-white text-black ${zoomedNode === link.id && 'font-bold'}`} onClick={() => onClick(link?.id)}>
+          <button onClick={() => onClick(link?.id)}>
             {link.id === 'root' ? (
-              <HomeIcon className={'w-4 h-4 text-slate-800'}/>
+              <HomeIcon className={'w-4 h-4 text-slate-400'}/>
             ) : (
-              <span>{link?.value}</span>
+              <span className={`${zoomedNode === link.id ? 'text-slate-600 font-bold': 'text-slate-400'}`}>{link?.value}</span>
             )}
           </button>
         </li>

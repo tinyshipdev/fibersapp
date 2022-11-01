@@ -492,33 +492,37 @@ const RootNode: React.FC = () => {
 
   return (
     <div>
+      <div className="bg-slate-50 px-10 py-2 mb-12 border-b">
       <BreadcrumbTrail zoomedNode={zoomedNode} links={breadcrumbs} onClick={(id) => handleZoom(id)} />
-      {zoomedNode !== 'root' && (
-        <input
-          className={'text-xl font-bold mb-6 focus:outline-none'}
-          value={nodes[zoomedNode]?.value}
-          placeholder={!nodes[zoomedNode]?.value ? 'Untitled' : ''}
-          onChange={(e) => handleChange(zoomedNode, e.target.value)}
-        />
-      )}
-      <div className={'-ml-10'}>
-        <Node
-          id={zoomedNode}
-          zoomedNode={zoomedNode}
-          value={nodes[zoomedNode]?.value}
-          nodes={nodes}
-          onChange={(id, value) => handleChange(id, value)}
-          onKeyUp={(e) => handleKeyUp(e)}
-          onKeyDown={(e) => handleKeyDown(e)}
-          onSelect={(id) => setSelectedNode(id)}
-          onExpand={(id) => handleExpand(id)}
-          onCollapse={(id) => handleCollapse(id)}
-          onDelete={(id) => handleDelete(id)}
-          onZoom={(id) => handleZoom(id)}
-          onDrag={(id) => handleDrag(id)}
-          onDropChild={(id) => handleDropChild(id)}
-          onDropSibling={(id) => handleDropSibling(id)}
-        />
+      </div>
+      <div className="container mx-auto">
+        {zoomedNode !== 'root' && (
+          <input
+            className={'text-xl font-bold mb-6 focus:outline-none w-full'}
+            value={nodes[zoomedNode]?.value}
+            placeholder={!nodes[zoomedNode]?.value ? 'Untitled' : ''}
+            onChange={(e) => handleChange(zoomedNode, e.target.value)}
+          />
+        )}
+        <div className={'-ml-10'}>
+          <Node
+            id={zoomedNode}
+            zoomedNode={zoomedNode}
+            value={nodes[zoomedNode]?.value}
+            nodes={nodes}
+            onChange={(id, value) => handleChange(id, value)}
+            onKeyUp={(e) => handleKeyUp(e)}
+            onKeyDown={(e) => handleKeyDown(e)}
+            onSelect={(id) => setSelectedNode(id)}
+            onExpand={(id) => handleExpand(id)}
+            onCollapse={(id) => handleCollapse(id)}
+            onDelete={(id) => handleDelete(id)}
+            onZoom={(id) => handleZoom(id)}
+            onDrag={(id) => handleDrag(id)}
+            onDropChild={(id) => handleDropChild(id)}
+            onDropSibling={(id) => handleDropSibling(id)}
+          />
+        </div>
       </div>
     </div>
   );
