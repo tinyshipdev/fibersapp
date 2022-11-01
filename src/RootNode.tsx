@@ -2,6 +2,7 @@ import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import { nanoid } from 'nanoid'
 import Node from "./Node";
 import BreadcrumbTrail from "./BreadcrumbTrail";
+import {ArrowUturnLeftIcon, ArrowUturnRightIcon} from "@heroicons/react/24/outline";
 
 type KeyMapInterface = { [key: string]: boolean };
 
@@ -118,12 +119,18 @@ function saveState(nodes: NodesInterface) {
 
 export const ACTION_KEYS = ['Tab', 'Enter'];
 
+interface HistoryItem {
+  type: string,
+  data: any,
+}
+
 const RootNode: React.FC = () => {
   const [nodes, setNodes] = useState<NodesInterface>(() => getDefaultNodes());
   const [keys, setKeys] = useState<KeyMapInterface>({});
   const [selectedNode, setSelectedNode] = useState('');
   const [zoomedNode, setZoomedNode] = useState('root');
   const [draggedNode, setDraggedNode] = useState('');
+  const [history, setHistory] = useState<HistoryItem[]>([]);
 
   // I wrote this in a rush, might want to refactor at some point
   const generateBreadcrumbTrail = useCallback((id: string): {id: string, value: string}[] => {
@@ -198,6 +205,7 @@ const RootNode: React.FC = () => {
       setKeys(k);
       handleActions(k);
     }
+
   }
 
   function handleKeyUp(e:  React.KeyboardEvent) {
@@ -208,6 +216,10 @@ const RootNode: React.FC = () => {
     let k = {...keys};
     delete k[e.key];
     setKeys(k);
+  }
+
+  function updateHistory(type: string, data: any) {
+    setHistory([...history.slice(-20), { type, data }]);
   }
 
   function addNode(id: string) {
@@ -238,6 +250,7 @@ const RootNode: React.FC = () => {
       nodes[parentId]?.children.splice(index + 1, 0, nodeId);
     }
 
+    updateHistory('ADD_NODE', { id: nodeId });
     setNodes(n);
     refocusInput(nodeId, 0);
   }
@@ -261,6 +274,7 @@ const RootNode: React.FC = () => {
 
     n[id].parent = previousKey;
 
+    updateHistory('INDENT_RIGHT', { id });
     setNodes(n);
     refocusInput(id, caretOffset);
   }
@@ -292,6 +306,7 @@ const RootNode: React.FC = () => {
     // update parent of id to be grandparent
     n[id].parent = grandparent;
 
+    updateHistory('INDENT_LEFT', { id });
     setNodes(n);
     refocusInput(id, caretOffset);
   }
@@ -402,6 +417,8 @@ const RootNode: React.FC = () => {
     const moveTo = findPreviousVisibleNode(selectedNode);
     n[parent].children.splice(indexOfCurrent, 1);
 
+    updateHistory('DELETE_NODE', { node: { ...n[id]} });
+
     // delete node
     delete n[id];
 
@@ -423,6 +440,7 @@ const RootNode: React.FC = () => {
 
     if(!n[id].isExpanded) {
       n[id].isExpanded = true;
+      updateHistory('EXPAND_NODE', { id });
       setNodes(n);
     }
   }
@@ -432,6 +450,7 @@ const RootNode: React.FC = () => {
 
     if(n[id].isExpanded) {
       n[id].isExpanded = false;
+      updateHistory('COLLAPSE_NODE', { id });
       setNodes(n);
     }
   }
@@ -490,10 +509,36 @@ const RootNode: React.FC = () => {
     setNodes(n);
   }
 
+  function undo() {
+    const action: HistoryItem = history[history.length - 1];
+    switch(action.type) {
+      case 'DELETE_NODE':
+        break;
+      case 'ADD_NODE':
+        // handleDelete(action.data.id);
+        break;
+      case 'EXPAND_NODE':
+        handleCollapse(action.data.id);
+        break;
+      case 'COLLAPSE_NODE':
+        handleExpand(action.data.id);
+        break;
+    }
+    setHistory([...history.slice(0, -1)]);
+  }
+
   return (
     <div>
-      <div className="bg-slate-50 px-10 py-2 mb-12 border-b">
-      <BreadcrumbTrail zoomedNode={zoomedNode} links={breadcrumbs} onClick={(id) => handleZoom(id)} />
+      <div className="bg-slate-50 px-10 py-2 mb-12 border-b flex items-center">
+        <div className="mr-10">
+          <button onClick={() => undo()} disabled={history.length <= 0}>
+            <ArrowUturnLeftIcon className={`w-4 h-4 mr-5 ${history.length > 0 ? 'text-slate-500' : 'text-slate-300'}`}/>
+          </button>
+          <button disabled={true}>
+            <ArrowUturnRightIcon className={'w-4 h-4 text-slate-300'}/>
+          </button>
+        </div>
+        <BreadcrumbTrail zoomedNode={zoomedNode} links={breadcrumbs} onClick={(id) => handleZoom(id)} />
       </div>
       <div className="container mx-auto">
         {zoomedNode !== 'root' && (
