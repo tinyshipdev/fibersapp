@@ -9,7 +9,7 @@ BACKLOG
 
 TODO
 
-- breadcrumbs don't show full path
+
 - arrows on nodes without children are a little hard to see 
 
 ---
@@ -23,6 +23,7 @@ DOING
 
 DONE
 
+- ~~breadcrumbs don't show full path~~
 - ~~if you press enter on a node with text when the cursor is at index 0, add a new node BEFORE~~
 - ~~if a task is empty and you press enter, indent left instead of making a new task~~
 - ~~fix bug that deletes nodes if you try to move a node to be a child of its own child~~

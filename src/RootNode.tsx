@@ -137,7 +137,7 @@ const RootNode: React.FC = () => {
 
     let curr = id;
 
-    while(nodes[curr].parent !== 'root') {
+    while(nodes[curr].value !== 'root') {
       l.push({ id: curr, value: nodes[curr].value });
       curr = nodes[curr].parent;
     }
