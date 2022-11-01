@@ -212,27 +212,33 @@ const RootNode: React.FC = () => {
 
   function addNode(id: string) {
     const caretOffset = window?.getSelection()?.anchorOffset || 0;
-    /**
-     * when we add a node, we might be halfway through a word
-     * when we hit enter, we want to split the word and create a new node with the second
-     * half of that word.
-     */
+
     let parentId = nodes[id].parent;
     const n = { ...nodes };
-
-    let firstHalf = n[id].value.slice(0, caretOffset);
-    let secondHalf = n[id].value.slice(caretOffset);
-
     const nodeId = nanoid();
 
-    n[id].value = firstHalf;
-    n[nodeId] = { value: secondHalf, isExpanded: true, children: [], parent: parentId };
+    // if the cursor is at the start of the sentence, add a node BEFORE the current one
+    if(caretOffset === 0) {
+      n[nodeId] = { value: '', isExpanded: true, children: [], parent: parentId };
+      let index = nodes[parentId]?.children.indexOf(id);
+      nodes[parentId]?.children.splice(index, 0, nodeId);
+    } else {
+      /**
+       * when we add a node below, we might be halfway through a word
+       * when we hit enter, we want to split the word and create a new node with the second
+       * half of that word.
+       */
+      let firstHalf = n[id].value.slice(0, caretOffset);
+      let secondHalf = n[id].value.slice(caretOffset);
 
-    let index = nodes[parentId]?.children.indexOf(id);
-    nodes[parentId]?.children.splice(index + 1, 0, nodeId);
+      n[id].value = firstHalf;
+      n[nodeId] = { value: secondHalf, isExpanded: true, children: [], parent: parentId };
+
+      let index = nodes[parentId]?.children.indexOf(id);
+      nodes[parentId]?.children.splice(index + 1, 0, nodeId);
+    }
 
     setNodes(n);
-
     refocusInput(nodeId, 0);
   }
 
