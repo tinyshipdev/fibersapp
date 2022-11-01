@@ -3,12 +3,12 @@ Taskflowy To do.
 BACKLOG
 
 - work out a way of adding tasks to a todo list
+- undo, redo (this might not be possible)
 
 ---
 
 TODO
 
-- undo, redo
 - breadcrumbs don't show full path
 - if you press enter on a node with text when the cursor is at index 0, add a new node BEFORE
 - arrows on nodes without children are a little hard to see 
