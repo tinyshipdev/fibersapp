@@ -4,17 +4,17 @@ BACKLOG
 
 - work out a way of adding tasks to a todo list
 - undo, redo (this might not be possible)
-
+- Select multiple lines for deletion
+  - need to remove content editable and draggable when not editing or dragging
 ---
 
 TODO
 
+- add a help modal to see the keyboard shortcuts
+
 ---
 
 DOING
-
-- Select multiple lines for deletion
-  - need to remove content editable and draggable when not editing or dragging
 
 ---
 
