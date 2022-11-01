@@ -119,7 +119,7 @@ const Node: React.FC<NodeProps> = ({
             <ChevronDownIcon/>
           </button>
         ) : (
-          <button className={`w-6 h-6 ${nodes[id].children.length > 0 ? 'text-black hover:text-black' : 'text-slate-100 hover:text-slate-300'}`} onClick={() => onExpand(id)}>
+          <button className={`w-6 h-6 ${nodes[id].children.length > 0 ? 'text-black hover:text-black' : 'text-slate-300 hover:text-slate-300'}`} onClick={() => onExpand(id)}>
             <ChevronRightIcon/>
           </button>
         )}
