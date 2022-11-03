@@ -237,7 +237,7 @@ const RootNode: React.FC = () => {
   }
 
   function updateHistory(type: string, data: any) {
-    setHistory([...history.slice(-20), { type, data }]);
+    setHistory([...history.slice(-100), { type, data }]);
   }
 
   function addNodeBelow(id: string, caretOffset: number) {
