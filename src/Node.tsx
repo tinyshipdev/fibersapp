@@ -42,6 +42,7 @@ const Node: React.FC<NodeProps> = ({
   onMoveCursorUp,
   onMoveCursorDown,
 }) => {
+  const [isDraggable, setIsDraggable] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isSiblingDraggedOver, setIsSiblingDraggedOver] = useState(false);
   const [isChildDraggedOver, setIsChildDraggedOver] = useState(false);
@@ -126,7 +127,7 @@ const Node: React.FC<NodeProps> = ({
       key={id}
       className={'ml-10 relative'}
       data-id={id}
-      draggable={true}
+      draggable={isDraggable}
       onDragStart={(e: any) => {
         e.stopPropagation();
         setIsDragging(true);
@@ -146,7 +147,12 @@ const Node: React.FC<NodeProps> = ({
             <ChevronDownIcon/>
           </button>
         ) : (
-          <button className={`w-6 h-6 ${nodes[id].children.length > 0 ? 'text-black hover:text-black' : 'text-slate-300 hover:text-slate-300'}`} onClick={() => onExpand(id)}>
+          <button
+            className={`w-6 h-6 ${nodes[id].children.length > 0 ? 'text-black hover:text-black' : 'text-slate-300 hover:text-slate-300'}`}
+            onClick={() => onExpand(id)}
+            onMouseOver={() => setIsDraggable(true)}
+            onMouseOut={() => setIsDraggable(false)}
+          >
             <ChevronRightIcon/>
           </button>
         )}

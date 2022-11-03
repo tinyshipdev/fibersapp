@@ -3,9 +3,6 @@ Taskflowy To do.
 BACKLOG
 
 - work out a way of adding tasks to a todo list
-- undo, redo (this might not be possible)
-- Select multiple lines for deletion
-  - need to remove content editable and draggable when not editing or dragging
 ---
 
 TODO
@@ -16,10 +13,16 @@ TODO
 
 DOING
 
+- undo, redo (this might not be possible)
+
 ---
 
 DONE
 
+- ~~Select multiple lines for deletion~~
+  - ~~need to remove content editable and draggable when not editing or dragging~~
+  - ~~move drag ability to the expand/collapse icon only~~
+- ~~refactor to use inputs instead of contenteditable~~
 - ~~arrows on nodes without children are a little hard to see~~
 - ~~breadcrumbs don't show full path~~
 - ~~if you press enter on a node with text when the cursor is at index 0, add a new node BEFORE~~
