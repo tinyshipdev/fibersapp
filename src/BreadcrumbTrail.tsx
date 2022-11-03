@@ -16,7 +16,7 @@ const BreadcrumbTrail: React.FC<BreadcrumbTrailProps> = ({
     <ul className={'flex items-center'}>
       { links?.map((link) => (
         <li key={`${link?.id}`} className={'mr-4 py-4'}>
-          <button onClick={() => onClick(link?.id)}>
+          <button onClick={() => onClick(link?.id)} disabled={zoomedNode === 'root'}>
             {link.id === 'root' ? (
               <HomeIcon className={'w-4 h-4 text-slate-400'}/>
             ) : (
