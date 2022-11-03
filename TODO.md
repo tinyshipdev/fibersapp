@@ -7,6 +7,7 @@ BACKLOG
 
 TODO
 
+- undo drag and drop operations
 - weird bug when undoing, haven't been able to track it down yet
 
 ---
