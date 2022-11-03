@@ -2,7 +2,7 @@ import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import { nanoid } from 'nanoid'
 import Node from "./Node";
 import BreadcrumbTrail from "./BreadcrumbTrail";
-import {ArrowUturnLeftIcon, ArrowUturnRightIcon} from "@heroicons/react/24/outline";
+import {ArrowUturnLeftIcon, ArrowUturnRightIcon, QuestionMarkCircleIcon} from "@heroicons/react/24/outline";
 
 enum HistoryType {
   CHANGE_TEXT,
@@ -574,16 +574,21 @@ const RootNode: React.FC = () => {
         }
       }}
     >
-      <div className="bg-slate-50 px-10 py-2 mb-12 border-b flex items-center">
-        <div className="mr-10">
-          <button onClick={() => undo()} disabled={history.length <= 0}>
-            <ArrowUturnLeftIcon className={`w-4 h-4 mr-5 ${history.length > 0 ? 'text-slate-500' : 'text-slate-300'}`}/>
-          </button>
-          <button disabled={true}>
-            <ArrowUturnRightIcon className={'w-4 h-4 text-slate-300'}/>
-          </button>
+      <div className="bg-slate-50 px-10 py-2 mb-12 border-b flex items-center justify-between">
+        <div className={'flex items-center'}>
+          <div className="mr-10">
+            <button onClick={() => undo()} disabled={history.length <= 0}>
+              <ArrowUturnLeftIcon className={`w-4 h-4 mr-5 ${history.length > 0 ? 'text-slate-500' : 'text-slate-300'}`}/>
+            </button>
+            <button disabled={true}>
+              <ArrowUturnRightIcon className={'w-4 h-4 text-slate-300'}/>
+            </button>
+          </div>
+          <BreadcrumbTrail zoomedNode={zoomedNode} links={breadcrumbs} onClick={(id) => handleZoom(id)} />
         </div>
-        <BreadcrumbTrail zoomedNode={zoomedNode} links={breadcrumbs} onClick={(id) => handleZoom(id)} />
+        <div>
+          <button><QuestionMarkCircleIcon className={'w-4 w-4 text-slate-300'}/></button>
+        </div>
       </div>
       <div className="container mx-auto">
         {zoomedNode !== 'root' && (

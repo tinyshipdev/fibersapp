@@ -7,11 +7,11 @@ BACKLOG
 
 TODO
 
-- add a help modal to see the keyboard shortcuts
-
 ---
 
 DOING
+
+- add a help modal to see the keyboard shortcuts
 
 ---
 
