@@ -1,5 +1,5 @@
-import React, {useRef, useState} from 'react';
-import {ACTION_KEYS, NodesInterface} from "./RootNode";
+import React, {useState} from 'react';
+import {NodesInterface} from "./RootNode";
 import {ChevronDownIcon, ChevronRightIcon} from "@heroicons/react/20/solid";
 import {MagnifyingGlassPlusIcon} from "@heroicons/react/24/outline";
 
@@ -19,6 +19,7 @@ interface NodeProps {
   onDrag: (id: string) => void;
   onDropSibling: (id: string) => void;
   onDropChild:(id: string) => void;
+  onAddNodeBelow: (id: string, offset: number) => void;
 }
 
 const Node: React.FC<NodeProps> = ({
@@ -37,11 +38,19 @@ const Node: React.FC<NodeProps> = ({
   onDrag,
   onDropChild,
   onDropSibling,
+  onAddNodeBelow,
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isSiblingDraggedOver, setIsSiblingDraggedOver] = useState(false);
   const [isChildDraggedOver, setIsChildDraggedOver] = useState(false);
-  const ref = useRef<HTMLSpanElement>(null);
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    switch(e.key) {
+      case 'Enter':
+        onAddNodeBelow(id, e.currentTarget.selectionStart || 0);
+        break;
+    }
+  }
 
   const graphMap = (
     <ul className={'list-none'}>
@@ -53,6 +62,9 @@ const Node: React.FC<NodeProps> = ({
           zoomedNode={zoomedNode}
           nodes={nodes}
           onChange={(id, value) => onChange(id, value)}
+          onAddNodeBelow={(id, offset) => onAddNodeBelow(id, offset)}
+
+
           onKeyDown={(e) => onKeyDown(e)}
           onKeyUp={(e) => onKeyUp(e)}
           onSelect={(id) => onSelect(id)}
@@ -73,25 +85,15 @@ const Node: React.FC<NodeProps> = ({
   }
 
   const textSpan = (
-    <span
+    <input
       className={'focus:outline-none inline-block w-full'}
       id={id}
-      ref={ref}
-      contentEditable={true}
       onFocus={() => onSelect(id)}
-      onBlur={(e) => onChange(id, e.currentTarget.innerText)}
-      onKeyDown={(e) => {
-        // this forces the text to be saved to state if we move
-        if(ACTION_KEYS.includes(e.key)) { onChange(id, e.currentTarget.innerText) }
-        onKeyDown(e);
-
-        if(e.key === 'Backspace' && e.currentTarget.innerText === '') {
-          onDelete(id);
-        }
-      }}
-      onKeyUp={(e) => onKeyUp(e)}
-      suppressContentEditableWarning={true} // feels a bit dangerous but tired of warnings
-    >{value}</span>
+      onChange={(e) => onChange(id, e.target.value)}
+      onKeyDown={(e) => handleKeyDown(e)}
+      value={value}
+      autoComplete={"off"}
+    />
   );
 
   return (

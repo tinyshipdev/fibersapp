@@ -78,18 +78,27 @@ function findNearestParentSibling(
   return findNearestParentSibling(nodes, parent);
 }
 
-function setCaret(id: string, pos: number) {
+function setCaretPosition(id: string, pos: number) {
   const el: any = document.getElementById(id);
-  const range: any = document.createRange()
-  const sel: any = window.getSelection()
 
-  if(el.childNodes[0]) {
-    range.setStart(el.childNodes[0], pos)
-    range.collapse(true)
-
-    sel.removeAllRanges()
-    sel.addRange(range)
+  if(!el) {
+    return;
   }
+
+  if(el.createTextRange) {
+    const range = el.createTextRange();
+    range.move('character', pos);
+    range.select();
+    return;
+  }
+
+  if(el.selectionStart) {
+    el.focus();
+    el.setSelectionRange(pos, pos);
+    return;
+  }
+
+  el.focus();
 }
 
 function refocusInput(id: string, pos: number) {
@@ -98,7 +107,7 @@ function refocusInput(id: string, pos: number) {
 
     if(element) {
       element.focus();
-      setCaret(id, pos)
+      setCaretPosition(id, pos)
     }
   }, 10)
 }
@@ -131,6 +140,8 @@ const RootNode: React.FC = () => {
   const [zoomedNode, setZoomedNode] = useState('root');
   const [draggedNode, setDraggedNode] = useState('');
   const [history, setHistory] = useState<HistoryItem[]>([]);
+
+  console.log(history);
 
   // I wrote this in a rush, might want to refactor at some point
   const generateBreadcrumbTrail = useCallback((id: string): {id: string, value: string}[] => {
@@ -194,9 +205,16 @@ const RootNode: React.FC = () => {
     }
   }
 
-  function handleKeyDown(e:  React.KeyboardEvent) {
+  function handleKeyDown(e: React.KeyboardEvent) {
+    console.log(e);
     if(ACTION_KEYS.includes(e.key)) {
       e.preventDefault();
+    }
+
+    // @ts-ignore
+    if(e.metaKey && e.key['z']) {
+      e.preventDefault();
+      console.log('prevented undo')
     }
 
     if(!keys[e.key]) {
@@ -220,6 +238,37 @@ const RootNode: React.FC = () => {
 
   function updateHistory(type: string, data: any) {
     setHistory([...history.slice(-20), { type, data }]);
+  }
+
+  function addNodeBelow(id: string, caretOffset: number) {
+    let parentId = nodes[id].parent;
+    const n = { ...nodes };
+    const nodeId = nanoid();
+
+    // if the cursor is at the start of the sentence, add a node BEFORE the current one
+    if(caretOffset === 0) {
+      n[nodeId] = { value: '', isExpanded: true, children: [], parent: parentId };
+      let index = nodes[parentId]?.children.indexOf(id);
+      nodes[parentId]?.children.splice(index, 0, nodeId);
+    } else {
+      /**
+       * when we add a node below, we might be halfway through a word
+       * when we hit enter, we want to split the word and create a new node with the second
+       * half of that word.
+       */
+      let firstHalf = n[id].value.slice(0, caretOffset);
+      let secondHalf = n[id].value.slice(caretOffset);
+
+      n[id].value = firstHalf;
+      n[nodeId] = { value: secondHalf, isExpanded: true, children: [], parent: parentId };
+
+      let index = nodes[parentId]?.children.indexOf(id);
+      nodes[parentId]?.children.splice(index + 1, 0, nodeId);
+    }
+
+    updateHistory('ADD_NODE', { currentNode: nodeId, previousNode: id, parentNode: parentId });
+    setNodes(n);
+    refocusInput(nodeId, 0);
   }
 
   function addNode(id: string) {
@@ -432,6 +481,7 @@ const RootNode: React.FC = () => {
   function handleChange(id: string, value: string) {
     let n = {...nodes};
     n[id].value = value;
+    updateHistory('CHANGE_TEXT', { id, value });
     setNodes(n);
   }
 
@@ -509,22 +559,40 @@ const RootNode: React.FC = () => {
     setNodes(n);
   }
 
+  function undoAddNode(currentId: string, previousId: string, parentId: string) {
+    const n = { ...nodes };
+    n[previousId].value = n[previousId].value + n[currentId].value;
+    n[parentId].children = n[parentId].children.filter((child) => child !== currentId);
+    delete n[currentId];
+    setNodes(n);
+  }
+
+  function undoChangeText(id: string, value: string) {
+    const n = { ...nodes };
+    n[id].value = value;
+    setNodes(n);
+  }
+
   function undo() {
     const action: HistoryItem = history[history.length - 1];
     switch(action.type) {
-      case 'DELETE_NODE':
+      case 'CHANGE_TEXT':
+        undoChangeText(action.data.id, action.data.value);
         break;
+      // case 'DELETE_NODE':
+      //   console.log('will add node back in?')
+      //   break;
       case 'ADD_NODE':
-        // handleDelete(action.data.id);
+        undoAddNode(action.data.currentNode, action.data.previousNode, action.data.parentNode);
         break;
-      case 'EXPAND_NODE':
-        handleCollapse(action.data.id);
-        break;
-      case 'COLLAPSE_NODE':
-        handleExpand(action.data.id);
-        break;
+      // case 'EXPAND_NODE':
+      //   handleCollapse(action.data.id);
+      //   break;
+      // case 'COLLAPSE_NODE':
+      //   handleExpand(action.data.id);
+      //   break;
     }
-    setHistory([...history.slice(0, -1)]);
+    setHistory(history.slice(0, -1))
   }
 
   return (
@@ -549,13 +617,27 @@ const RootNode: React.FC = () => {
             onChange={(e) => handleChange(zoomedNode, e.target.value)}
           />
         )}
-        <div className={'-ml-10'}>
+        <div
+          className={'-ml-10'}
+          onKeyDown={(e) => {
+            // @ts-ignore
+            if(e.metaKey && e.key === 'z') {
+              e.preventDefault();
+              if(history.length > 0) {
+                undo();
+              }
+            }
+          }}
+        >
           <Node
             id={zoomedNode}
             zoomedNode={zoomedNode}
             value={nodes[zoomedNode]?.value}
             nodes={nodes}
             onChange={(id, value) => handleChange(id, value)}
+            onAddNodeBelow={(id, offset) => addNodeBelow(id, offset)}
+
+
             onKeyUp={(e) => handleKeyUp(e)}
             onKeyDown={(e) => handleKeyDown(e)}
             onSelect={(id) => setSelectedNode(id)}
