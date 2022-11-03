@@ -4,6 +4,13 @@ import Node from "./Node";
 import BreadcrumbTrail from "./BreadcrumbTrail";
 import {ArrowUturnLeftIcon, ArrowUturnRightIcon} from "@heroicons/react/24/outline";
 
+enum HistoryType {
+  CHANGE_TEXT,
+  ADD_NODE,
+  EXPAND_NODE,
+  COLLAPSE_NODE
+}
+
 export type NodesInterface = {
   [key: string]: {
     value: string,
@@ -125,7 +132,7 @@ function saveState(nodes: NodesInterface) {
 }
 
 interface HistoryItem {
-  type: string,
+  type: HistoryType,
   data: any,
 }
 
@@ -173,7 +180,7 @@ const RootNode: React.FC = () => {
     }
   }, [nodes]);
 
-  function updateHistory(items: {type: string, data: any}[]) {
+  function updateHistory(items: {type: HistoryType, data: any}[]) {
     setHistory([...history.slice(-1000), ...items]);
   }
 
@@ -204,8 +211,8 @@ const RootNode: React.FC = () => {
     }
 
     updateHistory([
-      { type: 'ADD_NODE', data: { currentNode: nodeId, previousNode: id, parentNode: parentId }},
-      { type: "CHANGE_TEXT", data: { id: nodeId, value: '' }}
+      { type: HistoryType.ADD_NODE, data: { currentNode: nodeId, previousNode: id, parentNode: parentId }},
+      { type: HistoryType.CHANGE_TEXT, data: { id: nodeId, value: '' }}
     ]);
     setNodes(n);
     refocusInput(nodeId, 0);
@@ -392,7 +399,7 @@ const RootNode: React.FC = () => {
   function handleChange(id: string, value: string) {
     let n = {...nodes};
     n[id].value = value;
-    updateHistory([{ type: 'CHANGE_TEXT', data: { id, value }}]);
+    updateHistory([{ type: HistoryType.CHANGE_TEXT, data: { id, value }}]);
     setNodes(n);
   }
 
@@ -401,6 +408,7 @@ const RootNode: React.FC = () => {
 
     if(!n[id].isExpanded) {
       n[id].isExpanded = true;
+      updateHistory([{ type: HistoryType.EXPAND_NODE, data: { id }}]);
       setNodes(n);
     }
   }
@@ -410,6 +418,7 @@ const RootNode: React.FC = () => {
 
     if(n[id].isExpanded) {
       n[id].isExpanded = false;
+      updateHistory([{ type: HistoryType.COLLAPSE_NODE, data: { id }}]);
       setNodes(n);
     }
   }
@@ -503,21 +512,18 @@ const RootNode: React.FC = () => {
     const action = newHistory[newHistory.length - 1];
 
     switch(action.type) {
-      case 'CHANGE_TEXT':
+      case HistoryType.CHANGE_TEXT:
         undoChangeText(action.data.id, action.data.value);
         break;
-      // case 'DELETE_NODE':
-      //   console.log('will add node back in?')
-      //   break;
-      case 'ADD_NODE':
+      case HistoryType.ADD_NODE:
         undoAddNode(action.data.currentNode, action.data.previousNode, action.data.parentNode);
         break;
-      // case 'EXPAND_NODE':
-      //   handleCollapse(action.data.id);
-      //   break;
-      // case 'COLLAPSE_NODE':
-      //   handleExpand(action.data.id);
-      //   break;
+      case HistoryType.EXPAND_NODE:
+        handleCollapse(action.data.id);
+        break;
+      case HistoryType.COLLAPSE_NODE:
+        handleExpand(action.data.id);
+        break;
     }
 
     setHistory(newHistory);
@@ -525,11 +531,13 @@ const RootNode: React.FC = () => {
 
   return (
     <div
+      tabIndex={0}
+      className={'outline-none'}
       onKeyDown={(e) => {
         if(e.metaKey && e.key === 'z') {
           e.preventDefault();
           if(history.length > 0) {
-            // undo();
+            undo();
           }
         }
       }}
