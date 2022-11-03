@@ -146,6 +146,10 @@ const Node: React.FC<NodeProps> = ({
         <button onClick={() => onZoom(id)}>
           <MagnifyingGlassPlusIcon className={'w-4 h-4 text-slate-400 opacity-0 group-hover:opacity-100 ease-in duration-100'}/>
         </button>
+        <span
+          onMouseOver={() => setIsDraggable(true)}
+          onMouseOut={() => setIsDraggable(false)}
+        >
         {nodes[id].isExpanded && nodes[id].children.length > 0 ? (
           <button className={'w-6 h-6 text-slate-400 hover:text-black'} onClick={() => onCollapse(id)}>
             <ChevronDownIcon/>
@@ -154,12 +158,11 @@ const Node: React.FC<NodeProps> = ({
           <button
             className={`w-6 h-6 ${nodes[id].children.length > 0 ? 'text-black hover:text-black' : 'text-slate-300 hover:text-slate-300'}`}
             onClick={() => onExpand(id)}
-            onMouseOver={() => setIsDraggable(true)}
-            onMouseOut={() => setIsDraggable(false)}
           >
             <ChevronRightIcon/>
           </button>
         )}
+        </span>
         {textSpan}
       </p>
       {!isDragging && (
