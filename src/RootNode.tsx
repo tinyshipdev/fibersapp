@@ -11,6 +11,7 @@ enum HistoryType {
   COLLAPSE_NODE,
   INDENT_LEFT,
   INDENT_RIGHT,
+  ZOOM_NODE,
 }
 
 export type NodesInterface = {
@@ -440,6 +441,11 @@ const RootNode: React.FC = () => {
   }
 
   function handleZoom(id: string) {
+    updateHistory([{ type: HistoryType.ZOOM_NODE, data: { id: zoomedNode }}]);
+    setZoomedNode(id);
+  }
+
+  function undoZoom(id: string) {
     setZoomedNode(id);
   }
 
@@ -545,6 +551,9 @@ const RootNode: React.FC = () => {
         break;
       case HistoryType.INDENT_RIGHT:
         indentLeft(action.data.id, action.data.offset);
+        break;
+      case HistoryType.ZOOM_NODE:
+        undoZoom(action.data.id);
         break;
     }
 
