@@ -19,7 +19,7 @@ TODO
 DOING
 
 - robustify so I can start using this at work.
-  - basically need to look over everything and clean up any bugs
+  - basically need to look over everything and clean up any bugs.
 
 ---
 
