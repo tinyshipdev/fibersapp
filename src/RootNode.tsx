@@ -456,10 +456,6 @@ const RootNode: React.FC = () => {
   }
 
   function validateDropConditions(dropTarget: string) {
-    if(nodes['root'].children[0] === draggedNode) {
-      return false;
-    }
-
     return dropTarget !== draggedNode;
   }
 
