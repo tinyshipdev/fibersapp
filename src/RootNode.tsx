@@ -211,8 +211,7 @@ const RootNode: React.FC = () => {
     }
 
     updateHistory([
-      { type: HistoryType.ADD_NODE, data: { currentNode: nodeId, previousNode: id, parentNode: parentId }},
-      { type: HistoryType.CHANGE_TEXT, data: { id: nodeId, value: '' }}
+      { type: HistoryType.ADD_NODE, data: { currentNode: nodeId, previousNode: id, parentNode: parentId }}
     ]);
     setNodes(n);
     refocusInput(nodeId, 0);
@@ -398,8 +397,8 @@ const RootNode: React.FC = () => {
 
   function handleChange(id: string, value: string) {
     let n = {...nodes};
+    updateHistory([{ type: HistoryType.CHANGE_TEXT, data: { id, value: n[id].value }}]);
     n[id].value = value;
-    updateHistory([{ type: HistoryType.CHANGE_TEXT, data: { id, value }}]);
     setNodes(n);
   }
 
@@ -413,6 +412,13 @@ const RootNode: React.FC = () => {
     }
   }
 
+  function undoExpand(id: string) {
+    const n = { ...nodes };
+
+    n[id].isExpanded = false;
+    setNodes(n);
+  }
+
   function handleCollapse(id: string) {
     const n = { ...nodes };
 
@@ -421,6 +427,12 @@ const RootNode: React.FC = () => {
       updateHistory([{ type: HistoryType.COLLAPSE_NODE, data: { id }}]);
       setNodes(n);
     }
+  }
+
+  function undoCollapse(id: string) {
+    const n = { ...nodes };
+    n[id].isExpanded = true;
+    setNodes(n);
   }
 
   function handleZoom(id: string) {
@@ -483,7 +495,7 @@ const RootNode: React.FC = () => {
     n[parentId].children = n[parentId].children.filter((child) => child !== currentId);
     delete n[currentId];
     setNodes(n);
-    refocusInput(previousId, n[previousId].value.length);
+    refocusInput(previousId, n[previousId]?.value?.length);
   }
 
   function undoChangeText(id: string, value: string) {
@@ -508,24 +520,29 @@ const RootNode: React.FC = () => {
 
   function undo() {
     const newHistory = [...history];
-    newHistory.pop();
+
     const action = newHistory[newHistory.length - 1];
 
     switch(action.type) {
       case HistoryType.CHANGE_TEXT:
+        console.log("CHANGE_TEXT");
         undoChangeText(action.data.id, action.data.value);
         break;
       case HistoryType.ADD_NODE:
+        console.log("ADD_NODE");
         undoAddNode(action.data.currentNode, action.data.previousNode, action.data.parentNode);
         break;
       case HistoryType.EXPAND_NODE:
-        handleCollapse(action.data.id);
+        console.log("EXPAND_NODE");
+        undoExpand(action.data.id);
         break;
       case HistoryType.COLLAPSE_NODE:
-        handleExpand(action.data.id);
+        console.log("COLLAPSE_NODE");
+        undoCollapse(action.data.id);
         break;
     }
 
+    newHistory.pop();
     setHistory(newHistory);
   }
 

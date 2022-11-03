@@ -13,7 +13,7 @@ TODO
 
 DOING
 
-- undo, redo (this might not be possible)
+- undo, redo
 
 ---
 
