@@ -1,6 +1,11 @@
 Taskflowy To do.
 
-BACKLOG
+ROADMAP
+- add nodes to a "task list".
+- slash commands to add snippets
+  - e.g add a date by typing /today
+- copy/paste nested lists from other applications and have them import correctly
+- add links to text in nodes
 
 ---
 
@@ -8,14 +13,13 @@ TODO
 
 - undo drag and drop operations
 - weird bug when undoing, haven't been able to track it down yet
-- work out a way of adding tasks to a todo list
-
 
 ---
 
 DOING
 
 - robustify so I can start using this at work.
+  - basically need to look over everything and clean up any bugs
 
 ---
 
