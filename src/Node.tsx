@@ -113,7 +113,7 @@ const Node: React.FC<NodeProps> = ({
 
   const textSpan = (
     <input
-      className={'focus:outline-none inline-block w-full'}
+      className={'focus:outline-none inline-block w-full bg-inherit'}
       id={id}
       onChange={(e) => onChange(id, e.target.value)}
       onKeyDown={(e) => handleKeyDown(e)}

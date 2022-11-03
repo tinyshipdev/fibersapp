@@ -4,7 +4,7 @@ import RootNode from "./RootNode";
 function App() {
   return (
     <div
-      className="App"
+      className="App font-sans"
       onKeyDown={(e) => {
         if(e.metaKey && e.key === 'z') {
           e.preventDefault();

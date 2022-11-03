@@ -3,6 +3,7 @@ import { nanoid } from 'nanoid'
 import Node from "./Node";
 import BreadcrumbTrail from "./BreadcrumbTrail";
 import {ArrowUturnLeftIcon, ArrowUturnRightIcon, QuestionMarkCircleIcon} from "@heroicons/react/24/outline";
+import ShortcutsModal from "./ShortcutsModal";
 
 enum HistoryType {
   CHANGE_TEXT,
@@ -144,6 +145,7 @@ const RootNode: React.FC = () => {
   const [zoomedNode, setZoomedNode] = useState('root');
   const [draggedNode, setDraggedNode] = useState('');
   const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [isShortcutsModalOpen, setIsShortcutsModalOpen] = useState(false);
 
   // I wrote this in a rush, might want to refactor at some point
   const generateBreadcrumbTrail = useCallback((id: string): {id: string, value: string}[] => {
@@ -574,6 +576,7 @@ const RootNode: React.FC = () => {
         }
       }}
     >
+      <ShortcutsModal isOpen={isShortcutsModalOpen} onClose={() => setIsShortcutsModalOpen(false)}/>
       <div className="bg-slate-50 px-10 py-2 mb-12 border-b flex items-center justify-between">
         <div className={'flex items-center'}>
           <div className="mr-10">
@@ -587,7 +590,7 @@ const RootNode: React.FC = () => {
           <BreadcrumbTrail zoomedNode={zoomedNode} links={breadcrumbs} onClick={(id) => handleZoom(id)} />
         </div>
         <div>
-          <button><QuestionMarkCircleIcon className={'w-4 w-4 text-slate-300'}/></button>
+          <button onClick={() => setIsShortcutsModalOpen(true)}><QuestionMarkCircleIcon className={'w-4 w-4 text-slate-300'}/></button>
         </div>
       </div>
       <div className="container mx-auto">
