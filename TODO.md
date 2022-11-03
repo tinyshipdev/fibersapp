@@ -2,19 +2,21 @@ Taskflowy To do.
 
 BACKLOG
 
-- undo drag and drop operations
-- weird bug when undoing, haven't been able to track it down yet
 ---
 
 TODO
 
-- robustify so I can start using this at work.
+- undo drag and drop operations
+- weird bug when undoing, haven't been able to track it down yet
+- work out a way of adding tasks to a todo list
+
 
 ---
 
 DOING
 
-- work out a way of adding tasks to a todo list
+- robustify so I can start using this at work.
+- when i select all text in a node and hit backspace, i want to full delete the node 
 
 ---
 

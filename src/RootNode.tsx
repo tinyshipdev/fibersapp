@@ -280,8 +280,8 @@ const RootNode: React.FC = () => {
     refocusInput(id, offset);
   }
 
-  function findPreviousVisibleNode(id: string, caretOffset: number): [id: string, offset: number] | null {
-    if(caretOffset !== 0) {
+  function findPreviousVisibleNode(id: string, offset: number): [id: string, offset: number] | null {
+    if(offset !== 0) {
       return null;
     }
 
@@ -315,9 +315,8 @@ const RootNode: React.FC = () => {
     return null;
   }
 
-  function findNextVisibleNode(id: string): [id: string, offset: number] | null {
-    const caretOffset = window?.getSelection()?.anchorOffset || 0;
-    if(caretOffset !== nodes[id].value.length) {
+  function findNextVisibleNode(id: string, offset: number): [id: string, offset: number] | null {
+    if(offset !== nodes[id].value.length) {
       return null;
     }
 
@@ -517,15 +516,15 @@ const RootNode: React.FC = () => {
     setNodes(n);
   }
 
-  function moveCursorUp(id: string) {
-    const moveTo = findPreviousVisibleNode(id, 0);
+  function moveCursorUp(id: string, offset: number) {
+    const moveTo = findPreviousVisibleNode(id, offset);
     if(moveTo) {
       refocusInput(moveTo[0], moveTo[1]);
     }
   }
 
-  function moveCursorDown(id: string) {
-    const moveTo = findNextVisibleNode(id);
+  function moveCursorDown(id: string, offset: number) {
+    const moveTo = findNextVisibleNode(id, offset);
     if(moveTo) {
       refocusInput(moveTo[0], moveTo[1]);
     }
@@ -615,8 +614,8 @@ const RootNode: React.FC = () => {
             onAddNode={(id, offset) => addNode(id, offset)}
             onIndentLeft={(id, offset) => indentLeft(id, offset)}
             onIndentRight={(id, offset) => indentRight(id, offset)}
-            onMoveCursorUp={(id) => moveCursorUp(id)}
-            onMoveCursorDown={(id) => moveCursorDown(id)}
+            onMoveCursorUp={(id, offset) => moveCursorUp(id, offset)}
+            onMoveCursorDown={(id, offset) => moveCursorDown(id, offset)}
             onExpand={(id) => handleExpand(id)}
             onCollapse={(id) => handleCollapse(id)}
             onDelete={(id, offset) => handleDelete(id, offset)}

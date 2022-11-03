@@ -19,8 +19,8 @@ interface NodeProps {
   onAddNode: (id: string, offset: number) => void;
   onIndentLeft: (id: string, offset: number) => void;
   onIndentRight: (id: string, offset: number) => void;
-  onMoveCursorUp: (id: string) => void;
-  onMoveCursorDown: (id: string) => void;
+  onMoveCursorUp: (id: string, offset: number) => void;
+  onMoveCursorDown: (id: string, offset: number) => void;
 }
 
 const Node: React.FC<NodeProps> = ({
@@ -76,10 +76,10 @@ const Node: React.FC<NodeProps> = ({
         onDelete(id, offset);
         break;
       case 'ArrowUp':
-        onMoveCursorUp(id);
+        onMoveCursorUp(id, offset);
         break;
       case 'ArrowDown':
-        onMoveCursorDown(id);
+        onMoveCursorDown(id, offset);
         break;
     }
   }
@@ -97,8 +97,8 @@ const Node: React.FC<NodeProps> = ({
           onAddNode={(id, offset) => onAddNode(id, offset)}
           onIndentLeft={(id, offset) => onIndentLeft(id, offset)}
           onIndentRight={(id, offset) => onIndentRight(id, offset)}
-          onMoveCursorUp={(id) => onMoveCursorUp(id)}
-          onMoveCursorDown={(id) => onMoveCursorDown(id)}
+          onMoveCursorUp={(id, offset) => onMoveCursorUp(id, offset)}
+          onMoveCursorDown={(id, offset) => onMoveCursorDown(id, offset)}
           onExpand={(id) => onExpand(id)}
           onCollapse={(id) => onCollapse(id)}
           onDelete={(id, offset) => onDelete(id, offset)}
