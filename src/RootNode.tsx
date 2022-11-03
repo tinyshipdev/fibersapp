@@ -4,8 +4,6 @@ import Node from "./Node";
 import BreadcrumbTrail from "./BreadcrumbTrail";
 import {ArrowUturnLeftIcon, ArrowUturnRightIcon} from "@heroicons/react/24/outline";
 
-type KeyMapInterface = { [key: string]: boolean };
-
 export type NodesInterface = {
   [key: string]: {
     value: string,
@@ -126,8 +124,6 @@ function saveState(nodes: NodesInterface) {
   }));
 }
 
-export const ACTION_KEYS = ['Tab', 'Enter'];
-
 interface HistoryItem {
   type: string,
   data: any,
@@ -135,13 +131,9 @@ interface HistoryItem {
 
 const RootNode: React.FC = () => {
   const [nodes, setNodes] = useState<NodesInterface>(() => getDefaultNodes());
-  const [keys, setKeys] = useState<KeyMapInterface>({});
-  const [selectedNode, setSelectedNode] = useState('');
   const [zoomedNode, setZoomedNode] = useState('root');
   const [draggedNode, setDraggedNode] = useState('');
   const [history, setHistory] = useState<HistoryItem[]>([]);
-
-  console.log(history);
 
   // I wrote this in a rush, might want to refactor at some point
   const generateBreadcrumbTrail = useCallback((id: string): {id: string, value: string}[] => {
@@ -181,72 +173,17 @@ const RootNode: React.FC = () => {
     }
   }, [nodes]);
 
-  function handleActions(keys: KeyMapInterface) {
-    if(keys['Shift'] && keys['Tab']) {
-      indentLeft(selectedNode);
-    } else if(keys['Tab']) {
-      indentRight(selectedNode);
-    } else if(keys['Enter']) {
-      if(!nodes[selectedNode].value) {
-        indentLeft(selectedNode);
-      } else {
-        addNode(selectedNode);
-      }
-    } else if(keys['ArrowUp']) {
-      const moveTo = findPreviousVisibleNode(selectedNode);
-      if(moveTo) {
-        refocusInput(moveTo[0], moveTo[1]);
-      }
-    } else if(keys['ArrowDown']) {
-      const moveTo = findNextVisibleNode(selectedNode);
-      if(moveTo) {
-        refocusInput(moveTo[0], moveTo[1]);
-      }
-    }
+  function updateHistory(items: {type: string, data: any}[]) {
+    setHistory([...history.slice(-1000), ...items]);
   }
 
-  function handleKeyDown(e: React.KeyboardEvent) {
-    console.log(e);
-    if(ACTION_KEYS.includes(e.key)) {
-      e.preventDefault();
-    }
-
-    // @ts-ignore
-    if(e.metaKey && e.key['z']) {
-      e.preventDefault();
-      console.log('prevented undo')
-    }
-
-    if(!keys[e.key]) {
-      let k = {...keys};
-      k[e.key] = true;
-      setKeys(k);
-      handleActions(k);
-    }
-
-  }
-
-  function handleKeyUp(e:  React.KeyboardEvent) {
-    if(ACTION_KEYS.includes(e.key)) {
-      e.preventDefault();
-    }
-
-    let k = {...keys};
-    delete k[e.key];
-    setKeys(k);
-  }
-
-  function updateHistory(type: string, data: any) {
-    setHistory([...history.slice(-1000), { type, data }]);
-  }
-
-  function addNodeBelow(id: string, caretOffset: number) {
+  function addNode(id: string, caretOffset: number) {
     let parentId = nodes[id].parent;
     const n = { ...nodes };
     const nodeId = nanoid();
 
     // if the cursor is at the start of the sentence, add a node BEFORE the current one
-    if(caretOffset === 0) {
+    if(caretOffset === 0 && n[id].value.length > 0) {
       n[nodeId] = { value: '', isExpanded: true, children: [], parent: parentId };
       let index = nodes[parentId]?.children.indexOf(id);
       nodes[parentId]?.children.splice(index, 0, nodeId);
@@ -266,46 +203,15 @@ const RootNode: React.FC = () => {
       nodes[parentId]?.children.splice(index + 1, 0, nodeId);
     }
 
-    updateHistory('ADD_NODE', { currentNode: nodeId, previousNode: id, parentNode: parentId });
+    updateHistory([
+      { type: 'ADD_NODE', data: { currentNode: nodeId, previousNode: id, parentNode: parentId }},
+      { type: "CHANGE_TEXT", data: { id: nodeId, value: '' }}
+    ]);
     setNodes(n);
     refocusInput(nodeId, 0);
   }
 
-  function addNode(id: string) {
-    const caretOffset = window?.getSelection()?.anchorOffset || 0;
-
-    let parentId = nodes[id].parent;
-    const n = { ...nodes };
-    const nodeId = nanoid();
-
-    // if the cursor is at the start of the sentence, add a node BEFORE the current one
-    if(caretOffset === 0) {
-      n[nodeId] = { value: '', isExpanded: true, children: [], parent: parentId };
-      let index = nodes[parentId]?.children.indexOf(id);
-      nodes[parentId]?.children.splice(index, 0, nodeId);
-    } else {
-      /**
-       * when we add a node below, we might be halfway through a word
-       * when we hit enter, we want to split the word and create a new node with the second
-       * half of that word.
-       */
-      let firstHalf = n[id].value.slice(0, caretOffset);
-      let secondHalf = n[id].value.slice(caretOffset);
-
-      n[id].value = firstHalf;
-      n[nodeId] = { value: secondHalf, isExpanded: true, children: [], parent: parentId };
-
-      let index = nodes[parentId]?.children.indexOf(id);
-      nodes[parentId]?.children.splice(index + 1, 0, nodeId);
-    }
-
-    updateHistory('ADD_NODE', { id: nodeId });
-    setNodes(n);
-    refocusInput(nodeId, 0);
-  }
-
-  function indentRight(id: string) {
-    const caretOffset = window?.getSelection()?.anchorOffset || 0;
+  function indentRight(id: string, offset: number) {
     const n = { ...nodes };
 
     let parentId = nodes[id].parent;
@@ -323,20 +229,17 @@ const RootNode: React.FC = () => {
 
     n[id].parent = previousKey;
 
-    updateHistory('INDENT_RIGHT', { id });
     setNodes(n);
-    refocusInput(id, caretOffset);
+    refocusInput(id, offset);
   }
 
-  function indentLeft(id: string) {
-    const caretOffset = window?.getSelection()?.anchorOffset || 0;
+  function indentLeft(id: string, offset: number) {
     const n = { ...nodes };
 
     // find parent
     // find grandparent
     let parent = n[id].parent;
     let grandparent = n[parent].parent;
-
 
     if(!grandparent) {
       return;
@@ -355,41 +258,40 @@ const RootNode: React.FC = () => {
     // update parent of id to be grandparent
     n[id].parent = grandparent;
 
-    updateHistory('INDENT_LEFT', { id });
     setNodes(n);
-    refocusInput(id, caretOffset);
+    refocusInput(id, offset);
   }
 
-  function findPreviousVisibleNode(id: string): [id: string, offset: number] | null {
-    const caretOffset = window?.getSelection()?.anchorOffset || 0;
-    if(caretOffset === 0) {
+  function findPreviousVisibleNode(id: string, caretOffset: number): [id: string, offset: number] | null {
+    if(caretOffset !== 0) {
+      return null;
+    }
 
-      const n = { ...nodes };
+    const n = { ...nodes };
 
-      const parent = n[id].parent;
-      const previousSiblingIndex = n[parent]?.children?.indexOf(id) - 1;
-      const previousSibling = n[parent]?.children[previousSiblingIndex];
+    const parent = n[id].parent;
+    const previousSiblingIndex = n[parent]?.children?.indexOf(id) - 1;
+    const previousSibling = n[parent]?.children[previousSiblingIndex];
 
-      // if there is no previous sibling, go to parent
-      if(!previousSibling) {
-        return [parent, n[parent].value.length];
-      }
+    // if there is no previous sibling, go to parent
+    if(!previousSibling) {
+      return [parent, n[parent].value.length];
+    }
 
-      // if previous sibling is collapsed, go to previous sibling
-      if(!n[previousSibling].isExpanded) {
-        return [previousSibling, n[previousSibling].value.length];
-      }
+    // if previous sibling is collapsed, go to previous sibling
+    if(!n[previousSibling].isExpanded) {
+      return [previousSibling, n[previousSibling].value.length];
+    }
 
-      // if current has previous sibling and previous sibling has children, find the very last child recursively
-      if(previousSibling && n[previousSibling].children.length > 0) {
-        const lastChild = findLastChild(n, previousSibling);
-        return [lastChild, n[lastChild].value.length];
-      }
+    // if current has previous sibling and previous sibling has children, find the very last child recursively
+    if(previousSibling && n[previousSibling].children.length > 0) {
+      const lastChild = findLastChild(n, previousSibling);
+      return [lastChild, n[lastChild].value.length];
+    }
 
-      // if current has previous sibling, but previous sibling has no children, move to previous sibling
-      if(previousSibling && n[previousSibling].children.length === 0) {
-        return [previousSibling, n[previousSibling].value.length];
-      }
+    // if current has previous sibling, but previous sibling has no children, move to previous sibling
+    if(previousSibling && n[previousSibling].children.length === 0) {
+      return [previousSibling, n[previousSibling].value.length];
     }
 
     return null;
@@ -440,13 +342,17 @@ const RootNode: React.FC = () => {
     return [nearestParentSibling, finalCaretPosition];
   }
 
-  function handleDelete(id: string) {
+  function handleDelete(id: string, offset: number) {
 
     if(!nodes[id].isExpanded) {
       return;
     }
 
     if(nodes[id].children.length > 0) {
+      return;
+    }
+
+    if(offset !== 0) {
       return;
     }
 
@@ -463,13 +369,18 @@ const RootNode: React.FC = () => {
 
     const indexOfCurrent = n[parent].children.indexOf(id);
 
-    const moveTo = findPreviousVisibleNode(selectedNode);
+    const moveTo = findPreviousVisibleNode(id, 0);
     n[parent].children.splice(indexOfCurrent, 1);
 
-    updateHistory('DELETE_NODE', { node: { ...n[id]} });
-
-    // delete node
-    delete n[id];
+    if(offset === 0 && nodes[id].value.length > 0) {
+      // append the current value to the previous node before deleting
+      if(moveTo) {
+        n[moveTo[0]].value = n[moveTo[0]].value + n[id].value;
+      }
+    } else {
+      // just delete the node
+      delete n[id];
+    }
 
     setNodes(n);
 
@@ -481,7 +392,7 @@ const RootNode: React.FC = () => {
   function handleChange(id: string, value: string) {
     let n = {...nodes};
     n[id].value = value;
-    updateHistory('CHANGE_TEXT', { id, value });
+    updateHistory([{ type: 'CHANGE_TEXT', data: { id, value }}]);
     setNodes(n);
   }
 
@@ -490,7 +401,6 @@ const RootNode: React.FC = () => {
 
     if(!n[id].isExpanded) {
       n[id].isExpanded = true;
-      updateHistory('EXPAND_NODE', { id });
       setNodes(n);
     }
   }
@@ -500,7 +410,6 @@ const RootNode: React.FC = () => {
 
     if(n[id].isExpanded) {
       n[id].isExpanded = false;
-      updateHistory('COLLAPSE_NODE', { id });
       setNodes(n);
     }
   }
@@ -561,10 +470,11 @@ const RootNode: React.FC = () => {
 
   function undoAddNode(currentId: string, previousId: string, parentId: string) {
     const n = { ...nodes };
-    n[previousId].value = n[previousId].value + n[currentId].value;
+    // n[previousId].value = n[previousId].value + n[currentId].value;
     n[parentId].children = n[parentId].children.filter((child) => child !== currentId);
     delete n[currentId];
     setNodes(n);
+    refocusInput(previousId, 0);
   }
 
   function undoChangeText(id: string, value: string) {
@@ -573,8 +483,25 @@ const RootNode: React.FC = () => {
     setNodes(n);
   }
 
+  function moveCursorUp(id: string) {
+    const moveTo = findPreviousVisibleNode(id, 0);
+    if(moveTo) {
+      refocusInput(moveTo[0], moveTo[1]);
+    }
+  }
+
+  function moveCursorDown(id: string) {
+    const moveTo = findNextVisibleNode(id);
+    if(moveTo) {
+      refocusInput(moveTo[0], moveTo[1]);
+    }
+  }
+
   function undo() {
-    const action: HistoryItem = history[history.length - 1];
+    const newHistory = [...history];
+    newHistory.pop();
+    const action = newHistory[newHistory.length - 1];
+
     switch(action.type) {
       case 'CHANGE_TEXT':
         undoChangeText(action.data.id, action.data.value);
@@ -592,11 +519,21 @@ const RootNode: React.FC = () => {
       //   handleExpand(action.data.id);
       //   break;
     }
-    setHistory(history.slice(0, -1))
+
+    setHistory(newHistory);
   }
 
   return (
-    <div>
+    <div
+      onKeyDown={(e) => {
+        if(e.metaKey && e.key === 'z') {
+          e.preventDefault();
+          if(history.length > 0) {
+            // undo();
+          }
+        }
+      }}
+    >
       <div className="bg-slate-50 px-10 py-2 mb-12 border-b flex items-center">
         <div className="mr-10">
           <button onClick={() => undo()} disabled={history.length <= 0}>
@@ -619,15 +556,6 @@ const RootNode: React.FC = () => {
         )}
         <div
           className={'-ml-10'}
-          onKeyDown={(e) => {
-            // @ts-ignore
-            if(e.metaKey && e.key === 'z') {
-              e.preventDefault();
-              if(history.length > 0) {
-                undo();
-              }
-            }
-          }}
         >
           <Node
             id={zoomedNode}
@@ -635,15 +563,14 @@ const RootNode: React.FC = () => {
             value={nodes[zoomedNode]?.value}
             nodes={nodes}
             onChange={(id, value) => handleChange(id, value)}
-            onAddNodeBelow={(id, offset) => addNodeBelow(id, offset)}
-
-
-            onKeyUp={(e) => handleKeyUp(e)}
-            onKeyDown={(e) => handleKeyDown(e)}
-            onSelect={(id) => setSelectedNode(id)}
+            onAddNodeBelow={(id, offset) => addNode(id, offset)}
+            onIndentLeft={(id, offset) => indentLeft(id, offset)}
+            onIndentRight={(id, offset) => indentRight(id, offset)}
+            onMoveCursorUp={(id) => moveCursorUp(id)}
+            onMoveCursorDown={(id) => moveCursorDown(id)}
             onExpand={(id) => handleExpand(id)}
             onCollapse={(id) => handleCollapse(id)}
-            onDelete={(id) => handleDelete(id)}
+            onDelete={(id, offset) => handleDelete(id, offset)}
             onZoom={(id) => handleZoom(id)}
             onDrag={(id) => handleDrag(id)}
             onDropChild={(id) => handleDropChild(id)}

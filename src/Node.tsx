@@ -9,17 +9,18 @@ interface NodeProps {
   zoomedNode: string;
   nodes: NodesInterface;
   onChange: (id: string, value: string) => void;
-  onKeyDown: (e: React.KeyboardEvent) => void;
-  onKeyUp: (e: React.KeyboardEvent) => void;
-  onSelect: (id: string) => void;
   onExpand: (id: string) => void;
   onCollapse: (id: string) => void;
-  onDelete: (id: string) => void;
+  onDelete: (id: string, offset: number) => void;
   onZoom: (id: string) => void;
   onDrag: (id: string) => void;
   onDropSibling: (id: string) => void;
   onDropChild:(id: string) => void;
   onAddNodeBelow: (id: string, offset: number) => void;
+  onIndentLeft: (id: string, offset: number) => void;
+  onIndentRight: (id: string, offset: number) => void;
+  onMoveCursorUp: (id: string) => void;
+  onMoveCursorDown: (id: string) => void;
 }
 
 const Node: React.FC<NodeProps> = ({
@@ -28,9 +29,6 @@ const Node: React.FC<NodeProps> = ({
   zoomedNode,
   nodes,
   onChange,
-  onKeyDown,
-  onKeyUp,
-  onSelect,
   onExpand,
   onCollapse,
   onDelete,
@@ -39,15 +37,44 @@ const Node: React.FC<NodeProps> = ({
   onDropChild,
   onDropSibling,
   onAddNodeBelow,
+  onIndentLeft,
+  onIndentRight,
+  onMoveCursorUp,
+  onMoveCursorDown,
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isSiblingDraggedOver, setIsSiblingDraggedOver] = useState(false);
   const [isChildDraggedOver, setIsChildDraggedOver] = useState(false);
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    switch(e.key) {
+    const offset = e.currentTarget.selectionStart || 0;
+
+    if(e.shiftKey) {
+      switch(e.key) {
+        case 'Tab':
+          e.preventDefault();
+          onIndentLeft(id, offset);
+          break;
+      }
+      return;
+    }
+
+    switch (e.key) {
+      case 'Tab':
+        e.preventDefault();
+        onIndentRight(id, offset);
+        break;
       case 'Enter':
-        onAddNodeBelow(id, e.currentTarget.selectionStart || 0);
+        onAddNodeBelow(id, offset)
+        break;
+      case 'Backspace':
+        onDelete(id, offset);
+        break;
+      case 'ArrowUp':
+        onMoveCursorUp(id);
+        break;
+      case 'ArrowDown':
+        onMoveCursorDown(id);
         break;
     }
   }
@@ -63,14 +90,13 @@ const Node: React.FC<NodeProps> = ({
           nodes={nodes}
           onChange={(id, value) => onChange(id, value)}
           onAddNodeBelow={(id, offset) => onAddNodeBelow(id, offset)}
-
-
-          onKeyDown={(e) => onKeyDown(e)}
-          onKeyUp={(e) => onKeyUp(e)}
-          onSelect={(id) => onSelect(id)}
+          onIndentLeft={(id, offset) => onIndentLeft(id, offset)}
+          onIndentRight={(id, offset) => onIndentRight(id, offset)}
+          onMoveCursorUp={(id) => onMoveCursorUp(id)}
+          onMoveCursorDown={(id) => onMoveCursorDown(id)}
           onExpand={(id) => onExpand(id)}
           onCollapse={(id) => onCollapse(id)}
-          onDelete={(id) => onDelete(id)}
+          onDelete={(id, offset) => onDelete(id, offset)}
           onZoom={(id) => onZoom(id)}
           onDrag={(id) => onDrag(id)}
           onDropChild={(id) => onDropChild(id)}
@@ -88,7 +114,6 @@ const Node: React.FC<NodeProps> = ({
     <input
       className={'focus:outline-none inline-block w-full'}
       id={id}
-      onFocus={() => onSelect(id)}
       onChange={(e) => onChange(id, e.target.value)}
       onKeyDown={(e) => handleKeyDown(e)}
       value={value}
