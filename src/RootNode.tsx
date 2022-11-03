@@ -590,7 +590,7 @@ const RootNode: React.FC = () => {
           <BreadcrumbTrail zoomedNode={zoomedNode} links={breadcrumbs} onClick={(id) => handleZoom(id)} />
         </div>
         <div>
-          <button onClick={() => setIsShortcutsModalOpen(true)}><QuestionMarkCircleIcon className={'w-4 w-4 text-slate-300'}/></button>
+          <button onClick={() => setIsShortcutsModalOpen(true)}><QuestionMarkCircleIcon className={'w-4 w-4 text-slate-500'}/></button>
         </div>
       </div>
       <div className="container mx-auto">
