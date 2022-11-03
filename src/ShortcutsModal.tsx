@@ -36,11 +36,11 @@ const ShortcutsModal: React.FC<ShortcutsModalProps> = ({
                   <div className="mt-2 w-full">
 
                     { keyCommands?.map((key) => (
-                      <div className={'flex justify-between border-b py-4'}>
+                      <div className={'flex justify-between border-b py-4'} key={key.title}>
                         <div>{key.title}</div>
                         <div className={'flex'}>
                           {key.keys?.map((k, index) => (
-                            <div><span className={'bg-slate-200 border px-2 font-mono text-sm inline-block'}>{k.value}</span>{ index !== key.keys.length - 1 && (<span className={'mx-2'}>+</span>) }</div>
+                            <div key={k.value}><span className={'bg-slate-200 border px-2 font-mono text-sm inline-block'}>{k.value}</span>{ index !== key.keys.length - 1 && (<span className={'mx-2'}>+</span>) }</div>
                           ))}
                         </div>
                       </div>
