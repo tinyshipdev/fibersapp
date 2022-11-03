@@ -7,16 +7,19 @@ BACKLOG
 
 TODO
 
+- weird bug when undoing, haven't been able to track it down yet
+
 ---
 
 DOING
 
-- add a help modal to see the keyboard shortcuts
+
 
 ---
 
 DONE
 
+- ~~add a help modal to see the keyboard shortcuts~~
 - ~~undo, redo~~
 - ~~Select multiple lines for deletion~~
   - ~~need to remove content editable and draggable when not editing or dragging~~
