@@ -483,7 +483,7 @@ const RootNode: React.FC = () => {
     n[parentId].children = n[parentId].children.filter((child) => child !== currentId);
     delete n[currentId];
     setNodes(n);
-    refocusInput(previousId, 0);
+    refocusInput(previousId, n[previousId].value.length);
   }
 
   function undoChangeText(id: string, value: string) {
