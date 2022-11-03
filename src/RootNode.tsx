@@ -235,6 +235,11 @@ const RootNode: React.FC = () => {
       return;
     }
 
+    // if the new parent is collapsed, expand it first, so we can see where this node went
+    if(!n[previousKey].isExpanded) {
+      n[previousKey].isExpanded = true;
+    }
+
     n[previousKey]?.children.push(id);
     subNodes.splice(index, 1);
 

@@ -13,12 +13,11 @@ TODO
 
 DOING
 
-
-
 ---
 
 DONE
 
+- ~~if you indent a node into a collapsed parent, open the parent so we can see where it went~~
 - ~~add a help modal to see the keyboard shortcuts~~
 - ~~undo, redo~~
 - ~~Select multiple lines for deletion~~
