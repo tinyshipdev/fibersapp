@@ -2,17 +2,19 @@ Taskflowy To do.
 
 BACKLOG
 
-- work out a way of adding tasks to a todo list
+- undo drag and drop operations
+- weird bug when undoing, haven't been able to track it down yet
 ---
 
 TODO
 
-- undo drag and drop operations
-- weird bug when undoing, haven't been able to track it down yet
+- robustify so I can start using this at work.
 
 ---
 
 DOING
+
+- work out a way of adding tasks to a todo list
 
 ---
 
