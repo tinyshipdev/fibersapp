@@ -13,12 +13,11 @@ TODO
 
 DOING
 
-- undo, redo
-
 ---
 
 DONE
 
+- ~~undo, redo~~
 - ~~Select multiple lines for deletion~~
   - ~~need to remove content editable and draggable when not editing or dragging~~
   - ~~move drag ability to the expand/collapse icon only~~
