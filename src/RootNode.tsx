@@ -607,7 +607,7 @@ const RootNode: React.FC = () => {
             value={nodes[zoomedNode]?.value}
             nodes={nodes}
             onChange={(id, value) => handleChange(id, value)}
-            onAddNodeBelow={(id, offset) => addNode(id, offset)}
+            onAddNode={(id, offset) => addNode(id, offset)}
             onIndentLeft={(id, offset) => indentLeft(id, offset)}
             onIndentRight={(id, offset) => indentRight(id, offset)}
             onMoveCursorUp={(id) => moveCursorUp(id)}

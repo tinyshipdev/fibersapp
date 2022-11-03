@@ -16,7 +16,7 @@ interface NodeProps {
   onDrag: (id: string) => void;
   onDropSibling: (id: string) => void;
   onDropChild:(id: string) => void;
-  onAddNodeBelow: (id: string, offset: number) => void;
+  onAddNode: (id: string, offset: number) => void;
   onIndentLeft: (id: string, offset: number) => void;
   onIndentRight: (id: string, offset: number) => void;
   onMoveCursorUp: (id: string) => void;
@@ -36,7 +36,7 @@ const Node: React.FC<NodeProps> = ({
   onDrag,
   onDropChild,
   onDropSibling,
-  onAddNodeBelow,
+  onAddNode,
   onIndentLeft,
   onIndentRight,
   onMoveCursorUp,
@@ -66,7 +66,11 @@ const Node: React.FC<NodeProps> = ({
         onIndentRight(id, offset);
         break;
       case 'Enter':
-        onAddNodeBelow(id, offset)
+        if(value === '') {
+          onIndentLeft(id, offset);
+        } else {
+          onAddNode(id, offset)
+        }
         break;
       case 'Backspace':
         onDelete(id, offset);
@@ -90,7 +94,7 @@ const Node: React.FC<NodeProps> = ({
           zoomedNode={zoomedNode}
           nodes={nodes}
           onChange={(id, value) => onChange(id, value)}
-          onAddNodeBelow={(id, offset) => onAddNodeBelow(id, offset)}
+          onAddNode={(id, offset) => onAddNode(id, offset)}
           onIndentLeft={(id, offset) => onIndentLeft(id, offset)}
           onIndentRight={(id, offset) => onIndentRight(id, offset)}
           onMoveCursorUp={(id) => onMoveCursorUp(id)}
