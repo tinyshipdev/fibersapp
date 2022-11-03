@@ -8,7 +8,9 @@ enum HistoryType {
   CHANGE_TEXT,
   ADD_NODE,
   EXPAND_NODE,
-  COLLAPSE_NODE
+  COLLAPSE_NODE,
+  INDENT_LEFT,
+  INDENT_RIGHT,
 }
 
 export type NodesInterface = {
@@ -235,6 +237,7 @@ const RootNode: React.FC = () => {
 
     n[id].parent = previousKey;
 
+    updateHistory([{ type: HistoryType.INDENT_RIGHT, data: { id, offset }}]);
     setNodes(n);
     refocusInput(id, offset);
   }
@@ -264,6 +267,7 @@ const RootNode: React.FC = () => {
     // update parent of id to be grandparent
     n[id].parent = grandparent;
 
+    updateHistory([{ type: HistoryType.INDENT_LEFT, data: { id, offset }}]);
     setNodes(n);
     refocusInput(id, offset);
   }
@@ -525,20 +529,22 @@ const RootNode: React.FC = () => {
 
     switch(action.type) {
       case HistoryType.CHANGE_TEXT:
-        console.log("CHANGE_TEXT");
         undoChangeText(action.data.id, action.data.value);
         break;
       case HistoryType.ADD_NODE:
-        console.log("ADD_NODE");
         undoAddNode(action.data.currentNode, action.data.previousNode, action.data.parentNode);
         break;
       case HistoryType.EXPAND_NODE:
-        console.log("EXPAND_NODE");
         undoExpand(action.data.id);
         break;
       case HistoryType.COLLAPSE_NODE:
-        console.log("COLLAPSE_NODE");
         undoCollapse(action.data.id);
+        break;
+      case HistoryType.INDENT_LEFT:
+        indentRight(action.data.id, action.data.offset);
+        break;
+      case HistoryType.INDENT_RIGHT:
+        indentLeft(action.data.id, action.data.offset);
         break;
     }
 
