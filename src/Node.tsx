@@ -11,7 +11,7 @@ interface NodeProps {
   onChange: (id: string, value: string) => void;
   onExpand: (id: string) => void;
   onCollapse: (id: string) => void;
-  onDelete: (id: string, offset: number) => void;
+  onDelete: (id: string, startOffset: number, endOffset: number) => void;
   onZoom: (id: string) => void;
   onDrag: (id: string) => void;
   onDropSibling: (id: string) => void;
@@ -48,13 +48,14 @@ const Node: React.FC<NodeProps> = ({
   const [isChildDraggedOver, setIsChildDraggedOver] = useState(false);
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    const offset = e.currentTarget.selectionStart || 0;
+    const startOffset = e.currentTarget.selectionStart || 0;
+    const endOffset = e.currentTarget.selectionEnd || 0;
 
     if(e.shiftKey) {
       switch(e.key) {
         case 'Tab':
           e.preventDefault();
-          onIndentLeft(id, offset);
+          onIndentLeft(id, startOffset);
           break;
       }
       return;
@@ -63,23 +64,23 @@ const Node: React.FC<NodeProps> = ({
     switch (e.key) {
       case 'Tab':
         e.preventDefault();
-        onIndentRight(id, offset);
+        onIndentRight(id, startOffset);
         break;
       case 'Enter':
         if(value === '') {
-          onIndentLeft(id, offset);
+          onIndentLeft(id, startOffset);
         } else {
-          onAddNode(id, offset)
+          onAddNode(id, startOffset)
         }
         break;
       case 'Backspace':
-        onDelete(id, offset);
+        onDelete(id, startOffset, endOffset);
         break;
       case 'ArrowUp':
-        onMoveCursorUp(id, offset);
+        onMoveCursorUp(id, startOffset);
         break;
       case 'ArrowDown':
-        onMoveCursorDown(id, offset);
+        onMoveCursorDown(id, startOffset);
         break;
     }
   }
@@ -101,7 +102,7 @@ const Node: React.FC<NodeProps> = ({
           onMoveCursorDown={(id, offset) => onMoveCursorDown(id, offset)}
           onExpand={(id) => onExpand(id)}
           onCollapse={(id) => onCollapse(id)}
-          onDelete={(id, offset) => onDelete(id, offset)}
+          onDelete={(id, startOffset, endOffset) => onDelete(id, startOffset, endOffset)}
           onZoom={(id) => onZoom(id)}
           onDrag={(id) => onDrag(id)}
           onDropChild={(id) => onDropChild(id)}

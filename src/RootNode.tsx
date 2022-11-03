@@ -359,7 +359,7 @@ const RootNode: React.FC = () => {
     return [nearestParentSibling, finalCaretPosition];
   }
 
-  function handleDelete(id: string, offset: number) {
+  function handleDelete(id: string, startOffset: number, endOffset: number) {
 
     if(!nodes[id].isExpanded) {
       return;
@@ -369,7 +369,7 @@ const RootNode: React.FC = () => {
       return;
     }
 
-    if(offset !== 0) {
+    if(startOffset !== 0) {
       return;
     }
 
@@ -389,16 +389,15 @@ const RootNode: React.FC = () => {
     const moveTo = findPreviousVisibleNode(id, 0);
     n[parent].children.splice(indexOfCurrent, 1);
 
-    if(offset === 0 && nodes[id].value.length > 0) {
-      // append the current value to the previous node before deleting
+
+    if(startOffset === 0 && endOffset === 0 && nodes[id].value.length > 0) {
+      // append the current value to the previous node before deleting if we're not selecting anything
       if(moveTo) {
         n[moveTo[0]].value = n[moveTo[0]].value + n[id].value;
       }
-    } else {
-      // just delete the node
-      delete n[id];
     }
 
+    delete n[id];
     setNodes(n);
 
     if(moveTo) {
@@ -618,7 +617,7 @@ const RootNode: React.FC = () => {
             onMoveCursorDown={(id, offset) => moveCursorDown(id, offset)}
             onExpand={(id) => handleExpand(id)}
             onCollapse={(id) => handleCollapse(id)}
-            onDelete={(id, offset) => handleDelete(id, offset)}
+            onDelete={(id, startOffset, endOffset) => handleDelete(id, startOffset, endOffset)}
             onZoom={(id) => handleZoom(id)}
             onDrag={(id) => handleDrag(id)}
             onDropChild={(id) => handleDropChild(id)}
