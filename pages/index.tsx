@@ -1,25 +1,17 @@
 import React from 'react';
-import dynamic from "next/dynamic";
+import {useSession} from "next-auth/react";
+import Homepage from "../components/Homepage";
+import AppRoot from "../components/AppRoot";
 
-const RootNode = dynamic(() => import('../src/RootNode'), { ssr: false });
 
 function App() {
-  return (
-    <div
-      className="App font-sans"
-      onKeyDown={(e) => {
-        if(e.metaKey && e.key === 'z') {
-          e.preventDefault();
-        }
+  const { data: session } = useSession();
 
-        if(e.shiftKey && e.key === 'Tab') {
-          e.preventDefault();
-        }
-      }}
-    >
-      <RootNode/>
-    </div>
-  );
+  if(session) {
+    return <AppRoot/>
+  }
+
+  return <Homepage/>
 }
 
 export default App;

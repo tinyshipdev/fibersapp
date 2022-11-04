@@ -4,6 +4,7 @@ import Node from "./Node";
 import BreadcrumbTrail from "./BreadcrumbTrail";
 import {ArrowUturnLeftIcon, ArrowUturnRightIcon, QuestionMarkCircleIcon} from "@heroicons/react/24/outline";
 import ShortcutsModal from "./ShortcutsModal";
+import LoginButton from "./LoginButton";
 
 enum HistoryType {
   CHANGE_TEXT,
@@ -588,8 +589,11 @@ const RootNode: React.FC = () => {
           </div>
           <BreadcrumbTrail zoomedNode={zoomedNode} links={breadcrumbs} onClick={(id) => handleZoom(id)} />
         </div>
-        <div>
-          <button onClick={() => setIsShortcutsModalOpen(true)}><QuestionMarkCircleIcon className={'w-4 w-4 text-slate-500'}/></button>
+        <div className={'flex items-center'}>
+          <span className={'mr-6'}>
+            <button onClick={() => setIsShortcutsModalOpen(true)}><QuestionMarkCircleIcon className={'w-4 w-4 text-slate-500'}/></button>
+          </span>
+          <LoginButton/>
         </div>
       </div>
       <div className="container mx-auto">
