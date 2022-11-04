@@ -14,6 +14,7 @@ enum HistoryType {
   INDENT_LEFT,
   INDENT_RIGHT,
   ZOOM_NODE,
+  DELETE_NODE,
 }
 
 export type NodesInterface = {
@@ -385,6 +386,11 @@ const RootNode: React.FC = () => {
       return;
     }
 
+    setHistory([]);
+
+    // TODO: update history and handle undoing delete nodes
+    // updateHistory([{ type: HistoryType.DELETE_NODE, data: { node: {...n[id]}, previousParent: n[id].parent }}])
+
     const indexOfCurrent = n[parent].children.indexOf(id);
 
     const moveTo = findPreviousVisibleNode(id, 0);
@@ -534,6 +540,8 @@ const RootNode: React.FC = () => {
     const newHistory = [...history];
 
     const action = newHistory[newHistory.length - 1];
+
+    console.log(history);
 
     switch(action.type) {
       case HistoryType.CHANGE_TEXT:

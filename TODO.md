@@ -14,6 +14,7 @@ TODO
 - undo drag and drop operations
 - weird bug when undoing, haven't been able to track it down yet
 - lock nodes to prevent changing
+- undo "delete node"
 
 ---
 
@@ -26,6 +27,7 @@ DOING
 
 DONE
 
+- ~~convert to nextjs and implement auth~~
 - ~~when i select all text in a node and hit backspace, i want to full delete the node~~
 - ~~if you indent a node into a collapsed parent, open the parent so we can see where it went~~
 - ~~add a help modal to see the keyboard shortcuts~~
