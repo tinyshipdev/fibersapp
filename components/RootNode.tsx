@@ -362,8 +362,6 @@ const RootNode: React.FC = () => {
   }
 
   function handleDelete(id: string, startOffset: number, endOffset: number) {
-    console.log(startOffset, endOffset);
-
     if(!nodes[id].isExpanded) {
       return;
     }
