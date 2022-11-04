@@ -15,6 +15,7 @@ TODO
 - weird bug when undoing, haven't been able to track it down yet
 - lock nodes to prevent changing
 - undo "delete node"
+- cloud sync (save to database)
 
 ---
 

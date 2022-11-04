@@ -3,6 +3,7 @@ import {useSession} from "next-auth/react";
 import Homepage from "../components/Homepage";
 import AppRoot from "../components/AppRoot";
 import {ArrowPathIcon} from "@heroicons/react/24/outline";
+import Head from "next/head";
 
 
 function App() {
@@ -19,11 +20,28 @@ function App() {
     )
   }
 
+
   if(session) {
-    return <AppRoot/>;
+    return (
+      <>
+        <Head>
+          <title>Fibers</title>
+          <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+        </Head>
+        <AppRoot/>
+      </>
+    );
   }
 
-  return <Homepage/>;
+  return (
+    <>
+      <Head>
+        <title>fibers - follow your thoughts</title>
+        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+      </Head>
+      <Homepage/>
+    </>
+  );
 }
 
 export default App;
