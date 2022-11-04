@@ -20,10 +20,10 @@ function App() {
   }
 
   if(session) {
-    return <AppRoot/>
+    return <AppRoot/>;
   }
 
-  return <Homepage/>
+  return <Homepage/>;
 }
 
 export default App;

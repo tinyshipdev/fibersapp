@@ -11,7 +11,7 @@ const Homepage: React.FC = () => {
 
         <header>
           <div className="flex justify-between px-6 py-4">
-            <Link href={'/'}>logo</Link>
+            <Link href={'/'}>fibers</Link>
             <ul className={'flex'}>
               <li><LoginButton/></li>
             </ul>
@@ -21,12 +21,13 @@ const Homepage: React.FC = () => {
         <div className={'py-40'}>
           <div className={'container mx-auto'}>
             <div className="text-center text-slate-200">
-              <h1 className={'text-2xl font-bold mb-2'}>Fibers</h1>
-              <p className={'text-xl mb-10'}>Follow your thoughts, infinitely</p>
+              <h1 className={'text-4xl font-bold mb-4'}>Follow your thoughts, infinitely</h1>
+              <p className={'mb-10'}>Fiber is an infinitely nested outliner to help you keep track of all your thoughts</p>
               <button
-                className={'px-4 py-2 bg-cyan-300 rounded text-black'}
+                className={'px-4 py-2 bg-sky-300 hover:bg-sky-400 rounded text-black'}
                 onClick={() => signIn()}
-              >Get Started</button>
+              >Try for free*</button>
+              <p className={'mt-2'}><small>*Fibers is currently in alpha and may change at any time</small></p>
             </div>
           </div>
         </div>
