@@ -1,4 +1,7 @@
 import {getCsrfToken, getProviders, getSession, signIn} from "next-auth/react"
+import LoginButton from "../../components/LoginButton";
+import React from "react";
+import Link from "next/link";
 
 const GoogleButton = ({ id }) => {
   return (
@@ -15,13 +18,24 @@ const GoogleButton = ({ id }) => {
 export default function SignIn({providers}) {
   return (
     <div>
-      <div className="container mx-auto text-center py-20">
-        <h2 className={'text-2xl font-bold mb-6'}>Fibers</h2>
-        {Object.values(providers).map((provider) => (
-          <div key={provider.name} className={'flex justify-center'}>
-            {provider.id === 'google' ? <GoogleButton id={provider.id}/> : null}
-          </div>
-        ))}
+      <header className={'absolute w-full'}>
+        <div className="flex justify-between px-6 py-4">
+          <Link href={'/'}>logo</Link>
+          <ul className={'flex'}>
+            <li><LoginButton/></li>
+          </ul>
+        </div>
+      </header>
+
+      <div className={'h-screen bg-slate-200 flex justify-center items-center'}>
+        <div className="container w-2/5 mx-auto text-center py-20 bg-white rounded drop-shadow">
+          <h2 className={'text-2xl font-bold mb-6'}>Sign in</h2>
+          {Object.values(providers).map((provider) => (
+            <div key={provider.name} className={'flex justify-center'}>
+              {provider.id === 'google' ? <GoogleButton id={provider.id}/> : null}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )
