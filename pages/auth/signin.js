@@ -28,7 +28,7 @@ export default function SignIn({providers}) {
         <header className={'absolute w-full'}>
           <div className="flex justify-between px-6 py-4">
             <Link href={'/'}>
-              <Image src={'/logo-full-black.svg'} alt={'Fibers'} width={120} height={40}/>
+              <Image src={'/logo-square-black.svg'} alt={'Fibers'} width={40} height={40}/>
             </Link>
             <ul className={'flex'}>
               <li><LoginButton/></li>
@@ -37,8 +37,11 @@ export default function SignIn({providers}) {
         </header>
 
         <div className={'flex justify-center items-center py-40'}>
-          <div className="container w-2/5 mx-auto text-center py-20 bg-slate-100">
-            <h2 className={'text-2xl font-bold mb-6'}>Sign in</h2>
+          <div className="container w-2/5 mx-auto text-center py-20 bg-slate-100 rounded-lg">
+            <div className="flex justify-center mb-10">
+              <Image src={'/logo-full-black.svg'} alt={'Fibers'} width={200} height={100}/>
+            </div>
+            {/*<h2 className={'text-2xl font-bold mb-6'}>Sign in</h2>*/}
             {Object.values(providers).map((provider) => (
               <div key={provider.name} className={'flex justify-center'}>
                 {provider.id === 'google' ? <GoogleButton id={provider.id}/> : null}
