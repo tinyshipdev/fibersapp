@@ -25,7 +25,7 @@ function App() {
     return (
       <>
         <Head>
-          <title>Fibers</title>
+          <title>fibers - follow your thoughts</title>
           <meta name="viewport" content="initial-scale=1.0, width=device-width" />
         </Head>
         <AppRoot/>
