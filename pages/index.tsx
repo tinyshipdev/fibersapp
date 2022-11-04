@@ -1,5 +1,7 @@
 import React from 'react';
-import RootNode from "./RootNode";
+import dynamic from "next/dynamic";
+
+const RootNode = dynamic(() => import('../src/RootNode'), { ssr: false });
 
 function App() {
   return (
