@@ -4,7 +4,7 @@ import Node from "./Node";
 import BreadcrumbTrail from "./BreadcrumbTrail";
 import {ArrowUturnLeftIcon, ArrowUturnRightIcon, QuestionMarkCircleIcon} from "@heroicons/react/24/outline";
 import ShortcutsModal from "./ShortcutsModal";
-import LoginButton from "./LoginButton";
+import UserButton from "./UserButton";
 
 enum HistoryType {
   CHANGE_TEXT,
@@ -604,7 +604,7 @@ const RootNode: React.FC = () => {
               <QuestionMarkCircleIcon className={'w-4 w-4 text-slate-500'}/>
             </button>
           </span>
-          <LoginButton/>
+          <UserButton/>
         </div>
       </div>
       <div className="container mx-auto">

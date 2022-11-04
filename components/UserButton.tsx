@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
 import {signOut, useSession} from "next-auth/react";
-import Image from "next/image";
 import {UserCircleIcon} from "@heroicons/react/24/outline";
 
 const UserButton: React.FC = () => {
@@ -11,7 +10,7 @@ const UserButton: React.FC = () => {
     <div className={'relative'}>
       <button onClick={() => setIsOpen(!isOpen)}>
         {session?.user?.image && session?.user?.name ? (
-          <Image src={session?.user?.image} alt={session?.user?.name} width={20} height={20} className={'rounded-full'}/>
+          <img src={session?.user?.image} alt={session?.user?.name} width={20} height={20} className={'rounded-full'}/>
         ) : (
           <UserCircleIcon className={'w-4 w-4 text-slate-500'}/>
         )}
