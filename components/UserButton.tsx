@@ -4,7 +4,7 @@ import Image from "next/image";
 import {UserCircleIcon} from "@heroicons/react/24/outline";
 
 const UserButton: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const { data: session } = useSession();
 
   return (

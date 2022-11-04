@@ -1,7 +1,7 @@
 import React from 'react';
 import {signIn} from "next-auth/react";
-import LoginButton from "./LoginButton";
 import Link from "next/link";
+import Image from "next/image";
 
 const Homepage: React.FC = () => {
   return (
@@ -11,9 +11,13 @@ const Homepage: React.FC = () => {
 
         <header>
           <div className="flex justify-between px-6 py-4">
-            <Link href={'/'}>fibers</Link>
+            <Link href={'/'}>
+              <Image src={'/logo-full-white.svg'} alt={'Fibers'} width={120} height={40}/>
+            </Link>
             <ul className={'flex'}>
-              <li><LoginButton/></li>
+              <li>
+                <button className={'text-white'} onClick={() => signIn()}>Sign in</button>
+              </li>
             </ul>
           </div>
         </header>

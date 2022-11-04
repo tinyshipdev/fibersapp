@@ -2,6 +2,7 @@ import {getCsrfToken, getProviders, getSession, signIn} from "next-auth/react"
 import LoginButton from "../../components/LoginButton";
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 const GoogleButton = ({ id }) => {
   return (
@@ -20,7 +21,9 @@ export default function SignIn({providers}) {
     <div className={'h-screen bg-slate-200'}>
       <header className={'absolute w-full'}>
         <div className="flex justify-between px-6 py-4">
-          <Link href={'/'}>fibers</Link>
+          <Link href={'/'}>
+            <Image src={'/logo-full-black.svg'} alt={'Fibers'} width={120} height={40}/>
+          </Link>
           <ul className={'flex'}>
             <li><LoginButton/></li>
           </ul>
