@@ -544,8 +544,6 @@ const RootNode: React.FC = () => {
 
     const action = newHistory[newHistory.length - 1];
 
-    console.log(history);
-
     switch(action.type) {
       case HistoryType.CHANGE_TEXT:
         undoChangeText(action.data.id, action.data.value);
@@ -602,7 +600,9 @@ const RootNode: React.FC = () => {
         </div>
         <div className={'flex items-center'}>
           <span className={'mr-6'}>
-            <button onClick={() => setIsShortcutsModalOpen(true)}><QuestionMarkCircleIcon className={'w-4 w-4 text-slate-500'}/></button>
+            <button onClick={() => setIsShortcutsModalOpen(true)}>
+              <QuestionMarkCircleIcon className={'w-4 w-4 text-slate-500'}/>
+            </button>
           </span>
           <LoginButton/>
         </div>
