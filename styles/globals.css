@@ -5,3 +5,10 @@
 * {
     /*outline: 1px solid red;*/
 }
+
+.node-input a {
+    @apply text-slate-500;
+    @apply font-bold;
+    @apply z-10;
+    @apply relative;
+}

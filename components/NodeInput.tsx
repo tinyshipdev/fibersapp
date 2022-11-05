@@ -13,6 +13,15 @@ marked.setOptions({
   renderer: renderer
 });
 
+
+// open links in new tab
+DOMPurify.addHook('afterSanitizeAttributes', function (node) {
+  if ('target' in node) {
+    node.setAttribute('target', '_blank');
+    node.setAttribute('rel', 'noopener');
+  }
+});
+
 interface NodeInputProps {
   id: string,
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void,
@@ -35,8 +44,9 @@ const NodeInput: React.FC<NodeInputProps> = ({
       }}
     >
       <div
-        className={`absolute top-0 ${isFocused ? 'opacity-0' : 'opacity-100'}`}
+        className={`node-input absolute top-0 ${isFocused ? 'opacity-0' : 'opacity-100'}`}
         dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked.parse(value))}}
+        onBlur={() => setIsFocused(false)}
       />
       <input
         className={`focus:outline-none w-full bg-inherit ${!isFocused ? 'opacity-0' : 'opacity-100'}`}
