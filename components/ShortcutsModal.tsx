@@ -4,6 +4,7 @@ const keyCommands = [
   { title: 'Enter', keys: [{ value: 'Enter'}]},
   { title: 'Indent Left', keys: [{ value: 'Shift'}, { value: 'Tab'}]},
   { title: 'Indent Right', keys: [{ value: 'Tab'}]},
+  { title: 'Commands (available when editing)', keys: [{ value: '/'}]},
 ]
 
 interface ShortcutsModalProps {
@@ -21,7 +22,7 @@ const ShortcutsModal: React.FC<ShortcutsModalProps> = ({
   }
 
   return (
-    <div className="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div className="relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
       <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
 
       <div className="fixed inset-0 z-10 overflow-y-auto">

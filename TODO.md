@@ -2,10 +2,8 @@ Taskflowy To do.
 
 ROADMAP
 - add nodes to a "task list".
-- slash commands to add snippets
-  - e.g add a date by typing /today
 - copy/paste nested lists from other applications and have them import correctly
-- add links to text in nodes
+
 
 ---
 
@@ -28,6 +26,10 @@ DOING
 
 DONE
 
+- ~~implement markdown~~
+- ~~add links to text in nodes~~
+- ~~slash commands to add snippets~~
+  - ~~e.g add a date by typing /today~~
 - ~~convert to nextjs and implement auth~~
 - ~~when i select all text in a node and hit backspace, i want to full delete the node~~
 - ~~if you indent a node into a collapsed parent, open the parent so we can see where it went~~
