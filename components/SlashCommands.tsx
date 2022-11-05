@@ -1,6 +1,6 @@
 import React from 'react';
 import InsertTodayDate from "../plugins/commands/insert-today-date";
-import OpenMiroBoard from "../plugins/commands/example-modal-command";
+// import ExampleModalCommand from "../plugins/commands/example-modal-command";
 
 interface SlashCommandsProps {
   onComplete: (value: string) => void;
@@ -12,11 +12,11 @@ const plugins = [
     name: InsertTodayDate.name,
     component: InsertTodayDate.component
   },
-  {
-    id: OpenMiroBoard.id,
-    name: OpenMiroBoard.name,
-    component: OpenMiroBoard.component
-  }
+  // {
+  //   id: ExampleModalCommand.id,
+  //   name: ExampleModalCommand.name,
+  //   component: ExampleModalCommand.component
+  // }
 ];
 
 const SlashCommands: React.FC<SlashCommandsProps> = ({
