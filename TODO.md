@@ -1,26 +1,24 @@
-Taskflowy To do.
+Fibers - To do.
 
 ROADMAP
+
 - add nodes to a "task list".
 - copy/paste nested lists from other applications and have them import correctly
-
+- lock nodes to prevent changing
+- cloud sync (save to database)
 
 ---
 
 TODO
 
 - undo drag and drop operations
-- weird bug when undoing, haven't been able to track it down yet
-- lock nodes to prevent changing
-- undo "delete node"
-- cloud sync (save to database)
+- fix breadcrumb trail text rendering, it currently displays markdown, i want to see it with no formatting
 
 ---
 
 DOING
 
-- robustify so I can start using this at work.
-  - basically need to look over everything and clean up any bugs.
+- undo "delete node"
 
 ---
 
