@@ -9,6 +9,7 @@ function App({
   return (
     <SessionProvider session={session}>
       <Component {...pageProps} />
+      <div id={"modal"}/>
     </SessionProvider>
   )
 }

@@ -1,28 +1,24 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 
-const keyCommands = [
-  { title: 'Enter', keys: [{ value: 'Enter'}]},
-  { title: 'Indent Left', keys: [{ value: 'Shift'}, { value: 'Tab'}]},
-  { title: 'Indent Right', keys: [{ value: 'Tab'}]},
-  { title: 'Commands (available when editing)', keys: [{ value: '/'}]},
-]
-
-interface ShortcutsModalProps {
+interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
+  children?: React.ReactNode;
 }
 
-const ShortcutsModal: React.FC<ShortcutsModalProps> = ({
-  isOpen,
-  onClose,
+const Modal: React.FC<ModalProps> = ({
+ isOpen,
+ onClose,
+ children,
 }) => {
 
   if(!isOpen) {
     return null;
   }
 
-  return (
-    <div className="fixed z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  return createPortal(
+    <div className="w-full h-full relative z-50" aria-labelledby="modal-title" role="dialog" aria-modal="true">
       <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
 
       <div className="fixed inset-0 z-10 overflow-y-auto">
@@ -32,22 +28,7 @@ const ShortcutsModal: React.FC<ShortcutsModalProps> = ({
             <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
               <div className="">
                 <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                  <h3 className="text-lg font-medium leading-6 text-gray-900" id="modal-title">Keyboard Shortcuts</h3>
-
-                  <div className="mt-2 w-full">
-
-                    { keyCommands?.map((key) => (
-                      <div className={'flex justify-between border-b py-4'} key={key.title}>
-                        <div>{key.title}</div>
-                        <div className={'flex'}>
-                          {key.keys?.map((k, index) => (
-                            <div key={k.value}><span className={'bg-slate-200 border px-2 font-mono text-sm inline-block'}>{k.value}</span>{ index !== key.keys.length - 1 && (<span className={'mx-2'}>+</span>) }</div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
+                  {children}
                 </div>
               </div>
             </div>
@@ -64,7 +45,7 @@ const ShortcutsModal: React.FC<ShortcutsModalProps> = ({
         </div>
       </div>
     </div>
-  );
+  , document?.getElementById('modal') as Element);
 };
 
-export default ShortcutsModal;
+export default Modal;

@@ -29,10 +29,12 @@ const NodeInput: React.FC<NodeInputProps> = ({
           className={'absolute bottom-4 border bg-white p-4 drop-shadow'}
         >
           <SlashCommands
-            onSelect={(val) => {
-              onChange(value.substring(0, value.length - 1) + val);
+            onComplete={(val) => {
+              if(val) {
+                onChange(value.substring(0, value.length - 1) + val);
+              }
+              setShowSlashCommands(false);
             }}
-            onClose={() => setShowSlashCommands(false)}
           />
         </div>
       )}
