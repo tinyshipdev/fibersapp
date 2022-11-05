@@ -1,30 +1,9 @@
 import React, {useState} from "react";
-import { marked } from 'marked';
-import * as DOMPurify from "dompurify";
-
-const renderer = new marked.Renderer();
-
-renderer.image = function (text) {
-  return text || '';
-};
-
-marked.setOptions({
-  breaks: false,
-  renderer: renderer
-});
-
-
-// open links in new tab
-DOMPurify.addHook('afterSanitizeAttributes', function (node) {
-  if ('target' in node) {
-    node.setAttribute('target', '_blank');
-    node.setAttribute('rel', 'noopener');
-  }
-});
+import parseMarkdown from '../lib/markdown-parser';
 
 interface NodeInputProps {
   id: string,
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void,
+  onChange: (value: string) => void,
   onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void,
   value: string
 }
@@ -36,6 +15,17 @@ const NodeInput: React.FC<NodeInputProps> = ({
   value,
 }) => {
   const [isFocused, setIsFocused] = useState(false);
+  const [showSlashCommands, setShowSlashCommands] = useState(false);
+
+  function insertTodayDate() {
+    const date = new Date();
+    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, '0'); //January is 0!
+    const yyyy = date.getFullYear();
+    const today = mm + '/' + dd + '/' + yyyy;
+
+    onChange(value.substring(0, value.length - 1) + today);
+  }
 
   return (
     <div
@@ -43,9 +33,23 @@ const NodeInput: React.FC<NodeInputProps> = ({
         setIsFocused(true)
       }}
     >
+      {showSlashCommands && (
+        <div
+          className={'absolute bottom-4 border bg-white p-4 drop-shadow'}
+        >
+          <div>
+            <button
+              onClick={() => {
+                insertTodayDate();
+                setShowSlashCommands(false);
+              }}
+            >Insert today's date</button>
+          </div>
+        </div>
+      )}
       <div
         className={`node-input absolute top-0 ${isFocused ? 'opacity-0' : 'opacity-100'}`}
-        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(marked.parse(value))}}
+        dangerouslySetInnerHTML={{ __html: parseMarkdown(value) }}
         onBlur={() => setIsFocused(false)}
       />
       <input
@@ -53,8 +57,39 @@ const NodeInput: React.FC<NodeInputProps> = ({
         id={id}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
-        onChange={(e) => onChange(e)}
-        onKeyDown={(e) => onKeyDown(e)}
+        onChange={(e) => {
+          onChange(e.target.value);
+        }}
+        onKeyDown={(e
+        ) => {
+          // this is messy as shit, i'm working on it lol
+
+          if(e.key === '/') {
+            setShowSlashCommands(true);
+            return;
+          }
+
+          if(showSlashCommands) {
+            if(e.key === 'ArrowUp') {
+              e.preventDefault();
+              return;
+            }
+
+            if(e.key === 'ArrowDown') {
+              e.preventDefault();
+              return;
+            }
+
+            if(e.key === 'Enter') {
+              e.preventDefault();
+              return;
+            }
+
+            setShowSlashCommands(false);
+          }
+
+          onKeyDown(e);
+        }}
         value={value}
         autoComplete={"off"}
       />

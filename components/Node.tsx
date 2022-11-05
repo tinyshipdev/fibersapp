@@ -157,7 +157,7 @@ const Node: React.FC<NodeProps> = ({
         <div className={'relative w-full'}>
           <NodeInput
             id={id}
-            onChange={(e) => onChange(id, e.target.value)}
+            onChange={(value) => onChange(id, value)}
             onKeyDown={(e) => handleKeyDown(e)}
             value={value}
           />
