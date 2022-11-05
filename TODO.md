@@ -6,6 +6,7 @@ ROADMAP
 - copy/paste nested lists from other applications and have them import correctly
 - lock nodes to prevent changing
 - cloud sync (save to database)
+- key commands for markdown formatting
 
 ---
 
@@ -24,6 +25,7 @@ DOING
 
 DONE
 
+- ~~implement modal slash command and plugin architecture~~
 - ~~implement markdown~~
 - ~~add links to text in nodes~~
 - ~~slash commands to add snippets~~
