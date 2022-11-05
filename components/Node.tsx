@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {NodesInterface} from "./RootNode";
 import {ChevronDownIcon, ChevronRightIcon} from "@heroicons/react/20/solid";
 import {MagnifyingGlassPlusIcon} from "@heroicons/react/24/outline";
+import NodeInput from "./NodeInput";
 
 interface NodeProps {
   id: string;
@@ -116,17 +117,6 @@ const Node: React.FC<NodeProps> = ({
     return graphMap;
   }
 
-  const textSpan = (
-    <input
-      className={'focus:outline-none inline-block w-full bg-inherit'}
-      id={id}
-      onChange={(e) => onChange(id, e.target.value)}
-      onKeyDown={(e) => handleKeyDown(e)}
-      value={value}
-      autoComplete={"off"}
-    />
-  );
-
   return (
     <li
       key={id}
@@ -143,7 +133,7 @@ const Node: React.FC<NodeProps> = ({
         setIsDragging(false)
       }}
     >
-      <p className={`flex items-center group ${!nodes[id].isExpanded && nodes[id].children.length > 0 && 'text-slate-800 font-bold'}`}>
+      <div className={`flex items-center group ${!nodes[id].isExpanded && nodes[id].children.length > 0 ? 'text-slate-800 font-bold' : ''}`}>
         <button onClick={() => onZoom(id)}>
           <MagnifyingGlassPlusIcon className={'w-4 h-4 text-slate-400 opacity-0 group-hover:opacity-100 ease-in duration-100'}/>
         </button>
@@ -164,8 +154,15 @@ const Node: React.FC<NodeProps> = ({
           </button>
         )}
         </span>
-        {textSpan}
-      </p>
+        <div className={'relative w-full'}>
+          <NodeInput
+            id={id}
+            onChange={(e) => onChange(id, e.target.value)}
+            onKeyDown={(e) => handleKeyDown(e)}
+            value={value}
+          />
+        </div>
+      </div>
       {!isDragging && (
         <div className={'relative left-9'}>
           <div className="flex">
