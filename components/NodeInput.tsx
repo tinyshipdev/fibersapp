@@ -1,5 +1,6 @@
 import React, {useState} from "react";
 import parseMarkdown from '../lib/markdown-parser';
+import SlashCommands from "./SlashCommands";
 
 interface NodeInputProps {
   id: string,
@@ -17,16 +18,6 @@ const NodeInput: React.FC<NodeInputProps> = ({
   const [isFocused, setIsFocused] = useState(false);
   const [showSlashCommands, setShowSlashCommands] = useState(false);
 
-  function insertTodayDate() {
-    const date = new Date();
-    const dd = String(date.getDate()).padStart(2, '0');
-    const mm = String(date.getMonth() + 1).padStart(2, '0'); //January is 0!
-    const yyyy = date.getFullYear();
-    const today = mm + '/' + dd + '/' + yyyy;
-
-    onChange(value.substring(0, value.length - 1) + today);
-  }
-
   return (
     <div
       onClick={() => {
@@ -37,14 +28,12 @@ const NodeInput: React.FC<NodeInputProps> = ({
         <div
           className={'absolute bottom-4 border bg-white p-4 drop-shadow'}
         >
-          <div>
-            <button
-              onClick={() => {
-                insertTodayDate();
-                setShowSlashCommands(false);
-              }}
-            >Insert today's date</button>
-          </div>
+          <SlashCommands
+            onSelect={(val) => {
+              onChange(value.substring(0, value.length - 1) + val);
+            }}
+            onClose={() => setShowSlashCommands(false)}
+          />
         </div>
       )}
       <div
