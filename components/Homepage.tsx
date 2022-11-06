@@ -39,10 +39,10 @@ const Homepage: React.FC = () => {
       </div>
 
       <div className={'px-10 lg:px-20 lg:container mx-auto -top-40 relative drop-shadow-2xl'}>
-        <div className={'bg-gray-600 h-8 w-full flex items-center pl-2 rounded-tr-lg rounded-tl-lg'}>
-          <div className={'rounded-full w-3 h-3 mr-2 bg-rose-600'}/>
-          <div className={'rounded-full w-3 h-3 mr-2 bg-yellow-600'}/>
-          <div className={'rounded-full w-3 h-3 mr-2 bg-green-600'}/>
+        <div className={'bg-gray-600 h-6 md:h-8 w-full flex items-center pl-2 rounded-tr-lg rounded-tl-lg'}>
+          <div className={'rounded-full w-2 md:w-3 h-2 md:h-3 mr-2 bg-rose-600'}/>
+          <div className={'rounded-full w-2 md:w-3 h-2 md:h-3 mr-2 bg-yellow-600'}/>
+          <div className={'rounded-full w-2 md:w-3 h-2 md:h-3 mr-2 bg-green-600'}/>
         </div>
         <div className="video-container">
           <iframe width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/dU2GTuJ38Yw?autoplay=1&loop=1"
