@@ -23,15 +23,21 @@ const SlashCommands: React.FC<SlashCommandsProps> = ({
   onComplete,
 }) => {
   return (
-    <div className={'flex flex-col'}>
+    <div className={'flex flex-col rounded'}>
       {plugins?.map((plugin, index) => {
         return (
-          <div className={`${index !== plugins.length - 1 ? 'mb-2' : ''}`}>
+          <div
+            key={plugin.id}
+            className={`${index !== plugins.length - 1 ? 'mb-2' : ''}`}
+          >
             <plugin.component
-              key={plugin.id}
               onComplete={(value) => onComplete(value)}
               launcher={(handleClick) => (
-                <button onClick={() => handleClick()}>{plugin.name}</button>
+                <button
+                  className={'p-4 hover:bg-slate-100'}
+                  onClick={() => handleClick()}>
+                  {plugin.name}
+                </button>
               )}
             />
           </div>
