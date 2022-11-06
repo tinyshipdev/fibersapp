@@ -671,11 +671,13 @@ const RootNode: React.FC = () => {
       </div>
       <div className="container mx-auto">
         {zoomedNode !== 'root' && (
-          <NodeTitleInput
-            value={nodes[zoomedNode]?.value}
-            onChange={(value) => handleChange(zoomedNode, value)}
-            placeholder={!nodes[zoomedNode]?.value ? 'Untitled' : ''}
-          />
+          <div className={'px-6'}>
+            <NodeTitleInput
+              value={nodes[zoomedNode]?.value}
+              onChange={(value) => handleChange(zoomedNode, value)}
+              placeholder={!nodes[zoomedNode]?.value ? 'Untitled' : ''}
+            />
+          </div>
         )}
         <div
           className={'-ml-10'}
