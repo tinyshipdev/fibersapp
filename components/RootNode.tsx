@@ -367,6 +367,12 @@ const RootNode: React.FC = () => {
 
   function handleDelete(id: string, startOffset: number, endOffset: number) {
     if(!nodes[id].isExpanded) {
+
+      if(nodes[id].value.length === 0) {
+        // if you attempt to delete a collapsed node that's empty but has children,
+        // expand the node to explain why you can't delete this node
+        handleExpand(id);
+      }
       return;
     }
 
