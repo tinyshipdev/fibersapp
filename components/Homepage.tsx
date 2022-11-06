@@ -26,7 +26,7 @@ const Homepage: React.FC = () => {
           <div className={'container mx-auto'}>
             <div className="text-center text-slate-200">
               <h1 className={'text-4xl font-bold mb-4'}>Follow your thoughts, infinitely</h1>
-              <p className={'mb-10'}>Fiber is an infinitely nested outliner to help you keep track of all your thoughts</p>
+              <p className={'mb-10'}>Fibers is an infinitely nested outliner to help you keep track of all your thoughts</p>
               <button
                 className={'px-4 py-2 bg-sky-300 hover:bg-sky-400 rounded text-black'}
                 onClick={() => signIn()}
