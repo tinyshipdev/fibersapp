@@ -22,7 +22,7 @@ const Homepage: React.FC = () => {
           </div>
         </header>
 
-        <div className={'pt-20 pb-60'}>
+        <div className={'pt-20 pb-60 px-4'}>
           <div className={'container mx-auto'}>
             <div className="text-center text-slate-200">
               <h1 className={'text-4xl font-bold mb-4'}>Follow your thoughts, infinitely</h1>
@@ -38,9 +38,14 @@ const Homepage: React.FC = () => {
 
       </div>
 
-      <div className={'px-20 container mx-auto -top-40 relative'}>
+      <div className={'px-10 lg:px-20 lg:container mx-auto -top-40 relative drop-shadow-2xl'}>
+        <div className={'bg-gray-600 h-8 w-full flex items-center pl-2 rounded-tr-lg rounded-tl-lg'}>
+          <div className={'rounded-full w-3 h-3 mr-2 bg-rose-600'}/>
+          <div className={'rounded-full w-3 h-3 mr-2 bg-yellow-600'}/>
+          <div className={'rounded-full w-3 h-3 mr-2 bg-green-600'}/>
+        </div>
         <div className="video-container">
-          <iframe width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/dU2GTuJ38Yw?autoplay=1"
+          <iframe width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/dU2GTuJ38Yw?autoplay=1&loop=1"
                   title="YouTube video player"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen></iframe>
