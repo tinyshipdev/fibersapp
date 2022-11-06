@@ -31,7 +31,7 @@ const Homepage: React.FC = () => {
                 className={'px-4 py-2 bg-sky-300 hover:bg-sky-400 rounded text-black'}
                 onClick={() => signIn()}
               >Try for free*</button>
-              <p className={'mt-2'}><small>*Fibers is currently in alpha and may change at any time</small></p>
+              <p className={'mt-2'}><small>*Fibers is in active development, features are subject to change at any time</small></p>
             </div>
           </div>
         </div>
@@ -45,7 +45,7 @@ const Homepage: React.FC = () => {
           <div className={'rounded-full w-2 md:w-3 h-2 md:h-3 mr-2 bg-green-600'}/>
         </div>
         <div className="video-container">
-          <iframe width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/dU2GTuJ38Yw?autoplay=1&loop=1&controls=0"
+          <iframe width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/dU2GTuJ38Yw?autoplay=1&loop=1&controls=0&mute=1"
                   title="YouTube video player"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen></iframe>
