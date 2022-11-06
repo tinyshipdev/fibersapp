@@ -13,8 +13,6 @@ ROADMAP
 TODO
 
 
-- fix breadcrumb trail text rendering, it currently displays markdown, i want to see it with no formatting
-
 ---
 
 DOING
@@ -23,6 +21,7 @@ DOING
 
 DONE
 
+- ~~fix breadcrumb trail text rendering, it currently displays markdown, i want to see it with no formatting~~
 - ~~fix zoomed node title not rendering correctly~~
 - ~~undo drag and drop operations~~
 - ~~undo "delete node"~~
