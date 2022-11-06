@@ -17,13 +17,15 @@ enum HistoryType {
   DELETE_NODE,
 }
 
+type NodeItem = {
+  value: string;
+  parent: string;
+  isExpanded: boolean;
+  children: string[];
+}
+
 export type NodesInterface = {
-  [key: string]: {
-    value: string,
-    parent: string,
-    isExpanded: boolean,
-    children: string[],
-  }
+  [key: string]: NodeItem
 }
 
 const DEFAULT_NODES: NodesInterface = {
@@ -389,12 +391,16 @@ const RootNode: React.FC = () => {
       return;
     }
 
-    setHistory([]);
-
-    // TODO: update history and handle undoing delete nodes
-    // updateHistory([{ type: HistoryType.DELETE_NODE, data: { node: {...n[id]}, previousParent: n[id].parent }}])
-
     const indexOfCurrent = n[parent].children.indexOf(id);
+
+    updateHistory([{
+      type: HistoryType.DELETE_NODE,
+      data: {
+        id,
+        node: {...n[id]},
+        indexOfNodeInParent: indexOfCurrent,
+      }
+    }]);
 
     const moveTo = findPreviousVisibleNode(id, 0);
     n[parent].children.splice(indexOfCurrent, 1);
@@ -519,6 +525,16 @@ const RootNode: React.FC = () => {
     refocusInput(previousId, n[previousId]?.value?.length);
   }
 
+  function undoDeleteNode(nodeId: string, nodeData: NodeItem, indexOfNodeInParent: number) {
+    const n = { ...nodes };
+
+    n[nodeId] = nodeData;
+    n[nodeData.parent].children.splice(indexOfNodeInParent, 0, nodeId);
+
+    setNodes(n);
+    refocusInput(nodeId, n[nodeId]?.value?.length);
+  }
+
   function undoChangeText(id: string, value: string) {
     const n = { ...nodes };
     n[id].value = value;
@@ -550,6 +566,9 @@ const RootNode: React.FC = () => {
         break;
       case HistoryType.ADD_NODE:
         undoAddNode(action.data.currentNode, action.data.previousNode, action.data.parentNode);
+        break;
+      case HistoryType.DELETE_NODE:
+        undoDeleteNode(action.data.id, action.data.node, action.data.indexOfNodeInParent);
         break;
       case HistoryType.EXPAND_NODE:
         undoExpand(action.data.id);

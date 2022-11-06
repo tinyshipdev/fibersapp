@@ -12,19 +12,20 @@ ROADMAP
 
 TODO
 
-- undo drag and drop operations
+
 - fix breadcrumb trail text rendering, it currently displays markdown, i want to see it with no formatting
 
 ---
 
 DOING
 
-- undo "delete node"
+- undo drag and drop operations
 
 ---
 
 DONE
 
+- ~~undo "delete node"~~
 - ~~implement modal slash command and plugin architecture~~
 - ~~implement markdown~~
 - ~~add links to text in nodes~~
