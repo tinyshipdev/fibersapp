@@ -46,6 +46,7 @@ const NodeInput: React.FC<NodeInputProps> = ({
       <input
         className={`focus:outline-none w-full bg-inherit ${!isFocused ? 'opacity-0' : 'opacity-100'}`}
         id={id}
+        onFocus={() => setIsFocused(true)}
         onChange={(e) => {
           onChange(e.target.value);
         }}
