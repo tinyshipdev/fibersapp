@@ -23,6 +23,7 @@ DOING
 
 DONE
 
+- ~~fix zoomed node title not rendering correctly~~
 - ~~undo drag and drop operations~~
 - ~~undo "delete node"~~
 - ~~implement modal slash command and plugin architecture~~

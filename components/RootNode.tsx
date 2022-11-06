@@ -5,6 +5,7 @@ import BreadcrumbTrail from "./BreadcrumbTrail";
 import {ArrowUturnLeftIcon, ArrowUturnRightIcon, QuestionMarkCircleIcon} from "@heroicons/react/24/outline";
 import ShortcutsModal from "./ShortcutsModal";
 import UserButton from "./UserButton";
+import NodeTitleInput from "./NodeTitleInput";
 
 enum HistoryType {
   CHANGE_TEXT,
@@ -664,11 +665,10 @@ const RootNode: React.FC = () => {
       </div>
       <div className="container mx-auto">
         {zoomedNode !== 'root' && (
-          <input
-            className={'text-xl font-bold mb-6 focus:outline-none w-full'}
+          <NodeTitleInput
             value={nodes[zoomedNode]?.value}
+            onChange={(value) => handleChange(zoomedNode, value)}
             placeholder={!nodes[zoomedNode]?.value ? 'Untitled' : ''}
-            onChange={(e) => handleChange(zoomedNode, e.target.value)}
           />
         )}
         <div
