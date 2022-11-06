@@ -45,7 +45,7 @@ const Homepage: React.FC = () => {
           <div className={'rounded-full w-2 md:w-3 h-2 md:h-3 mr-2 bg-green-600'}/>
         </div>
         <div className="video-container">
-          <iframe width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/dU2GTuJ38Yw?autoplay=1&loop=1&controls=0&mute=1"
+          <iframe width="100%" height="100%" src="https://www.youtube-nocookie.com/embed/dU2GTuJ38Yw?autoplay=1&loop=1&controls=0&mute=1&playlist=dU2GTuJ38Yw"
                   title="YouTube video player"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen></iframe>
