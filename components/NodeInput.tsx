@@ -23,6 +23,7 @@ const NodeInput: React.FC<NodeInputProps> = ({
       onClick={() => {
         setIsFocused(true)
       }}
+      onBlur={() => setIsFocused(false)}
     >
       {showSlashCommands && (
         <div
@@ -41,13 +42,10 @@ const NodeInput: React.FC<NodeInputProps> = ({
       <div
         className={`node-input absolute top-0 ${isFocused ? 'opacity-0' : 'opacity-100'}`}
         dangerouslySetInnerHTML={{ __html: parseMarkdown(value) }}
-        onBlur={() => setIsFocused(false)}
       />
       <input
         className={`focus:outline-none w-full bg-inherit ${!isFocused ? 'opacity-0' : 'opacity-100'}`}
         id={id}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
         onChange={(e) => {
           onChange(e.target.value);
         }}
