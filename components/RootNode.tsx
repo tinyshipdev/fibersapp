@@ -15,6 +15,7 @@ enum HistoryType {
   INDENT_RIGHT,
   ZOOM_NODE,
   DELETE_NODE,
+  DROP_NODE,
 }
 
 type NodeItem = {
@@ -488,8 +489,17 @@ const RootNode: React.FC = () => {
     // remove dragged node from child of it's parent
     const parent = n[draggedNode].parent;
     const indexOfDraggedNode = n[parent].children.indexOf(draggedNode);
-    n[parent].children.splice(indexOfDraggedNode, 1);
 
+    updateHistory([{
+      type: HistoryType.DROP_NODE,
+      data: {
+        previousParent: parent,
+        indexOfNodeInPreviousParent: indexOfDraggedNode,
+        nodeId: draggedNode,
+      }
+    }]);
+
+    n[parent].children.splice(indexOfDraggedNode, 1);
     n[dropTarget].children.splice(0, 0, draggedNode);
     n[draggedNode].parent = dropTarget;
 
@@ -506,6 +516,16 @@ const RootNode: React.FC = () => {
     // remove dragged node from child of it's parent
     const parent = n[draggedNode].parent;
     const indexOfDraggedNode = n[parent].children.indexOf(draggedNode);
+
+    updateHistory([{
+      type: HistoryType.DROP_NODE,
+      data: {
+        previousParent: parent,
+        indexOfNodeInPreviousParent: indexOfDraggedNode,
+        nodeId: draggedNode,
+      }
+    }]);
+
     n[parent].children.splice(indexOfDraggedNode, 1);
 
     const parentOfDropTarget = n[dropTarget].parent;
@@ -530,6 +550,19 @@ const RootNode: React.FC = () => {
 
     n[nodeId] = nodeData;
     n[nodeData.parent].children.splice(indexOfNodeInParent, 0, nodeId);
+
+    setNodes(n);
+    refocusInput(nodeId, n[nodeId]?.value?.length);
+  }
+
+  function undoDropNode(previousParent: string, indexOfNodeInPreviousParent: number, nodeId: string) {
+    const n = { ...nodes };
+
+    const currentParent = n[nodeId].parent;
+
+    n[previousParent].children.splice(indexOfNodeInPreviousParent, 0, nodeId);
+    n[currentParent].children = n[currentParent].children.filter((id) => id !== nodeId);
+    n[nodeId].parent = previousParent;
 
     setNodes(n);
     refocusInput(nodeId, n[nodeId]?.value?.length);
@@ -584,6 +617,9 @@ const RootNode: React.FC = () => {
         break;
       case HistoryType.ZOOM_NODE:
         undoZoom(action.data.id);
+        break;
+      case HistoryType.DROP_NODE:
+        undoDropNode(action.data.previousParent, action.data.indexOfNodeInPreviousParent, action.data.nodeId);
         break;
     }
 

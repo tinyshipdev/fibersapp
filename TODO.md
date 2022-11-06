@@ -19,12 +19,11 @@ TODO
 
 DOING
 
-- undo drag and drop operations
-
 ---
 
 DONE
 
+- ~~undo drag and drop operations~~
 - ~~undo "delete node"~~
 - ~~implement modal slash command and plugin architecture~~
 - ~~implement markdown~~
