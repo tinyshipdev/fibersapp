@@ -27,7 +27,7 @@ const NodeInput: React.FC<NodeInputProps> = ({
     >
       {showSlashCommands && (
         <div
-          className={'absolute bottom-6 border bg-white drop-shadow rounded'}
+          className={'absolute bottom-6 border bg-white drop-shadow rounded z-20'}
         >
           <SlashCommands
             onComplete={(val) => {
