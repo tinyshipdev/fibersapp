@@ -9,6 +9,10 @@ ROADMAP
 - template lists
   - i.e meeting notes that create a item for agenda, notes, next steps, etc
   - create them via slash commands
+- version control
+- shared branches
+- encrypt data when saving, i don't want to see other peoples data
+- open google doc in modal
 
 ---
 
@@ -18,8 +22,6 @@ TODO
 ---
 
 DOING
-
-- encrypt data when saving, i don't want to see other peoples data
 
 ---
 
