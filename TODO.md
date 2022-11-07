@@ -7,6 +7,9 @@ ROADMAP
 - lock nodes to prevent changing
 - cloud sync (save to database)
 - key commands for markdown formatting
+- template lists
+  - i.e meeting notes that create a item for agenda, notes, next steps, etc
+  - create them via slash commands
 
 ---
 
