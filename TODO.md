@@ -20,11 +20,11 @@ TODO
 
 DOING
 
-
 ---
 
 DONE
 
+- ~~fix unable to add child node when zoomed in~~
 - ~~if you attempt to delete a collapsed node that has child nodes, expand the node to show why you can't delete it~~
 - ~~fix breadcrumb trail text rendering, it currently displays markdown, i want to see it with no formatting~~
 - ~~fix zoomed node title not rendering correctly~~

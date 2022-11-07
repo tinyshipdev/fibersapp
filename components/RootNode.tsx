@@ -2,7 +2,12 @@ import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import { nanoid } from 'nanoid'
 import Node from "./Node";
 import BreadcrumbTrail from "./BreadcrumbTrail";
-import {ArrowUturnLeftIcon, ArrowUturnRightIcon, QuestionMarkCircleIcon} from "@heroicons/react/24/outline";
+import {
+  ArrowUturnLeftIcon,
+  ArrowUturnRightIcon,
+  PlusIcon,
+  QuestionMarkCircleIcon
+} from "@heroicons/react/24/outline";
 import ShortcutsModal from "./ShortcutsModal";
 import UserButton from "./UserButton";
 import NodeTitleInput from "./NodeTitleInput";
@@ -223,6 +228,21 @@ const RootNode: React.FC = () => {
 
     updateHistory([
       { type: HistoryType.ADD_NODE, data: { currentNode: nodeId, previousNode: id, parentNode: parentId }}
+    ]);
+    setNodes(n);
+    refocusInput(nodeId, 0);
+  }
+
+  function addNodeAsChild(id: string) {
+    const n = { ...nodes };
+    const nodeId = nanoid();
+
+    const previousNode = n[id].children[n[id].children.length - 1];
+    n[nodeId] = { value: '', isExpanded: true, children: [], parent: id };
+    n[id].children.push(nodeId);
+
+    updateHistory([
+      { type: HistoryType.ADD_NODE, data: { currentNode: nodeId, previousNode, parentNode: id }}
     ]);
     setNodes(n);
     refocusInput(nodeId, 0);
@@ -701,6 +721,13 @@ const RootNode: React.FC = () => {
             onDropChild={(id) => handleDropChild(id)}
             onDropSibling={(id) => handleDropSibling(id)}
           />
+          <div className={'ml-14 mt-2'}>
+            <button onClick={() => {
+              addNodeAsChild(zoomedNode);
+            }}>
+              <PlusIcon className={'w-6 h-6 text-slate-300 hover:text-black transition'}/>
+            </button>
+          </div>
         </div>
       </div>
     </div>
