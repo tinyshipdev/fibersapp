@@ -9,7 +9,7 @@ const GoogleButton = ({ id }) => {
   return (
     <button
       onClick={() => signIn(id)}
-      className={'flex items-center border border-slate-300 px-4 py-3 hover:bg-slate-200 transition'}
+      className={'flex items-center border border-slate-300 px-4 py-3 hover:bg-slate-100 transition'}
     >
       <img className={'w-6 mr-4'} alt="Google login" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" />
       <span>Sign in with Google</span>
@@ -24,7 +24,7 @@ export default function SignIn({providers}) {
         <title>sign in - fibers</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>
-      <div className={'h-screen bg-slate-200'}>
+      <div className={'h-screen bg-slate-100'}>
         <header className={'absolute w-full'}>
           <div className="flex justify-between px-6 py-4">
             <Link href={'/'}>
@@ -37,7 +37,7 @@ export default function SignIn({providers}) {
         </header>
 
         <div className={'flex justify-center items-center py-40 px-4'}>
-          <div className="container md:w-1/2 lg:w-1/3 mx-auto text-center py-10 bg-slate-100 rounded-lg">
+          <div className="container md:w-1/2 lg:w-1/3 mx-auto text-center py-10 bg-white rounded-lg">
             <div className="flex justify-center mb-10">
               <Image src={'/logo-full-black.svg'} alt={'Fibers'} width={200} height={100}/>
             </div>

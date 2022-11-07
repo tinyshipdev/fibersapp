@@ -24,7 +24,7 @@ const Homepage: React.FC = () => {
 
         <div className={'pt-20 pb-60 px-4'}>
           <div className={'container mx-auto'}>
-            <div className="text-center text-slate-200">
+            <div className="text-center text-slate-100">
               <h1 className={'text-4xl font-bold mb-4'}>Follow your thoughts, infinitely</h1>
               <p className={'mb-10'}>Fibers is an infinitely nested outliner to help you keep track of all your thoughts</p>
               <button
