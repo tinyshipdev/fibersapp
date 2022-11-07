@@ -725,7 +725,7 @@ const RootNode: React.FC = () => {
             <button onClick={() => {
               addNodeAsChild(zoomedNode);
             }}>
-              <PlusIcon className={'w-6 h-6 text-slate-300 hover:text-black transition'}/>
+              <PlusIcon className={'w-6 h-6 text-slate-200 hover:text-slate-800 transition'}/>
             </button>
           </div>
         </div>
