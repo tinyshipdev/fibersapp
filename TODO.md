@@ -19,6 +19,8 @@ TODO
 
 DOING
 
+- encrypt data when saving, i don't want to see other peoples data
+
 ---
 
 DONE
