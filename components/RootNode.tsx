@@ -3,6 +3,7 @@ import { nanoid } from 'nanoid'
 import Node from "./Node";
 import BreadcrumbTrail from "./BreadcrumbTrail";
 import {
+  ArrowPathIcon,
   ArrowUturnLeftIcon,
   ArrowUturnRightIcon,
   PlusIcon,
@@ -132,6 +133,14 @@ function refocusInput(id: string, pos: number) {
   }, 10)
 }
 
+async function fetchNodesFromRemote(userId: string) {
+  const data = await fetch(`/api/nodes?userId=${userId}`, {
+    method: 'GET',
+  })
+
+  return await data?.json();
+}
+
 function getDefaultNodes() {
   if(window.localStorage.getItem('nodes')) {
     return JSON.parse(window.localStorage.getItem('nodes') || '')?.nodes;
@@ -146,17 +155,34 @@ function saveState(nodes: NodesInterface) {
   }));
 }
 
+async function persistState(nodes: NodesInterface, userId: string) {
+  const data = await fetch('/api/nodes', {
+    method: 'POST',
+    body: JSON.stringify({
+      userId,
+      data: nodes
+    })
+  })
+
+  return await data?.json();
+}
+
 interface HistoryItem {
   type: HistoryType,
   data: any,
 }
 
-const RootNode: React.FC = () => {
-  const [nodes, setNodes] = useState<NodesInterface>(() => getDefaultNodes());
+interface Props {
+  userId: string;
+}
+
+const RootNode: React.FC<Props> = ({ userId }) => {
   const [zoomedNode, setZoomedNode] = useState('root');
   const [draggedNode, setDraggedNode] = useState('');
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [isShortcutsModalOpen, setIsShortcutsModalOpen] = useState(false);
+  const [nodes, setNodes] = useState<NodesInterface>(() => getDefaultNodes());
+  const [isSaved, setIsSaved] = useState(false);
 
   // I wrote this in a rush, might want to refactor at some point
   const generateBreadcrumbTrail = useCallback((id: string): {id: string, value: string}[] => {
@@ -182,6 +208,18 @@ const RootNode: React.FC = () => {
     generateBreadcrumbTrail(zoomedNode), [zoomedNode, generateBreadcrumbTrail]
   );
 
+  useEffect(() => {
+    async function t() {
+      const data = await fetchNodesFromRemote(userId);
+      setNodes(data.data);
+    }
+    t();
+  }, []);
+
+  useEffect(() => {
+    setIsSaved(false);
+  }, [nodes]);
+
   /**
    * I'm not sure how this works, but somehow it's working perfectly
    * it saves every second, but only if you're not editing.
@@ -189,6 +227,17 @@ const RootNode: React.FC = () => {
   useEffect(() => {
     const timer = setInterval(() => {
       saveState(nodes);
+    }, 1000);
+
+    return () => {
+      clearTimeout(timer);
+    }
+  }, [nodes]);
+
+  useEffect(() => {
+    const timer = setInterval(async () => {
+      await persistState(nodes, userId);
+      setIsSaved(true);
     }, 1000);
 
     return () => {
@@ -681,7 +730,13 @@ const RootNode: React.FC = () => {
           <BreadcrumbTrail zoomedNode={zoomedNode} links={breadcrumbs} onClick={(id) => handleZoom(id)} />
         </div>
         <div className={'flex items-center'}>
-          <span className={'mr-6'}>
+          {!isSaved && (
+            <div className={'flex items-center text-slate-400 mr-4'}>
+              <ArrowPathIcon className={'w-4 w-4 mr-2 animate-spin'}/>
+              <span className={'text-sm'}>Saving...</span>
+            </div>
+          )}
+          <span className={'mr-6 flex items-center'}>
             <button onClick={() => setIsShortcutsModalOpen(true)}>
               <QuestionMarkCircleIcon className={'w-4 w-4 text-slate-500'}/>
             </button>

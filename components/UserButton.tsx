@@ -7,7 +7,7 @@ const UserButton: React.FC = () => {
   const { data: session } = useSession();
 
   return (
-    <div className={'relative'}>
+    <div className={'relative flex items-center'}>
       <button onClick={() => setIsOpen(!isOpen)}>
         {session?.user?.image && session?.user?.name ? (
           <img src={session?.user?.image} alt={session?.user?.name} width={20} height={20} className={'rounded-full'}/>

@@ -5,7 +5,6 @@ ROADMAP
 - add nodes to a "task list".
 - copy/paste nested lists from other applications and have them import correctly
 - lock nodes to prevent changing
-- cloud sync (save to database)
 - key commands for markdown formatting
 - template lists
   - i.e meeting notes that create a item for agenda, notes, next steps, etc
@@ -24,6 +23,7 @@ DOING
 
 DONE
 
+- ~~cloud sync (save to database)~~
 - ~~fix unable to add child node when zoomed in~~
 - ~~if you attempt to delete a collapsed node that has child nodes, expand the node to show why you can't delete it~~
 - ~~fix breadcrumb trail text rendering, it currently displays markdown, i want to see it with no formatting~~

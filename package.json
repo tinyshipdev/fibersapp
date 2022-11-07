@@ -13,6 +13,8 @@
     "@types/react": "^18.0.21",
     "@types/react-dom": "^18.0.6",
     "dompurify": "^2.4.0",
+    "firebase": "^9.13.0",
+    "firebase-admin": "^11.2.0",
     "marked": "^4.2.2",
     "nanoid": "^4.0.0",
     "next": "^13.0.2",
