@@ -1,5 +1,6 @@
 import React from 'react';
 import InsertTodayDate from "../plugins/commands/insert-today-date";
+import {CalendarDaysIcon} from "@heroicons/react/24/outline";
 // import ExampleModalCommand from "../plugins/commands/example-modal-command";
 
 interface SlashCommandsProps {
@@ -23,7 +24,7 @@ const SlashCommands: React.FC<SlashCommandsProps> = ({
   onComplete,
 }) => {
   return (
-    <div className={'flex flex-col rounded'}>
+    <div className={'flex flex-col rounded p-2'} id={'commands'}>
       {plugins?.map((plugin, index) => {
         return (
           <div
@@ -34,9 +35,12 @@ const SlashCommands: React.FC<SlashCommandsProps> = ({
               onComplete={(value) => onComplete(value)}
               launcher={(handleClick) => (
                 <button
-                  className={'p-4 hover:bg-slate-100'}
+                  className={'p-2 hover:bg-slate-100 rounded'}
                   onClick={() => handleClick()}>
-                  {plugin.name}
+                  <span className="flex items-center">
+                    <span className={'mr-2'}><CalendarDaysIcon className={'w-4 h-4'}/></span>
+                    <span>{plugin.name}</span>
+                  </span>
                 </button>
               )}
             />
