@@ -13,6 +13,7 @@ import ShortcutsModal from "./ShortcutsModal";
 import UserButton from "./UserButton";
 import NodeTitleInput from "./NodeTitleInput";
 import SharedNodeRoot from "./SharedNodeRoot";
+import {addNode} from "../lib/nodes-controller";
 
 enum HistoryType {
   CHANGE_TEXT,
@@ -249,38 +250,38 @@ const RootNode: React.FC = () => {
     setHistory([...history.slice(-1000), ...items]);
   }
 
-  function addNode(id: string, caretOffset: number) {
-    let parentId = nodes[id].parent;
-    const n = { ...nodes };
-    const nodeId = nanoid();
-
-    // if the cursor is at the start of the sentence, add a node BEFORE the current one
-    if(caretOffset === 0 && n[id].value.length > 0) {
-      n[nodeId] = { value: '', isExpanded: true, children: [], parent: parentId };
-      let index = nodes[parentId]?.children.indexOf(id);
-      nodes[parentId]?.children.splice(index, 0, nodeId);
-    } else {
-      /**
-       * when we add a node below, we might be halfway through a word
-       * when we hit enter, we want to split the word and create a new node with the second
-       * half of that word.
-       */
-      let firstHalf = n[id].value.slice(0, caretOffset);
-      let secondHalf = n[id].value.slice(caretOffset);
-
-      n[id].value = firstHalf;
-      n[nodeId] = { value: secondHalf, isExpanded: true, children: [], parent: parentId };
-
-      let index = nodes[parentId]?.children.indexOf(id);
-      nodes[parentId]?.children.splice(index + 1, 0, nodeId);
-    }
-
-    updateHistory([
-      { type: HistoryType.ADD_NODE, data: { currentNode: nodeId, previousNode: id, parentNode: parentId }}
-    ]);
-    setNodes(n);
-    refocusInput(nodeId, 0);
-  }
+  // function addNode(id: string, caretOffset: number) {
+  //   let parentId = nodes[id].parent;
+  //   const n = { ...nodes };
+  //   const nodeId = nanoid();
+  //
+  //   // if the cursor is at the start of the sentence, add a node BEFORE the current one
+  //   if(caretOffset === 0 && n[id].value.length > 0) {
+  //     n[nodeId] = { value: '', isExpanded: true, children: [], parent: parentId };
+  //     let index = nodes[parentId]?.children.indexOf(id);
+  //     nodes[parentId]?.children.splice(index, 0, nodeId);
+  //   } else {
+  //     /**
+  //      * when we add a node below, we might be halfway through a word
+  //      * when we hit enter, we want to split the word and create a new node with the second
+  //      * half of that word.
+  //      */
+  //     let firstHalf = n[id].value.slice(0, caretOffset);
+  //     let secondHalf = n[id].value.slice(caretOffset);
+  //
+  //     n[id].value = firstHalf;
+  //     n[nodeId] = { value: secondHalf, isExpanded: true, children: [], parent: parentId };
+  //
+  //     let index = nodes[parentId]?.children.indexOf(id);
+  //     nodes[parentId]?.children.splice(index + 1, 0, nodeId);
+  //   }
+  //
+  //   updateHistory([
+  //     { type: HistoryType.ADD_NODE, data: { currentNode: nodeId, previousNode: id, parentNode: parentId }}
+  //   ]);
+  //   setNodes(n);
+  //   refocusInput(nodeId, 0);
+  // }
 
   function addNodeAsChild(id: string) {
     const n = { ...nodes };
@@ -765,7 +766,14 @@ const RootNode: React.FC = () => {
               value={nodes[zoomedNode]?.value}
               nodes={nodes}
               onChange={(id, value) => handleChange(id, value)}
-              onAddNode={(id, offset) => addNode(id, offset)}
+              onAddNode={(id, offset) => {
+                const data = addNode(nodes, id, offset);
+                updateHistory([
+                  { type: HistoryType.ADD_NODE, data: { currentNode: data.currentNode, previousNode: data.previousNode, parentNode: data.parentNode }}
+                ]);
+                setNodes(data.nodes);
+                refocusInput(data.currentNode, 0);
+              }}
               onIndentLeft={(id, offset) => indentLeft(id, offset)}
               onIndentRight={(id, offset) => indentRight(id, offset)}
               onMoveCursorUp={(id, offset) => moveCursorUp(id, offset)}
