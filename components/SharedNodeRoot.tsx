@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {NodesInterface} from "./RootNode";
-import SharedNode from "./SharedNode";
+import Node from "./Node";
 
 interface Props {
   id: string;
@@ -31,15 +31,36 @@ const SharedNodeRoot: React.FC<Props> = ({
       }
     }
     getInitialNodes();
-  }, [])
+  }, []);
+
+
+  // use permissions object to determine what actions can be performed on the nodes
 
   if(!nodes) {
     return null;
   }
 
-
   return (
-    <SharedNode id={id} nodes={nodes}/>
+    <Node
+      id={id}
+      value={nodes[id].value}
+      zoomedNode={parentId}
+      isShared={true}
+      nodes={nodes}
+      onChange={() => console.log('test')}
+      onExpand={() => console.log('test')}
+      onCollapse={() => console.log('test')}
+      onDelete={() => console.log('test')}
+      onZoom={() => console.log('test')}
+      onDrag={() => console.log('test')}
+      onDropSibling={() => console.log('test')}
+      onDropChild={() => console.log('test')}
+      onAddNode={() => console.log('test')}
+      onIndentLeft={() => console.log('test')}
+      onIndentRight={() => console.log('test')}
+      onMoveCursorUp={() => console.log('test')}
+      onMoveCursorDown={() => console.log('test')}
+    />
   );
 };
 

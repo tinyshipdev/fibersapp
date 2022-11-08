@@ -23,6 +23,7 @@ interface NodeProps {
   onIndentRight: (id: string, offset: number) => void;
   onMoveCursorUp: (id: string, offset: number) => void;
   onMoveCursorDown: (id: string, offset: number) => void;
+  isShared?: boolean;
 }
 
 const Node: React.FC<NodeProps> = ({
@@ -43,6 +44,7 @@ const Node: React.FC<NodeProps> = ({
   onIndentRight,
   onMoveCursorUp,
   onMoveCursorDown,
+  isShared= false,
 }) => {
   const [isDraggable, setIsDraggable] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -127,7 +129,7 @@ const Node: React.FC<NodeProps> = ({
   return (
     <li
       key={id}
-      className={'ml-10 relative'}
+      className={`ml-10 relative`}
       data-id={id}
       draggable={isDraggable}
       onDragStart={(e: any) => {
@@ -150,14 +152,14 @@ const Node: React.FC<NodeProps> = ({
         >
         {nodes[id].isExpanded && nodes[id].children.length > 0 ? (
           <button className={'w-6 h-6 text-slate-400 hover:text-black'} onClick={() => onCollapse(id)}>
-            <ChevronDownIcon/>
+            <ChevronDownIcon className={`${isShared ? 'text-green-500' : ''}`}/>
           </button>
         ) : (
           <button
             className={`w-6 h-6 ${nodes[id].children.length > 0 ? 'text-black hover:text-black' : 'text-slate-300 hover:text-slate-300'}`}
             onClick={() => onExpand(id)}
           >
-            <ChevronRightIcon/>
+            <ChevronRightIcon className={`${isShared ? 'text-green-500' : ''}`}/>
           </button>
         )}
         </span>
