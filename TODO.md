@@ -23,12 +23,11 @@ TODO
 
 DOING
 
-- URGENT! firestore is making way too many writes, we will hit the limit very quickly if nothing is changed!
-
 ---
 
 DONE
 
+- ~~URGENT! firestore is making way too many writes, we will hit the limit very quickly if nothing is changed!~~
 - ~~cloud sync (save to database)~~
 - ~~fix unable to add child node when zoomed in~~
 - ~~if you attempt to delete a collapsed node that has child nodes, expand the node to show why you can't delete it~~

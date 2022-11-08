@@ -220,7 +220,7 @@ const RootNode: React.FC = () => {
    * it saves every second, but only if you're not editing.
    */
   useEffect(() => {
-    const timer = setInterval(() => {
+    const timer = setTimeout(() => {
       saveState(nodes);
     }, 1000);
 
@@ -230,7 +230,7 @@ const RootNode: React.FC = () => {
   }, [nodes]);
 
   useEffect(() => {
-    const timer = setInterval(async () => {
+    const timer = setTimeout(async () => {
       await persistState(nodes);
       setIsSaved(true);
     }, 1000);
