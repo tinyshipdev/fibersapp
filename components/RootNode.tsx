@@ -12,6 +12,7 @@ import {
 import ShortcutsModal from "./ShortcutsModal";
 import UserButton from "./UserButton";
 import NodeTitleInput from "./NodeTitleInput";
+import SharedNodeRoot from "./SharedNodeRoot";
 
 enum HistoryType {
   CHANGE_TEXT,
@@ -25,7 +26,7 @@ enum HistoryType {
   DROP_NODE,
 }
 
-type NodeItem = {
+export type NodeItem = {
   value: string;
   parent: string;
   isExpanded: boolean;
@@ -178,6 +179,10 @@ const RootNode: React.FC = () => {
   const [isShortcutsModalOpen, setIsShortcutsModalOpen] = useState(false);
   const [nodes, setNodes] = useState<NodesInterface>(() => getDefaultNodes());
   const [isSaved, setIsSaved] = useState(false);
+
+  if(!nodes[zoomedNode]) {
+    return <SharedNodeRoot id={zoomedNode} parentId={'root'}/>;
+  }
 
   // I wrote this in a rush, might want to refactor at some point
   const generateBreadcrumbTrail = useCallback((id: string): {id: string, value: string}[] => {
@@ -739,47 +744,51 @@ const RootNode: React.FC = () => {
           <UserButton/>
         </div>
       </div>
-      <div className="container mx-auto">
-        {zoomedNode !== 'root' && (
-          <div className={'px-6'}>
-            <NodeTitleInput
+
+      {nodes[zoomedNode] ? (
+        <div className="container mx-auto">
+          {zoomedNode !== 'root' && (
+            <div className={'px-6'}>
+              <NodeTitleInput
+                value={nodes[zoomedNode]?.value}
+                onChange={(value) => handleChange(zoomedNode, value)}
+                placeholder={!nodes[zoomedNode]?.value ? 'Untitled' : ''}
+              />
+            </div>
+          )}
+          <div
+            className={'-ml-10'}
+          >
+            <Node
+              id={zoomedNode}
+              zoomedNode={zoomedNode}
               value={nodes[zoomedNode]?.value}
-              onChange={(value) => handleChange(zoomedNode, value)}
-              placeholder={!nodes[zoomedNode]?.value ? 'Untitled' : ''}
+              nodes={nodes}
+              onChange={(id, value) => handleChange(id, value)}
+              onAddNode={(id, offset) => addNode(id, offset)}
+              onIndentLeft={(id, offset) => indentLeft(id, offset)}
+              onIndentRight={(id, offset) => indentRight(id, offset)}
+              onMoveCursorUp={(id, offset) => moveCursorUp(id, offset)}
+              onMoveCursorDown={(id, offset) => moveCursorDown(id, offset)}
+              onExpand={(id) => handleExpand(id)}
+              onCollapse={(id) => handleCollapse(id)}
+              onDelete={(id, startOffset, endOffset) => handleDelete(id, startOffset, endOffset)}
+              onZoom={(id) => handleZoom(id)}
+              onDrag={(id) => handleDrag(id)}
+              onDropChild={(id) => handleDropChild(id)}
+              onDropSibling={(id) => handleDropSibling(id)}
             />
-          </div>
-        )}
-        <div
-          className={'-ml-10'}
-        >
-          <Node
-            id={zoomedNode}
-            zoomedNode={zoomedNode}
-            value={nodes[zoomedNode]?.value}
-            nodes={nodes}
-            onChange={(id, value) => handleChange(id, value)}
-            onAddNode={(id, offset) => addNode(id, offset)}
-            onIndentLeft={(id, offset) => indentLeft(id, offset)}
-            onIndentRight={(id, offset) => indentRight(id, offset)}
-            onMoveCursorUp={(id, offset) => moveCursorUp(id, offset)}
-            onMoveCursorDown={(id, offset) => moveCursorDown(id, offset)}
-            onExpand={(id) => handleExpand(id)}
-            onCollapse={(id) => handleCollapse(id)}
-            onDelete={(id, startOffset, endOffset) => handleDelete(id, startOffset, endOffset)}
-            onZoom={(id) => handleZoom(id)}
-            onDrag={(id) => handleDrag(id)}
-            onDropChild={(id) => handleDropChild(id)}
-            onDropSibling={(id) => handleDropSibling(id)}
-          />
-          <div className={'ml-14 mt-2'}>
-            <button onClick={() => {
-              addNodeAsChild(zoomedNode);
-            }}>
-              <PlusIcon className={'w-6 h-6 text-slate-200 hover:text-slate-800 transition'}/>
-            </button>
+            <div className={'ml-14 mt-2'}>
+              <button onClick={() => {
+                addNodeAsChild(zoomedNode);
+              }}>
+                <PlusIcon className={'w-6 h-6 text-slate-200 hover:text-slate-800 transition'}/>
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      ) : <SharedNodeRoot id={zoomedNode} parentId={'root'}/>}
+
     </div>
   );
 };

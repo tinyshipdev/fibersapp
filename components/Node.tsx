@@ -3,6 +3,7 @@ import {NodesInterface} from "./RootNode";
 import {ChevronDownIcon, ChevronRightIcon} from "@heroicons/react/20/solid";
 import {MagnifyingGlassPlusIcon} from "@heroicons/react/24/outline";
 import NodeInput from "./NodeInput";
+import SharedNodeRoot from "./SharedNodeRoot";
 
 interface NodeProps {
   id: string;
@@ -88,28 +89,34 @@ const Node: React.FC<NodeProps> = ({
 
   const graphMap = (
     <ul className={'list-none'}>
-      {nodes[id]?.children?.map((n: any) => (
-        <Node
-          key={n}
-          id={n}
-          value={nodes[n].value}
-          zoomedNode={zoomedNode}
-          nodes={nodes}
-          onChange={(id, value) => onChange(id, value)}
-          onAddNode={(id, offset) => onAddNode(id, offset)}
-          onIndentLeft={(id, offset) => onIndentLeft(id, offset)}
-          onIndentRight={(id, offset) => onIndentRight(id, offset)}
-          onMoveCursorUp={(id, offset) => onMoveCursorUp(id, offset)}
-          onMoveCursorDown={(id, offset) => onMoveCursorDown(id, offset)}
-          onExpand={(id) => onExpand(id)}
-          onCollapse={(id) => onCollapse(id)}
-          onDelete={(id, startOffset, endOffset) => onDelete(id, startOffset, endOffset)}
-          onZoom={(id) => onZoom(id)}
-          onDrag={(id) => onDrag(id)}
-          onDropChild={(id) => onDropChild(id)}
-          onDropSibling={(id) => onDropSibling(id)}
-        />
-      ))}
+      {nodes[id]?.children?.map((n: any) => {
+        if(nodes[n]) {
+          return (
+            <Node
+              key={n}
+              id={n}
+              value={nodes[n].value}
+              zoomedNode={zoomedNode}
+              nodes={nodes}
+              onChange={(id, value) => onChange(id, value)}
+              onAddNode={(id, offset) => onAddNode(id, offset)}
+              onIndentLeft={(id, offset) => onIndentLeft(id, offset)}
+              onIndentRight={(id, offset) => onIndentRight(id, offset)}
+              onMoveCursorUp={(id, offset) => onMoveCursorUp(id, offset)}
+              onMoveCursorDown={(id, offset) => onMoveCursorDown(id, offset)}
+              onExpand={(id) => onExpand(id)}
+              onCollapse={(id) => onCollapse(id)}
+              onDelete={(id, startOffset, endOffset) => onDelete(id, startOffset, endOffset)}
+              onZoom={(id) => onZoom(id)}
+              onDrag={(id) => onDrag(id)}
+              onDropChild={(id) => onDropChild(id)}
+              onDropSibling={(id) => onDropSibling(id)}
+            />
+          )
+        } else {
+          return <SharedNodeRoot key={n} id={n} parentId={id}/>
+        }
+      })}
     </ul>
   )
 
