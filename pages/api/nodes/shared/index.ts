@@ -36,6 +36,14 @@ export default async function handler(
     return res.status(401).json({ error: 'You are not authorized to view this page' });
   }
 
+  if(req.method === 'POST') {
+    console.log('will update firebase with new data');
+    const doc = await firebase.db.collection('nodes').doc(req.body.owner).get();
+    console.log(doc);
+
+    return res.status(200).json({});
+  }
+
   if(req.method !== 'GET') {
     return res.status(200).json({});
   }
@@ -73,7 +81,7 @@ export default async function handler(
 
       const n = getAllNodes({ [nodeId]: node }, docData.data, nodeId);
 
-      return res.status(200).json({ nodes: n, permissions });
+      return res.status(200).json({ nodes: n, permissions, owner: data.owner });
     }
 
   } catch (err) {
