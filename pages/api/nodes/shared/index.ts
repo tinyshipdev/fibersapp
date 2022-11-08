@@ -71,9 +71,9 @@ export default async function handler(
       node.parent = parentId;
       nodes[nodeId] = node;
 
-      const d = getAllNodes({ [nodeId]: node }, docData.data, nodeId);
+      const n = getAllNodes({ [nodeId]: node }, docData.data, nodeId);
 
-      return res.status(200).json(d);
+      return res.status(200).json({ nodes: n, permissions });
     }
 
   } catch (err) {

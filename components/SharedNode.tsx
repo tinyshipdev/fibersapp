@@ -20,7 +20,7 @@ const SharedNode: React.FC<Props> = ({
       <ul>
         {nodes[id].children.map((child) => {
           return (
-            <SharedNode id={child} nodes={nodes}/>
+            <SharedNode key={child} id={child} nodes={nodes}/>
           )
         })}
       </ul>

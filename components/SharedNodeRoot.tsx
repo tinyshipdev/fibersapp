@@ -19,13 +19,15 @@ const SharedNodeRoot: React.FC<Props> = ({
   id,
   parentId
 }) => {
+  const [permissions, setPermissions] = useState<string[]>([]);
   const [nodes, setNodes] = useState<NodesInterface | null>(null);
 
   useEffect(() => {
     async function getInitialNodes() {
       const data = await fetchSharedNodes(id, parentId);
-      if(!data.error) {
-        setNodes(data);
+      if(data.nodes) {
+        setNodes(data.nodes);
+        setPermissions(data.permissions);
       }
     }
     getInitialNodes();
