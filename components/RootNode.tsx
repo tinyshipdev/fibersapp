@@ -133,8 +133,8 @@ function refocusInput(id: string, pos: number) {
   }, 10)
 }
 
-async function fetchNodesFromRemote(userId: string) {
-  const data = await fetch(`/api/nodes?userId=${userId}`, {
+async function fetchNodesFromRemote() {
+  const data = await fetch(`/api/nodes`, {
     method: 'GET',
   })
 
@@ -155,11 +155,10 @@ function saveState(nodes: NodesInterface) {
   }));
 }
 
-async function persistState(nodes: NodesInterface, userId: string) {
+async function persistState(nodes: NodesInterface) {
   const data = await fetch('/api/nodes', {
     method: 'POST',
     body: JSON.stringify({
-      userId,
       data: nodes
     })
   })
@@ -172,11 +171,7 @@ interface HistoryItem {
   data: any,
 }
 
-interface Props {
-  userId: string;
-}
-
-const RootNode: React.FC<Props> = ({ userId }) => {
+const RootNode: React.FC = () => {
   const [zoomedNode, setZoomedNode] = useState('root');
   const [draggedNode, setDraggedNode] = useState('');
   const [history, setHistory] = useState<HistoryItem[]>([]);
@@ -210,7 +205,7 @@ const RootNode: React.FC<Props> = ({ userId }) => {
 
   useEffect(() => {
     async function t() {
-      const data = await fetchNodesFromRemote(userId);
+      const data = await fetchNodesFromRemote();
       setNodes(data.data);
     }
     t();
@@ -236,7 +231,7 @@ const RootNode: React.FC<Props> = ({ userId }) => {
 
   useEffect(() => {
     const timer = setInterval(async () => {
-      await persistState(nodes, userId);
+      await persistState(nodes);
       setIsSaved(true);
     }, 1000);
 

@@ -15,7 +15,7 @@ export default async function handler(
 
   if(req.method === 'GET') {
     try {
-      const data = await firebase.db.collection('nodes').doc(req.query.userId).get();
+      const data = await firebase.db.collection('nodes').doc(token.id).get();
       return res.status(200).json(data.data());
     } catch (err) {
       return res.status(500).json({ error: 'An error occurred' })
@@ -26,7 +26,7 @@ export default async function handler(
     try {
       const data = JSON.parse(req.body);
 
-      const docRef = firebase.db.collection('nodes').doc(data.userId);
+      const docRef = firebase.db.collection('nodes').doc(token.id);
 
       await docRef.set({
         data: data.data

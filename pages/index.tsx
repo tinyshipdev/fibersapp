@@ -21,17 +21,13 @@ function App() {
   }
 
   if(session) {
-
-    // @ts-ignore
-    const userId = session?.user?.id;
-
     return (
       <>
         <Head>
           <title>fibers - follow your thoughts</title>
           <meta name="viewport" content="initial-scale=1.0, width=device-width" />
         </Head>
-        <AppRoot userId={userId}/>
+        <AppRoot/>
       </>
     );
   }

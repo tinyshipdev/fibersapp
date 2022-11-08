@@ -2,13 +2,7 @@ import React from 'react';
 import dynamic from "next/dynamic";
 const RootNode = dynamic(() => import('../components/RootNode'), { ssr: false });
 
-interface Props {
-  userId: string;
-}
-
-const AppRoot: React.FC<Props> = ({
-  userId
-}) => {
+const AppRoot: React.FC = () => {
   return (
     <div
       className="App font-sans"
@@ -22,7 +16,7 @@ const AppRoot: React.FC<Props> = ({
         }
       }}
     >
-      <RootNode userId={userId}/>
+      <RootNode/>
     </div>
   );
 };
