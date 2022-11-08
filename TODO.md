@@ -23,6 +23,8 @@ TODO
 
 DOING
 
+- URGENT! firestore is making way too many writes, we will hit the limit very quickly if nothing is changed!
+
 ---
 
 DONE
