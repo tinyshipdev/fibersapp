@@ -561,6 +561,11 @@ const RootNode: React.FC = () => {
 
     const n = { ...nodes };
 
+    if(!n[draggedNode]) {
+      // this is a shared node
+      return;
+    }
+
     // remove dragged node from child of it's parent
     const parent = n[draggedNode].parent;
     const indexOfDraggedNode = n[parent].children.indexOf(draggedNode);
@@ -587,6 +592,11 @@ const RootNode: React.FC = () => {
     }
 
     const n = {...nodes};
+
+    if(!n[draggedNode]) {
+      // this is a shared node
+      return;
+    }
 
     // remove dragged node from child of it's parent
     const parent = n[draggedNode].parent;
