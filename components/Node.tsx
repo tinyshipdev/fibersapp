@@ -116,7 +116,14 @@ const Node: React.FC<NodeProps> = ({
             />
           )
         } else if (n) {
-          return <SharedNodeRoot key={n} id={n} parentId={id}/>
+          return (
+            <SharedNodeRoot
+              key={n}
+              id={n}
+              parentId={id}
+              onAddNode={(id, offset) => onAddNode(id, offset)}
+            />
+          )
         }
       })}
     </ul>

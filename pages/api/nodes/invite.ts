@@ -13,20 +13,18 @@ export default async function handler(
     return res.status(401).json({ error: 'You are not authorized to view this page' });
   }
 
-  if(req.method !== 'POST') {
-    return res.status(200).json({});
-  }
+  // if(req.method !== 'POST') {
+  //   return res.status(200).json({});
+  // }
 
   try {
-    const data = JSON.parse(req.body);
-
-    const docRef = firebase.db.collection('shared-nodes').doc(data.nodeId);
+    const docRef = firebase.db.collection('shared-nodes').doc(req.query.nodeId);
 
     await docRef.set({
       owner: token.id,
       collaborators: {
         // hard-code the miro user for now
-        '104710208183054554851': {
+        '105701968516807502854': {
           permissions: ['view', 'edit', 'delete']
         }
       }
@@ -34,6 +32,7 @@ export default async function handler(
 
     return res.status(200).json({});
   } catch (err) {
+    console.log(err);
     return res.status(500).json({error: 'An error occurred'})
   }
 }

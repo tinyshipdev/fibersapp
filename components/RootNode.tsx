@@ -159,7 +159,13 @@ const RootNode: React.FC = () => {
   const [isSaved, setIsSaved] = useState(false);
 
   if(!nodes[zoomedNode]) {
-    return <SharedNodeRoot id={zoomedNode} parentId={'root'}/>;
+    return (
+      <SharedNodeRoot
+        id={zoomedNode}
+        parentId={'root'}
+        onAddNode={(id, offset) => handleAddNode(id, offset)}
+      />
+    );
   }
 
   // I wrote this in a rush, might want to refactor at some point
@@ -694,6 +700,15 @@ const RootNode: React.FC = () => {
     setHistory(newHistory);
   }
 
+  function handleAddNode(id: string, offset: number) {
+    const data = addNode(nodes, id, offset);
+    updateHistory([
+      { type: HistoryType.ADD_NODE, data: { currentNode: data.currentNode, previousNode: data.previousNode, parentNode: data.parentNode }}
+    ]);
+    setNodes(data.nodes);
+    refocusInput(data.currentNode, 0);
+  }
+
   return (
     <div
       tabIndex={0}
@@ -764,14 +779,7 @@ const RootNode: React.FC = () => {
                 updateHistory([{ type: HistoryType.CHANGE_TEXT, data: { id, value: data.previousValue }}]);
                 setNodes(data.nodes);
               }}
-              onAddNode={(id, offset) => {
-                const data = addNode(nodes, id, offset);
-                updateHistory([
-                  { type: HistoryType.ADD_NODE, data: { currentNode: data.currentNode, previousNode: data.previousNode, parentNode: data.parentNode }}
-                ]);
-                setNodes(data.nodes);
-                refocusInput(data.currentNode, 0);
-              }}
+              onAddNode={(id, offset) => handleAddNode(id, offset)}
               onIndentLeft={(id, offset) => {
                 const data = indentLeft(nodes, id, offset);
 
@@ -809,7 +817,13 @@ const RootNode: React.FC = () => {
             </div>
           </div>
         </div>
-      ) : <SharedNodeRoot id={zoomedNode} parentId={'root'}/>}
+      ) : (
+        <SharedNodeRoot
+          id={zoomedNode}
+          parentId={'root'}
+          onAddNode={(id, offset) => handleAddNode(id, offset)}
+        />
+      )}
 
     </div>
   );

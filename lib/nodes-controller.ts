@@ -12,7 +12,14 @@ export type NodesInterface = {
 }
 
 export function addNode(nodes: NodesInterface, id: string, offset: number) {
-  let parentId = nodes[id].parent;
+  let parentId: string;
+
+  if(!nodes[id]) {
+    parentId = 'root';
+  } else {
+    parentId = nodes[id].parent;
+  }
+
   const n = { ...nodes };
   const nodeId = nanoid();
 
@@ -27,14 +34,21 @@ export function addNode(nodes: NodesInterface, id: string, offset: number) {
      * when we hit enter, we want to split the word and create a new node with the second
      * half of that word.
      */
-    let firstHalf = n[id].value.slice(0, offset);
-    let secondHalf = n[id].value.slice(offset);
 
-    n[id].value = firstHalf;
-    n[nodeId] = { value: secondHalf, isExpanded: true, children: [], parent: parentId };
+    if(n[id]) {
+      let firstHalf = n[id].value.slice(0, offset);
+      let secondHalf = n[id].value.slice(offset);
 
-    let index = nodes[parentId]?.children.indexOf(id);
-    nodes[parentId]?.children.splice(index + 1, 0, nodeId);
+      n[id].value = firstHalf;
+      n[nodeId] = { value: secondHalf, isExpanded: true, children: [], parent: parentId };
+
+      let index = nodes[parentId]?.children.indexOf(id);
+      nodes[parentId]?.children.splice(index + 1, 0, nodeId);
+    } else {
+      n[nodeId] = { value: '', isExpanded: true, children: [], parent: parentId };
+      let index = nodes[parentId]?.children.indexOf(id);
+      nodes[parentId]?.children.splice(index + 1, 0, nodeId);
+    }
   }
 
   return {

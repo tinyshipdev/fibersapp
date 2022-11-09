@@ -3,11 +3,6 @@ import {NodesInterface} from "./RootNode";
 import Node from "./Node";
 import {addNode, indentLeft, indentRight, onChange, onCollapse, onExpand} from "../lib/nodes-controller";
 
-interface Props {
-  id: string;
-  parentId: string;
-}
-
 async function fetchSharedNodes(id: string, parentId: string) {
   const data = await fetch(`/api/nodes/shared?id=${id}&parentId=${parentId}`, {
     method: 'GET'
@@ -31,9 +26,16 @@ async function persistState(nodes: NodesInterface, owner: string) {
   return await data?.json();
 }
 
+interface Props {
+  id: string;
+  parentId: string;
+  onAddNode: (id: string, offset: number) => void;
+}
+
 const SharedNodeRoot: React.FC<Props> = ({
   id,
-  parentId
+  parentId,
+  onAddNode,
 }) => {
   const [owner, setOwner] = useState('');
   const [permissions, setPermissions] = useState<string[]>([]);
@@ -107,6 +109,10 @@ const SharedNodeRoot: React.FC<Props> = ({
         }
       }}
       onAddNode={(id, offset) => {
+        if(!nodes[nodes[id].parent]) {
+          onAddNode(id, offset);
+          return;
+        }
         if(permissions.includes('edit')) {
           const data = addNode(nodes, id, offset);
           setNodes(data.nodes);
