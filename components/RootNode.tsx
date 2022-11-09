@@ -750,8 +750,15 @@ const RootNode: React.FC = () => {
       return null;
     }
 
-    setNodes(data.nodes);
-    moveCursorUp(id, 0);
+    if(data.isCollapsed) {
+      handleExpand({ ...nodes }, id);
+      return null;
+    }
+
+    if(data.nodes) {
+      setNodes(data.nodes);
+      moveCursorUp(id, 0);
+    }
   }
 
   return (

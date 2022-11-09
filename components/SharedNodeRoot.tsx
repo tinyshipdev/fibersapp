@@ -76,6 +76,11 @@ const SharedNodeRoot: React.FC<Props> = ({
     }
   }, [nodes]);
 
+  function handleExpand(nodes: NodesInterface, id: string) {
+    const data = onExpand(nodes, id);
+    setNodes(data.nodes);
+  }
+
 
   function handleDelete(nodes: NodesInterface, id: string, startOffset: number, endOffset: number) {
     const data = onDelete({...nodes}, id, startOffset, endOffset);
@@ -84,8 +89,15 @@ const SharedNodeRoot: React.FC<Props> = ({
       return null;
     }
 
-    setNodes(data.nodes);
-    onMoveCursorUp(id, 0);
+    if(data.isCollapsed) {
+      handleExpand({ ...nodes }, id);
+      return null;
+    }
+
+    if(data.nodes) {
+      setNodes(data.nodes);
+      onMoveCursorUp(id, 0);
+    }
   }
 
   if(!nodes) {

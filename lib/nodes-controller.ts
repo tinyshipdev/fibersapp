@@ -148,11 +148,11 @@ export function onDelete(nodes: NodesInterface, id: string, startOffset: number,
 
   if(!n[id].isExpanded) {
 
-    // if(nodes[id].value.length === 0) {
-    //   // if you attempt to delete a collapsed node that's empty but has children,
-    //   // expand the node to explain why you can't delete this node
-    //   handleExpand(nodes, id);
-    // }
+    if(n[id].value.length === 0) {
+      // if you attempt to delete a collapsed node that's empty but has children,
+      // expand the node to explain why you can't delete this node
+      return { isCollapsed: true }
+    }
     return null;
   }
 
