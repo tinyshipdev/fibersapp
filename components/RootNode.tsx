@@ -340,6 +340,7 @@ const RootNode: React.FC = () => {
   //   refocusInput(id, offset);
   // }
 
+  // TODO: refactor this to use DOM nodes instead of our data structure
   function findPreviousVisibleNode(id: string, offset: number): [id: string, offset: number] | null {
     if(offset !== 0) {
       return null;
@@ -354,6 +355,11 @@ const RootNode: React.FC = () => {
     // if there is no previous sibling, go to parent
     if(!previousSibling) {
       return [parent, n[parent].value.length];
+    }
+
+    // this is likely a shared node, so we can't move to it until we refactor this function to use DOM nodes
+    if(!n[previousSibling]) {
+      return null;
     }
 
     // if previous sibling is collapsed, go to previous sibling
