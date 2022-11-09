@@ -216,7 +216,7 @@ const RootNode: React.FC = () => {
     const timer = setTimeout(async () => {
       await persistState(nodes);
       setIsSaved(true);
-    }, 1000);
+    }, 500);
 
     return () => {
       clearTimeout(timer);

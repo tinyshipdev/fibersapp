@@ -56,7 +56,7 @@ const SharedNodeRoot: React.FC<Props> = ({
       if(nodes) {
         await persistState(nodes, owner);
       }
-    }, 1000);
+    }, 500);
 
     return () => {
       clearTimeout(timer);
