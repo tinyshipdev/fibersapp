@@ -121,6 +121,8 @@ const Node: React.FC<NodeProps> = ({
               key={n}
               id={n}
               parentId={id}
+              onMoveCursorUp={(id, offset) => onMoveCursorUp(id, offset)}
+              onMoveCursorDown={(id, offset) => onMoveCursorDown(id, offset)}
             />
           )
         }

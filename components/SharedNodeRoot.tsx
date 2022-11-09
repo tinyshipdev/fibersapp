@@ -29,11 +29,15 @@ async function persistState(nodes: NodesInterface, owner: string) {
 interface Props {
   id: string;
   parentId: string;
+  onMoveCursorUp: (id: string, offset: number) => void;
+  onMoveCursorDown: (id: string, offset: number) => void;
 }
 
 const SharedNodeRoot: React.FC<Props> = ({
   id,
   parentId,
+  onMoveCursorUp,
+  onMoveCursorDown,
 }) => {
   const [owner, setOwner] = useState('');
   const [permissions, setPermissions] = useState<string[]>([]);
@@ -152,13 +156,11 @@ const SharedNodeRoot: React.FC<Props> = ({
           setNodes(data.nodes);
         }
       }}
-      onMoveCursorUp={() => {
-        // call parent
-        console.log('test')
+      onMoveCursorUp={(id, offset) => {
+        onMoveCursorUp(id, offset)
       }}
-      onMoveCursorDown={() => {
-        // call parent
-        console.log('test')
+      onMoveCursorDown={(id, offset) => {
+        onMoveCursorDown(id, offset)
       }}
     />
   );

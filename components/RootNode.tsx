@@ -12,7 +12,6 @@ import {
 import ShortcutsModal from "./ShortcutsModal";
 import UserButton from "./UserButton";
 import NodeTitleInput from "./NodeTitleInput";
-import SharedNodeRoot from "./SharedNodeRoot";
 import {addNode, indentLeft, indentRight, onChange, onCollapse, onDelete, onExpand} from "../lib/nodes-controller";
 
 enum HistoryType {
@@ -157,15 +156,6 @@ const RootNode: React.FC = () => {
   const [isShortcutsModalOpen, setIsShortcutsModalOpen] = useState(false);
   const [nodes, setNodes] = useState<NodesInterface>(() => getDefaultNodes());
   const [isSaved, setIsSaved] = useState(false);
-
-  if(!nodes[zoomedNode]) {
-    return (
-      <SharedNodeRoot
-        id={zoomedNode}
-        parentId={'root'}
-      />
-    );
-  }
 
   // I wrote this in a rush, might want to refactor at some point
   const generateBreadcrumbTrail = useCallback((id: string): {id: string, value: string}[] => {
