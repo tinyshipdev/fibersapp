@@ -165,7 +165,11 @@ const Node: React.FC<NodeProps> = ({
         ) : (
           <button
             className={`w-6 h-6 ${nodes[id].children.length > 0 ? 'text-black hover:text-black' : 'text-slate-300 hover:text-slate-300'}`}
-            onClick={() => onExpand(id)}
+            onClick={() => {
+              if(nodes[id].children.length > 0) {
+                onExpand(id)
+              }
+            }}
           >
             <ChevronRightIcon className={`${isShared ? 'text-teal-500' : ''}`}/>
           </button>
