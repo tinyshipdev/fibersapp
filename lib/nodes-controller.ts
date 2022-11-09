@@ -193,22 +193,38 @@ export function onDelete(nodes: NodesInterface, id: string, startOffset: number,
     nodes: n,
     history,
   }
+}
 
-  // const moveTo = findPreviousVisibleNode(id, 0);
-  // n[parent].children.splice(indexOfCurrent, 1);
-  //
-  //
-  // if(startOffset === 0 && endOffset === 0 && nodes[id].value.length > 0) {
-  //   // append the current value to the previous node before deleting if we're not selecting anything
-  //   if(moveTo) {
-  //     n[moveTo[0]].value = n[moveTo[0]].value + n[id].value;
-  //   }
-  // }
-  //
-  // delete n[id];
-  // setNodes(n);
-  //
-  // if(moveTo) {
-  //   refocusInput(moveTo[0], moveTo[1]);
-  // }
+export function setCaretPosition(id: string, pos: number) {
+  const el: any = document.getElementById(id);
+
+  if(!el) {
+    return;
+  }
+
+  if(el.createTextRange) {
+    const range = el.createTextRange();
+    range.move('character', pos);
+    range.select();
+    return;
+  }
+
+  if(el.selectionStart) {
+    el.focus();
+    el.setSelectionRange(pos, pos);
+    return;
+  }
+
+  el.focus();
+}
+
+export function refocusInput(id: string, pos: number) {
+  setTimeout( () => {
+    const element = document.getElementById(id);
+
+    if(element) {
+      element.focus();
+      setCaretPosition(id, pos)
+    }
+  }, 10)
 }

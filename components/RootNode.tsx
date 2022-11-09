@@ -12,7 +12,16 @@ import {
 import ShortcutsModal from "./ShortcutsModal";
 import UserButton from "./UserButton";
 import NodeTitleInput from "./NodeTitleInput";
-import {addNode, indentLeft, indentRight, onChange, onCollapse, onDelete, onExpand} from "../lib/nodes-controller";
+import {
+  addNode,
+  indentLeft,
+  indentRight,
+  onChange,
+  onCollapse,
+  onDelete,
+  onExpand,
+  refocusInput
+} from "../lib/nodes-controller";
 
 enum HistoryType {
   CHANGE_TEXT,
@@ -76,39 +85,39 @@ function findLastChild(nodes: NodesInterface, id: string): string {
 //   return findNearestParentSibling(nodes, parent);
 // }
 
-function setCaretPosition(id: string, pos: number) {
-  const el: any = document.getElementById(id);
+// function setCaretPosition(id: string, pos: number) {
+//   const el: any = document.getElementById(id);
+//
+//   if(!el) {
+//     return;
+//   }
+//
+//   if(el.createTextRange) {
+//     const range = el.createTextRange();
+//     range.move('character', pos);
+//     range.select();
+//     return;
+//   }
+//
+//   if(el.selectionStart) {
+//     el.focus();
+//     el.setSelectionRange(pos, pos);
+//     return;
+//   }
+//
+//   el.focus();
+// }
 
-  if(!el) {
-    return;
-  }
-
-  if(el.createTextRange) {
-    const range = el.createTextRange();
-    range.move('character', pos);
-    range.select();
-    return;
-  }
-
-  if(el.selectionStart) {
-    el.focus();
-    el.setSelectionRange(pos, pos);
-    return;
-  }
-
-  el.focus();
-}
-
-function refocusInput(id: string, pos: number) {
-  setTimeout( () => {
-    const element = document.getElementById(id);
-
-    if(element) {
-      element.focus();
-      setCaretPosition(id, pos)
-    }
-  }, 10)
-}
+// function refocusInput(id: string, pos: number) {
+//   setTimeout( () => {
+//     const element = document.getElementById(id);
+//
+//     if(element) {
+//       element.focus();
+//       setCaretPosition(id, pos)
+//     }
+//   }, 10)
+// }
 
 async function fetchNodesFromRemote() {
   const data = await fetch(`/api/nodes`, {

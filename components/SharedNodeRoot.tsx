@@ -1,7 +1,16 @@
 import React, {useEffect, useState} from 'react';
 import {NodesInterface} from "./RootNode";
 import Node from "./Node";
-import {addNode, indentLeft, indentRight, onChange, onCollapse, onDelete, onExpand} from "../lib/nodes-controller";
+import {
+  addNode,
+  indentLeft,
+  indentRight,
+  onChange,
+  onCollapse,
+  onDelete,
+  onExpand,
+  refocusInput
+} from "../lib/nodes-controller";
 
 async function fetchSharedNodes(id: string, parentId: string) {
   const data = await fetch(`/api/nodes/shared?id=${id}&parentId=${parentId}`, {
@@ -76,6 +85,7 @@ const SharedNodeRoot: React.FC<Props> = ({
     }
 
     setNodes(data.nodes);
+    refocusInput(id, 0);
   }
 
   if(!nodes) {
@@ -132,6 +142,7 @@ const SharedNodeRoot: React.FC<Props> = ({
         if(permissions.includes('edit')) {
           const data = addNode(nodes, id, offset);
           setNodes(data.nodes);
+          refocusInput(data.currentNode, offset);
         }
       }}
       onIndentLeft={(id, offset) => {
@@ -143,17 +154,20 @@ const SharedNodeRoot: React.FC<Props> = ({
         const data = indentLeft(nodes, id, offset);
         if(data) {
           setNodes(data.nodes);
+          refocusInput(id, offset);
         }
       }}
       onIndentRight={(id, offset) => {
         if(!nodes[id]) {
           // call indent right on parent instead
+          // onIndentRight(id, offset)
           return;
         }
 
         const data = indentRight(nodes, id, offset);
         if(data) {
           setNodes(data.nodes);
+          refocusInput(id, offset);
         }
       }}
       onMoveCursorUp={(id, offset) => {
