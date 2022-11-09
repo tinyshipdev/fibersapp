@@ -111,8 +111,13 @@ export function indentLeft(nodes: NodesInterface, id: string, offset: number) {
 export function indentRight(nodes: NodesInterface, id: string, offset: number) {
   const n = { ...nodes };
 
-  let parentId = nodes[id].parent;
-  let subNodes = nodes[parentId]?.children;
+  let parentId = n[id].parent;
+
+  if(!n[parentId]) {
+    return null;
+  }
+
+  let subNodes = n[parentId]?.children;
 
   let index = subNodes.indexOf(id);
   let previousKey = subNodes[index - 1];

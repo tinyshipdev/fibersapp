@@ -43,32 +43,8 @@ const DEFAULT_NODES: NodesInterface = {
     value: 'root',
     parent: '',
     isExpanded: true,
-    children: ['one']
+    children: ['']
   },
-  'one': {
-    value: 'one',
-    parent: 'root',
-    isExpanded: true,
-    children: ['two', 'three']
-  },
-  'two': {
-    value: 'two',
-    parent: 'one',
-    isExpanded: false,
-    children: ['five']
-  },
-  'three': {
-    value: 'three',
-    parent: 'one',
-    isExpanded: true,
-    children: [],
-  },
-  'five': {
-    value: 'five',
-    parent: 'two',
-    isExpanded: true,
-    children: [],
-  }
 }
 
 function findLastChild(nodes: NodesInterface, id: string): string {
@@ -144,18 +120,19 @@ async function fetchNodesFromRemote() {
 }
 
 function getDefaultNodes() {
-  if(window.localStorage.getItem('nodes')) {
-    return JSON.parse(window.localStorage.getItem('nodes') || '')?.nodes;
-  } else {
-    return DEFAULT_NODES;
-  }
+  return DEFAULT_NODES;
+  // if(window.localStorage.getItem('nodes')) {
+  //   return JSON.parse(window.localStorage.getItem('nodes') || '')?.nodes;
+  // } else {
+  //   return DEFAULT_NODES;
+  // }
 }
 
-function saveState(nodes: NodesInterface) {
-  window.localStorage.setItem('nodes', JSON.stringify({
-    nodes
-  }));
-}
+// function saveState(nodes: NodesInterface) {
+//   window.localStorage.setItem('nodes', JSON.stringify({
+//     nodes
+//   }));
+// }
 
 async function persistState(nodes: NodesInterface) {
   const data = await fetch('/api/nodes', {
@@ -221,19 +198,19 @@ const RootNode: React.FC = () => {
     setIsSaved(false);
   }, [nodes]);
 
-  /**
-   * I'm not sure how this works, but somehow it's working perfectly
-   * it saves every second, but only if you're not editing.
-   */
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      saveState(nodes);
-    }, 1000);
-
-    return () => {
-      clearTimeout(timer);
-    }
-  }, [nodes]);
+  // /**
+  //  * I'm not sure how this works, but somehow it's working perfectly
+  //  * it saves every second, but only if you're not editing.
+  //  */
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     saveState(nodes);
+  //   }, 1000);
+  //
+  //   return () => {
+  //     clearTimeout(timer);
+  //   }
+  // }, [nodes]);
 
   useEffect(() => {
     const timer = setTimeout(async () => {

@@ -115,7 +115,7 @@ const Node: React.FC<NodeProps> = ({
               onDropSibling={(id) => onDropSibling(id)}
             />
           )
-        } else {
+        } else if (n) {
           return <SharedNodeRoot key={n} id={n} parentId={id}/>
         }
       })}
