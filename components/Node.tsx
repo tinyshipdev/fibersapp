@@ -115,13 +115,12 @@ const Node: React.FC<NodeProps> = ({
               onDropSibling={(id) => onDropSibling(id)}
             />
           )
-        } else if (n) {
+        } else if(n) {
           return (
             <SharedNodeRoot
               key={n}
               id={n}
               parentId={id}
-              onAddNode={(id, offset) => onAddNode(id, offset)}
             />
           )
         }

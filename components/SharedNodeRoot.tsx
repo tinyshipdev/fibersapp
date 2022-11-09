@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {NodesInterface} from "./RootNode";
 import Node from "./Node";
-import {addNode, indentLeft, indentRight, onChange, onCollapse, onExpand} from "../lib/nodes-controller";
+import {addNode, indentLeft, indentRight, onChange, onCollapse, onDelete, onExpand} from "../lib/nodes-controller";
 
 async function fetchSharedNodes(id: string, parentId: string) {
   const data = await fetch(`/api/nodes/shared?id=${id}&parentId=${parentId}`, {
@@ -29,13 +29,11 @@ async function persistState(nodes: NodesInterface, owner: string) {
 interface Props {
   id: string;
   parentId: string;
-  onAddNode: (id: string, offset: number) => void;
 }
 
 const SharedNodeRoot: React.FC<Props> = ({
   id,
   parentId,
-  onAddNode,
 }) => {
   const [owner, setOwner] = useState('');
   const [permissions, setPermissions] = useState<string[]>([]);
@@ -66,7 +64,15 @@ const SharedNodeRoot: React.FC<Props> = ({
   }, [nodes]);
 
 
-  // use permissions object to determine what actions can be performed on the nodes
+  function handleDelete(nodes: NodesInterface, id: string, startOffset: number, endOffset: number) {
+    const data = onDelete(nodes, id, startOffset, endOffset);
+
+    if(!data) {
+      return null;
+    }
+
+    setNodes(data.nodes);
+  }
 
   if(!nodes) {
     return null;
@@ -93,7 +99,11 @@ const SharedNodeRoot: React.FC<Props> = ({
         const data = onCollapse(nodes, id);
         setNodes(data.nodes);
       }}
-      onDelete={() => console.log('test')}
+      onDelete={(id, startOffset, endOffset) => {
+        if(permissions.includes('edit')) {
+          handleDelete(nodes, id, startOffset, endOffset);
+        }
+      }}
       onZoom={() => console.log('test')}
       onDrag={() => console.log('test')}
       onDropSibling={(id) => {
@@ -109,10 +119,12 @@ const SharedNodeRoot: React.FC<Props> = ({
         }
       }}
       onAddNode={(id, offset) => {
+        // if the current nodes parent doesn't exist in the shared nodes space,
+        // we need to check the higher level nodes and add there
         if(!nodes[nodes[id].parent]) {
-          onAddNode(id, offset);
           return;
         }
+
         if(permissions.includes('edit')) {
           const data = addNode(nodes, id, offset);
           setNodes(data.nodes);

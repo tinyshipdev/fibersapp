@@ -13,7 +13,7 @@ import ShortcutsModal from "./ShortcutsModal";
 import UserButton from "./UserButton";
 import NodeTitleInput from "./NodeTitleInput";
 import SharedNodeRoot from "./SharedNodeRoot";
-import {addNode, indentLeft, indentRight, onChange, onCollapse, onExpand} from "../lib/nodes-controller";
+import {addNode, indentLeft, indentRight, onChange, onCollapse, onDelete, onExpand} from "../lib/nodes-controller";
 
 enum HistoryType {
   CHANGE_TEXT,
@@ -163,7 +163,6 @@ const RootNode: React.FC = () => {
       <SharedNodeRoot
         id={zoomedNode}
         parentId={'root'}
-        onAddNode={(id, offset) => handleAddNode(id, offset)}
       />
     );
   }
@@ -425,69 +424,69 @@ const RootNode: React.FC = () => {
     return [nearestParentSibling, finalCaretPosition];
   }
 
-  function handleDelete(id: string, startOffset: number, endOffset: number) {
-    if(!nodes[id].isExpanded) {
-
-      if(nodes[id].value.length === 0) {
-        // if you attempt to delete a collapsed node that's empty but has children,
-        // expand the node to explain why you can't delete this node
-        handleExpand(nodes, id);
-      }
-      return;
-    }
-
-    if(nodes[id].children.length > 0) {
-      return;
-    }
-
-    if(startOffset !== 0) {
-      return;
-    }
-
-    if(startOffset === 0 && endOffset === nodes[id].value.length && nodes[id].value.length > 0) {
-      return;
-    }
-
-    const n = { ...nodes };
-
-    // remove node as child of parent
-    const parent = n[id].parent;
-
-    // if the parent is root, and id is first child of root
-
-    if(parent === 'root' && id === nodes[parent].children[0]) {
-      return;
-    }
-
-    const indexOfCurrent = n[parent].children.indexOf(id);
-
-    updateHistory([{
-      type: HistoryType.DELETE_NODE,
-      data: {
-        id,
-        node: {...n[id]},
-        indexOfNodeInParent: indexOfCurrent,
-      }
-    }]);
-
-    const moveTo = findPreviousVisibleNode(id, 0);
-    n[parent].children.splice(indexOfCurrent, 1);
-
-
-    if(startOffset === 0 && endOffset === 0 && nodes[id].value.length > 0) {
-      // append the current value to the previous node before deleting if we're not selecting anything
-      if(moveTo) {
-        n[moveTo[0]].value = n[moveTo[0]].value + n[id].value;
-      }
-    }
-
-    delete n[id];
-    setNodes(n);
-
-    if(moveTo) {
-      refocusInput(moveTo[0], moveTo[1]);
-    }
-  }
+  // function handleDelete(id: string, startOffset: number, endOffset: number) {
+  //   if(!nodes[id].isExpanded) {
+  //
+  //     if(nodes[id].value.length === 0) {
+  //       // if you attempt to delete a collapsed node that's empty but has children,
+  //       // expand the node to explain why you can't delete this node
+  //       handleExpand(nodes, id);
+  //     }
+  //     return;
+  //   }
+  //
+  //   if(nodes[id].children.length > 0) {
+  //     return;
+  //   }
+  //
+  //   if(startOffset !== 0) {
+  //     return;
+  //   }
+  //
+  //   if(startOffset === 0 && endOffset === nodes[id].value.length && nodes[id].value.length > 0) {
+  //     return;
+  //   }
+  //
+  //   const n = { ...nodes };
+  //
+  //   // remove node as child of parent
+  //   const parent = n[id].parent;
+  //
+  //   // if the parent is root, and id is first child of root
+  //
+  //   if(parent === 'root' && id === nodes[parent].children[0]) {
+  //     return;
+  //   }
+  //
+  //   const indexOfCurrent = n[parent].children.indexOf(id);
+  //
+  //   updateHistory([{
+  //     type: HistoryType.DELETE_NODE,
+  //     data: {
+  //       id,
+  //       node: {...n[id]},
+  //       indexOfNodeInParent: indexOfCurrent,
+  //     }
+  //   }]);
+  //
+  //   const moveTo = findPreviousVisibleNode(id, 0);
+  //   n[parent].children.splice(indexOfCurrent, 1);
+  //
+  //
+  //   if(startOffset === 0 && endOffset === 0 && nodes[id].value.length > 0) {
+  //     // append the current value to the previous node before deleting if we're not selecting anything
+  //     if(moveTo) {
+  //       n[moveTo[0]].value = n[moveTo[0]].value + n[id].value;
+  //     }
+  //   }
+  //
+  //   delete n[id];
+  //   setNodes(n);
+  //
+  //   if(moveTo) {
+  //     refocusInput(moveTo[0], moveTo[1]);
+  //   }
+  // }
 
   // function handleChange(id: string, value: string) {
   //   let n = {...nodes};
@@ -715,6 +714,28 @@ const RootNode: React.FC = () => {
     refocusInput(data.currentNode, 0);
   }
 
+  function handleDelete(nodes: NodesInterface, id: string, startOffset: number, endOffset: number) {
+    const data = onDelete(nodes, id, startOffset, endOffset);
+
+    if(!data) {
+      return null;
+    }
+
+    const moveTo = findPreviousVisibleNode(id, 0);
+    if(startOffset === 0 && endOffset === 0 && nodes[id].value.length > 0) {
+      // append the current value to the previous node before deleting if we're not selecting anything
+      if(moveTo) {
+        data.nodes[moveTo[0]].value = data.nodes[moveTo[0]].value + data.nodes[id].value;
+      }
+    }
+
+    setNodes(data.nodes);
+
+    if(moveTo) {
+      refocusInput(moveTo[0], moveTo[1]);
+    }
+  }
+
   return (
     <div
       tabIndex={0}
@@ -757,79 +778,73 @@ const RootNode: React.FC = () => {
         </div>
       </div>
 
-      {nodes[zoomedNode] ? (
-        <div className="container mx-auto">
-          {zoomedNode !== 'root' && (
-            <div className={'px-6'}>
-              <NodeTitleInput
-                value={nodes[zoomedNode]?.value}
-                onChange={(value) => {
-                  const data = onChange(nodes, zoomedNode, value);
-                  updateHistory([{ type: HistoryType.CHANGE_TEXT, data: { id: zoomedNode, value: data.previousValue }}]);
-                  setNodes(data.nodes);
-                }}
-                placeholder={!nodes[zoomedNode]?.value ? 'Untitled' : ''}
-              />
-            </div>
-          )}
-          <div
-            className={'-ml-10'}
-          >
-            <Node
-              id={zoomedNode}
-              zoomedNode={zoomedNode}
+      <div className="container mx-auto">
+        {zoomedNode !== 'root' && (
+          <div className={'px-6'}>
+            <NodeTitleInput
               value={nodes[zoomedNode]?.value}
-              nodes={nodes}
-              onChange={(id, value) => {
-                const data = onChange(nodes, id, value);
-                updateHistory([{ type: HistoryType.CHANGE_TEXT, data: { id, value: data.previousValue }}]);
+              onChange={(value) => {
+                const data = onChange(nodes, zoomedNode, value);
+                updateHistory([{ type: HistoryType.CHANGE_TEXT, data: { id: zoomedNode, value: data.previousValue }}]);
                 setNodes(data.nodes);
               }}
-              onAddNode={(id, offset) => handleAddNode(id, offset)}
-              onIndentLeft={(id, offset) => {
-                const data = indentLeft(nodes, id, offset);
-
-                if(data) {
-                  updateHistory([{ type: HistoryType.INDENT_LEFT, data: { id, offset: data.offset }}]);
-                  setNodes(data.nodes);
-                  refocusInput(id, offset);
-                }
-              }}
-              onIndentRight={(id, offset) => {
-                const data = indentRight(nodes, id, offset);
-
-                if(data) {
-                  updateHistory([{ type: HistoryType.INDENT_RIGHT, data: { id, offset: data.offset }}]);
-                  setNodes(data.nodes);
-                  refocusInput(id, offset);
-                }
-              }}
-              onMoveCursorUp={(id, offset) => moveCursorUp(id, offset)}
-              onMoveCursorDown={(id, offset) => moveCursorDown(id, offset)}
-              onExpand={(id) => handleExpand(nodes, id)}
-              onCollapse={(id) => handleCollapse(nodes, id)}
-              onDelete={(id, startOffset, endOffset) => handleDelete(id, startOffset, endOffset)}
-              onZoom={(id) => handleZoom(id)}
-              onDrag={(id) => handleDrag(id)}
-              onDropChild={(id) => handleDropChild(id)}
-              onDropSibling={(id) => handleDropSibling(id)}
+              placeholder={!nodes[zoomedNode]?.value ? 'Untitled' : ''}
             />
-            <div className={'ml-14 mt-2'}>
-              <button onClick={() => {
-                addNodeAsChild(zoomedNode);
-              }}>
-                <PlusIcon className={'w-6 h-6 text-slate-200 hover:text-slate-800 transition'}/>
-              </button>
-            </div>
+          </div>
+        )}
+        <div
+          className={'-ml-10'}
+        >
+          <Node
+            id={zoomedNode}
+            zoomedNode={zoomedNode}
+            value={nodes[zoomedNode]?.value}
+            nodes={nodes}
+            onChange={(id, value) => {
+              const data = onChange(nodes, id, value);
+              updateHistory([{ type: HistoryType.CHANGE_TEXT, data: { id, value: data.previousValue }}]);
+              setNodes(data.nodes);
+            }}
+            onAddNode={(id, offset) => handleAddNode(id, offset)}
+            onIndentLeft={(id, offset) => {
+              const data = indentLeft(nodes, id, offset);
+
+              if(data) {
+                updateHistory([{ type: HistoryType.INDENT_LEFT, data: { id, offset: data.offset }}]);
+                setNodes(data.nodes);
+                refocusInput(id, offset);
+              }
+            }}
+            onIndentRight={(id, offset) => {
+              const data = indentRight(nodes, id, offset);
+
+              if(data) {
+                updateHistory([{ type: HistoryType.INDENT_RIGHT, data: { id, offset: data.offset }}]);
+                setNodes(data.nodes);
+                refocusInput(id, offset);
+              }
+            }}
+            onMoveCursorUp={(id, offset) => moveCursorUp(id, offset)}
+            onMoveCursorDown={(id, offset) => moveCursorDown(id, offset)}
+            onExpand={(id) => handleExpand(nodes, id)}
+            onCollapse={(id) => handleCollapse(nodes, id)}
+            onDelete={(id, startOffset, endOffset) => {
+              handleDelete(nodes, id, startOffset, endOffset);
+            }}
+            onZoom={(id) => handleZoom(id)}
+            onDrag={(id) => handleDrag(id)}
+            onDropChild={(id) => handleDropChild(id)}
+            onDropSibling={(id) => handleDropSibling(id)}
+          />
+          <div className={'ml-14 mt-2'}>
+            <button onClick={() => {
+              addNodeAsChild(zoomedNode);
+            }}>
+              <PlusIcon className={'w-6 h-6 text-slate-200 hover:text-slate-800 transition'}/>
+            </button>
           </div>
         </div>
-      ) : (
-        <SharedNodeRoot
-          id={zoomedNode}
-          parentId={'root'}
-          onAddNode={(id, offset) => handleAddNode(id, offset)}
-        />
-      )}
+      </div>
 
     </div>
   );

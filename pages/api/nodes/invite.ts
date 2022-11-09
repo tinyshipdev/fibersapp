@@ -23,8 +23,9 @@ export default async function handler(
     await docRef.set({
       owner: token.id,
       collaborators: {
-        // hard-code the miro user for now
-        '105701968516807502854': {
+        // hard-code the miro as a collaborator
+        // ALWAYS INVITE WHEN LOGGED IN AS adam grayscale
+        '104710208183054554851': {
           permissions: ['view', 'edit', 'delete']
         }
       }
