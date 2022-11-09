@@ -152,18 +152,18 @@ const Node: React.FC<NodeProps> = ({
         >
         {nodes[id].isExpanded && nodes[id].children.length > 0 ? (
           <button className={'w-6 h-6 text-slate-400 hover:text-black'} onClick={() => onCollapse(id)}>
-            <ChevronDownIcon className={`${isShared ? 'text-green-500' : ''}`}/>
+            <ChevronDownIcon className={`${isShared ? 'text-teal-500' : ''}`}/>
           </button>
         ) : (
           <button
             className={`w-6 h-6 ${nodes[id].children.length > 0 ? 'text-black hover:text-black' : 'text-slate-300 hover:text-slate-300'}`}
             onClick={() => onExpand(id)}
           >
-            <ChevronRightIcon className={`${isShared ? 'text-green-500' : ''}`}/>
+            <ChevronRightIcon className={`${isShared ? 'text-teal-500' : ''}`}/>
           </button>
         )}
         </span>
-        <div className={'relative w-full'}>
+        <div className={`relative w-full`}>
           <NodeInput
             id={id}
             onChange={(value) => onChange(id, value)}
