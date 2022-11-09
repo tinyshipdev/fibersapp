@@ -94,8 +94,18 @@ const SharedNodeRoot: React.FC<Props> = ({
       onDelete={() => console.log('test')}
       onZoom={() => console.log('test')}
       onDrag={() => console.log('test')}
-      onDropSibling={() => console.log('test')}
-      onDropChild={() => console.log('test')}
+      onDropSibling={(id) => {
+        if(!nodes[id]) {
+          // call onDropSibling on parent instead
+          return;
+        }
+      }}
+      onDropChild={() => {
+        if(!nodes[id]) {
+          // call onDropChild on parent instead
+          return;
+        }
+      }}
       onAddNode={(id, offset) => {
         if(permissions.includes('edit')) {
           const data = addNode(nodes, id, offset);
@@ -103,19 +113,35 @@ const SharedNodeRoot: React.FC<Props> = ({
         }
       }}
       onIndentLeft={(id, offset) => {
+        if(!nodes[id]) {
+          // call indent left on parent instead
+          return;
+        }
+
         const data = indentLeft(nodes, id, offset);
         if(data) {
           setNodes(data.nodes);
         }
       }}
       onIndentRight={(id, offset) => {
+        if(!nodes[id]) {
+          // call indent right on parent instead
+          return;
+        }
+
         const data = indentRight(nodes, id, offset);
         if(data) {
           setNodes(data.nodes);
         }
       }}
-      onMoveCursorUp={() => console.log('test')}
-      onMoveCursorDown={() => console.log('test')}
+      onMoveCursorUp={() => {
+        // call parent
+        console.log('test')
+      }}
+      onMoveCursorDown={() => {
+        // call parent
+        console.log('test')
+      }}
     />
   );
 };
