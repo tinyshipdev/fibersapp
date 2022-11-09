@@ -13,7 +13,7 @@ import ShortcutsModal from "./ShortcutsModal";
 import UserButton from "./UserButton";
 import NodeTitleInput from "./NodeTitleInput";
 import SharedNodeRoot from "./SharedNodeRoot";
-import {addNode, onChange, onCollapse, onExpand} from "../lib/nodes-controller";
+import {addNode, indentLeft, indentRight, onChange, onCollapse, onExpand} from "../lib/nodes-controller";
 
 enum HistoryType {
   CHANGE_TEXT,
@@ -298,63 +298,64 @@ const RootNode: React.FC = () => {
     refocusInput(nodeId, 0);
   }
 
-  function indentRight(id: string, offset: number) {
-    const n = { ...nodes };
+  // function indentRight(id: string, offset: number) {
+  //   const n = { ...nodes };
+  //
+  //   let parentId = nodes[id].parent;
+  //   let subNodes = nodes[parentId]?.children;
+  //
+  //   let index = subNodes.indexOf(id);
+  //   let previousKey = subNodes[index - 1];
+  //
+  //   if(!previousKey) {
+  //     return;
+  //   }
+  //
+  //   // if the new parent is collapsed, expand it first, so we can see where this node went
+  //   if(!n[previousKey].isExpanded) {
+  //     n[previousKey].isExpanded = true;
+  //   }
+  //
+  //   n[previousKey]?.children.push(id);
+  //   subNodes.splice(index, 1);
+  //
+  //   n[id].parent = previousKey;
+  //
+  //   updateHistory([{ type: HistoryType.INDENT_RIGHT, data: { id, offset }}]);
+  //   setNodes(n);
+  //   refocusInput(id, offset);
+  // }
 
-    let parentId = nodes[id].parent;
-    let subNodes = nodes[parentId]?.children;
 
-    let index = subNodes.indexOf(id);
-    let previousKey = subNodes[index - 1];
-
-    if(!previousKey) {
-      return;
-    }
-
-    // if the new parent is collapsed, expand it first, so we can see where this node went
-    if(!n[previousKey].isExpanded) {
-      n[previousKey].isExpanded = true;
-    }
-
-    n[previousKey]?.children.push(id);
-    subNodes.splice(index, 1);
-
-    n[id].parent = previousKey;
-
-    updateHistory([{ type: HistoryType.INDENT_RIGHT, data: { id, offset }}]);
-    setNodes(n);
-    refocusInput(id, offset);
-  }
-
-  function indentLeft(id: string, offset: number) {
-    const n = { ...nodes };
-
-    // find parent
-    // find grandparent
-    let parent = n[id].parent;
-    let grandparent = n[parent].parent;
-
-    if(!grandparent) {
-      return;
-    }
-
-    // find index of parent in grandparent
-    let indexOfParent = n[grandparent]?.children.indexOf(parent);
-
-    // insert id after index of parent in grandparent
-    n[grandparent]?.children.splice(indexOfParent + 1, 0, id);
-
-    // remove id as child of parent
-    let indexOfIdInParent = n[parent]?.children.indexOf(id);
-    n[parent]?.children.splice(indexOfIdInParent, 1);
-
-    // update parent of id to be grandparent
-    n[id].parent = grandparent;
-
-    updateHistory([{ type: HistoryType.INDENT_LEFT, data: { id, offset }}]);
-    setNodes(n);
-    refocusInput(id, offset);
-  }
+  // function indentLeft(id: string, offset: number) {
+  //   const n = { ...nodes };
+  //
+  //   // find parent
+  //   // find grandparent
+  //   let parent = n[id].parent;
+  //   let grandparent = n[parent].parent;
+  //
+  //   if(!grandparent) {
+  //     return;
+  //   }
+  //
+  //   // find index of parent in grandparent
+  //   let indexOfParent = n[grandparent]?.children.indexOf(parent);
+  //
+  //   // insert id after index of parent in grandparent
+  //   n[grandparent]?.children.splice(indexOfParent + 1, 0, id);
+  //
+  //   // remove id as child of parent
+  //   let indexOfIdInParent = n[parent]?.children.indexOf(id);
+  //   n[parent]?.children.splice(indexOfIdInParent, 1);
+  //
+  //   // update parent of id to be grandparent
+  //   n[id].parent = grandparent;
+  //
+  //   updateHistory([{ type: HistoryType.INDENT_LEFT, data: { id, offset }}]);
+  //   setNodes(n);
+  //   refocusInput(id, offset);
+  // }
 
   function findPreviousVisibleNode(id: string, offset: number): [id: string, offset: number] | null {
     if(offset !== 0) {
@@ -699,10 +700,10 @@ const RootNode: React.FC = () => {
         undoCollapse(action.data.id);
         break;
       case HistoryType.INDENT_LEFT:
-        indentRight(action.data.id, action.data.offset);
+        indentRight(nodes, action.data.id, action.data.offset);
         break;
       case HistoryType.INDENT_RIGHT:
-        indentLeft(action.data.id, action.data.offset);
+        indentLeft(nodes, action.data.id, action.data.offset);
         break;
       case HistoryType.ZOOM_NODE:
         undoZoom(action.data.id);
@@ -794,8 +795,24 @@ const RootNode: React.FC = () => {
                 setNodes(data.nodes);
                 refocusInput(data.currentNode, 0);
               }}
-              onIndentLeft={(id, offset) => indentLeft(id, offset)}
-              onIndentRight={(id, offset) => indentRight(id, offset)}
+              onIndentLeft={(id, offset) => {
+                const data = indentLeft(nodes, id, offset);
+
+                if(data) {
+                  updateHistory([{ type: HistoryType.INDENT_LEFT, data: { id, offset: data.offset }}]);
+                  setNodes(data.nodes);
+                  refocusInput(id, offset);
+                }
+              }}
+              onIndentRight={(id, offset) => {
+                const data = indentRight(nodes, id, offset);
+
+                if(data) {
+                  updateHistory([{ type: HistoryType.INDENT_RIGHT, data: { id, offset: data.offset }}]);
+                  setNodes(data.nodes);
+                  refocusInput(id, offset);
+                }
+              }}
               onMoveCursorUp={(id, offset) => moveCursorUp(id, offset)}
               onMoveCursorDown={(id, offset) => moveCursorDown(id, offset)}
               onExpand={(id) => handleExpand(nodes, id)}

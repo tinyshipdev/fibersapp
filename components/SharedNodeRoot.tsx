@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {NodesInterface} from "./RootNode";
 import Node from "./Node";
-import {addNode, onChange, onCollapse, onExpand} from "../lib/nodes-controller";
+import {addNode, indentLeft, indentRight, onChange, onCollapse, onExpand} from "../lib/nodes-controller";
 
 interface Props {
   id: string;
@@ -102,8 +102,18 @@ const SharedNodeRoot: React.FC<Props> = ({
           setNodes(data.nodes);
         }
       }}
-      onIndentLeft={() => console.log('test')}
-      onIndentRight={() => console.log('test')}
+      onIndentLeft={(id, offset) => {
+        const data = indentLeft(nodes, id, offset);
+        if(data) {
+          setNodes(data.nodes);
+        }
+      }}
+      onIndentRight={(id, offset) => {
+        const data = indentRight(nodes, id, offset);
+        if(data) {
+          setNodes(data.nodes);
+        }
+      }}
       onMoveCursorUp={() => console.log('test')}
       onMoveCursorDown={() => console.log('test')}
     />

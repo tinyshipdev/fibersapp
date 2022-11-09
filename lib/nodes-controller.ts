@@ -77,3 +77,62 @@ export function onCollapse(nodes: NodesInterface, id: string) {
 
   return { nodes: n }
 }
+
+export function indentLeft(nodes: NodesInterface, id: string, offset: number) {
+  const n = { ...nodes };
+
+  let parent = n[id].parent;
+
+  let grandparent = n[parent]?.parent;
+
+  if(!n[grandparent]) {
+    return null;
+  }
+
+  // find index of parent in grandparent
+  let indexOfParent = n[grandparent]?.children.indexOf(parent);
+
+  // insert id after index of parent in grandparent
+  n[grandparent]?.children.splice(indexOfParent + 1, 0, id);
+
+  // remove id as child of parent
+  let indexOfIdInParent = n[parent]?.children.indexOf(id);
+  n[parent]?.children.splice(indexOfIdInParent, 1);
+
+  // update parent of id to be grandparent
+  n[id].parent = grandparent;
+
+  return {
+    offset: offset || 0,
+    nodes: n,
+  }
+}
+
+export function indentRight(nodes: NodesInterface, id: string, offset: number) {
+  const n = { ...nodes };
+
+  let parentId = nodes[id].parent;
+  let subNodes = nodes[parentId]?.children;
+
+  let index = subNodes.indexOf(id);
+  let previousKey = subNodes[index - 1];
+
+  if(!n[previousKey]) {
+    return null;
+  }
+
+  // if the new parent is collapsed, expand it first, so we can see where this node went
+  if(!n[previousKey].isExpanded) {
+    n[previousKey].isExpanded = true;
+  }
+
+  n[previousKey]?.children.push(id);
+  subNodes.splice(index, 1);
+
+  n[id].parent = previousKey;
+
+  return {
+    offset: offset || 0,
+    nodes: n,
+  }
+}
