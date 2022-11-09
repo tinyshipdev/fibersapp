@@ -45,3 +45,35 @@ export function addNode(nodes: NodesInterface, id: string, offset: number) {
     offset: 0
   }
 }
+
+export function onChange(nodes: NodesInterface, id: string, value: string) {
+  let n = {...nodes};
+  let previousValue = n[id].value;
+
+  n[id].value = value;
+
+  return {
+    previousValue,
+    nodes: n
+  }
+}
+
+export function onExpand(nodes: NodesInterface, id: string) {
+  const n = { ...nodes };
+
+  if(!n[id].isExpanded) {
+    n[id].isExpanded = true;
+  }
+
+  return { nodes: n };
+}
+
+export function onCollapse(nodes: NodesInterface, id: string) {
+  const n = { ...nodes };
+
+  if(n[id].isExpanded) {
+    n[id].isExpanded = false;
+  }
+
+  return { nodes: n }
+}

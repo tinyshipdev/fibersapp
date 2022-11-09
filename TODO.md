@@ -23,6 +23,7 @@ TODO
 DOING
 
 - shared branches
+  - use DOM nodes to move cursor up and down as we can no longer rely on ids since we have multiple node roots objects
 
 ---
 

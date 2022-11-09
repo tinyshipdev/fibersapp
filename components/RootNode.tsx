@@ -13,7 +13,7 @@ import ShortcutsModal from "./ShortcutsModal";
 import UserButton from "./UserButton";
 import NodeTitleInput from "./NodeTitleInput";
 import SharedNodeRoot from "./SharedNodeRoot";
-import {addNode} from "../lib/nodes-controller";
+import {addNode, onChange, onCollapse, onExpand} from "../lib/nodes-controller";
 
 enum HistoryType {
   CHANGE_TEXT,
@@ -441,7 +441,7 @@ const RootNode: React.FC = () => {
       if(nodes[id].value.length === 0) {
         // if you attempt to delete a collapsed node that's empty but has children,
         // expand the node to explain why you can't delete this node
-        handleExpand(id);
+        handleExpand(nodes, id);
       }
       return;
     }
@@ -499,21 +499,27 @@ const RootNode: React.FC = () => {
     }
   }
 
-  function handleChange(id: string, value: string) {
-    let n = {...nodes};
-    updateHistory([{ type: HistoryType.CHANGE_TEXT, data: { id, value: n[id].value }}]);
-    n[id].value = value;
-    setNodes(n);
-  }
+  // function handleChange(id: string, value: string) {
+  //   let n = {...nodes};
+  //   updateHistory([{ type: HistoryType.CHANGE_TEXT, data: { id, value: n[id].value }}]);
+  //   n[id].value = value;
+  //   setNodes(n);
+  // }
 
-  function handleExpand(id: string) {
-    const n = { ...nodes };
+  // function handleExpand(id: string) {
+  //   const n = { ...nodes };
+  //
+  //   if(!n[id].isExpanded) {
+  //     n[id].isExpanded = true;
+  //     updateHistory([{ type: HistoryType.EXPAND_NODE, data: { id }}]);
+  //     setNodes(n);
+  //   }
+  // }
 
-    if(!n[id].isExpanded) {
-      n[id].isExpanded = true;
-      updateHistory([{ type: HistoryType.EXPAND_NODE, data: { id }}]);
-      setNodes(n);
-    }
+  function handleExpand(nodes: NodesInterface, id: string) {
+    const data = onExpand(nodes, id);
+    updateHistory([{ type: HistoryType.EXPAND_NODE, data: { id }}]);
+    setNodes(data.nodes);
   }
 
   function undoExpand(id: string) {
@@ -523,15 +529,21 @@ const RootNode: React.FC = () => {
     setNodes(n);
   }
 
-  function handleCollapse(id: string) {
-    const n = { ...nodes };
-
-    if(n[id].isExpanded) {
-      n[id].isExpanded = false;
-      updateHistory([{ type: HistoryType.COLLAPSE_NODE, data: { id }}]);
-      setNodes(n);
-    }
+  function handleCollapse(nodes: NodesInterface, id: string) {
+    const data = onCollapse(nodes, id);
+    updateHistory([{ type: HistoryType.COLLAPSE_NODE, data: { id }}]);
+    setNodes(data.nodes);
   }
+
+  // function handleCollapse(id: string) {
+  //   const n = { ...nodes };
+  //
+  //   if(n[id].isExpanded) {
+  //     n[id].isExpanded = false;
+  //     updateHistory([{ type: HistoryType.COLLAPSE_NODE, data: { id }}]);
+  //     setNodes(n);
+  //   }
+  // }
 
   function undoCollapse(id: string) {
     const n = { ...nodes };
@@ -752,7 +764,11 @@ const RootNode: React.FC = () => {
             <div className={'px-6'}>
               <NodeTitleInput
                 value={nodes[zoomedNode]?.value}
-                onChange={(value) => handleChange(zoomedNode, value)}
+                onChange={(value) => {
+                  const data = onChange(nodes, zoomedNode, value);
+                  updateHistory([{ type: HistoryType.CHANGE_TEXT, data: { id: zoomedNode, value: data.previousValue }}]);
+                  setNodes(data.nodes);
+                }}
                 placeholder={!nodes[zoomedNode]?.value ? 'Untitled' : ''}
               />
             </div>
@@ -765,7 +781,11 @@ const RootNode: React.FC = () => {
               zoomedNode={zoomedNode}
               value={nodes[zoomedNode]?.value}
               nodes={nodes}
-              onChange={(id, value) => handleChange(id, value)}
+              onChange={(id, value) => {
+                const data = onChange(nodes, id, value);
+                updateHistory([{ type: HistoryType.CHANGE_TEXT, data: { id, value: data.previousValue }}]);
+                setNodes(data.nodes);
+              }}
               onAddNode={(id, offset) => {
                 const data = addNode(nodes, id, offset);
                 updateHistory([
@@ -778,8 +798,8 @@ const RootNode: React.FC = () => {
               onIndentRight={(id, offset) => indentRight(id, offset)}
               onMoveCursorUp={(id, offset) => moveCursorUp(id, offset)}
               onMoveCursorDown={(id, offset) => moveCursorDown(id, offset)}
-              onExpand={(id) => handleExpand(id)}
-              onCollapse={(id) => handleCollapse(id)}
+              onExpand={(id) => handleExpand(nodes, id)}
+              onCollapse={(id) => handleCollapse(nodes, id)}
               onDelete={(id, startOffset, endOffset) => handleDelete(id, startOffset, endOffset)}
               onZoom={(id) => handleZoom(id)}
               onDrag={(id) => handleDrag(id)}

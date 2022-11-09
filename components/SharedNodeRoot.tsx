@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {NodesInterface} from "./RootNode";
 import Node from "./Node";
-import {addNode} from "../lib/nodes-controller";
+import {addNode, onChange, onCollapse, onExpand} from "../lib/nodes-controller";
 
 interface Props {
   id: string;
@@ -77,9 +77,20 @@ const SharedNodeRoot: React.FC<Props> = ({
       zoomedNode={parentId}
       isShared={true}
       nodes={nodes}
-      onChange={() => console.log('test')}
-      onExpand={() => console.log('test')}
-      onCollapse={() => console.log('test')}
+      onChange={(id, value) => {
+        if(permissions.includes('edit')) {
+          const data = onChange(nodes, id, value);
+          setNodes(data.nodes);
+        }
+      }}
+      onExpand={(id) => {
+        const data = onExpand(nodes, id);
+        setNodes(data.nodes);
+      }}
+      onCollapse={(id) => {
+        const data = onCollapse(nodes, id);
+        setNodes(data.nodes);
+      }}
       onDelete={() => console.log('test')}
       onZoom={() => console.log('test')}
       onDrag={() => console.log('test')}
