@@ -55,13 +55,13 @@ const DEFAULT_NODES: NodesInterface = {
   },
 }
 
-function findLastChild(nodes: NodesInterface, id: string): string {
-  if(nodes[id].children.length === 0) {
-    return id;
-  }
-
-  return findLastChild(nodes, nodes[id]?.children[nodes[id]?.children.length - 1]);
-}
+// function findLastChild(nodes: NodesInterface, id: string): string {
+//   if(nodes[id].children.length === 0) {
+//     return id;
+//   }
+//
+//   return findLastChild(nodes, nodes[id]?.children[nodes[id]?.children.length - 1]);
+// }
 
 // function findNearestParentSibling(
 //   nodes: NodesInterface,
@@ -339,43 +339,43 @@ const RootNode: React.FC = () => {
   // }
 
   // TODO: refactor this to use DOM nodes instead of our data structure
-  function findPreviousVisibleNode(id: string, offset: number, parentId: string): [id: string, offset: number ]| null {
-    if(offset !== 0) {
-      return null;
-    }
-
-    const parent = parentId;
-    const previousSiblingIndex = nodes[parent]?.children?.indexOf(id) - 1;
-    const previousSibling = nodes[parent]?.children[previousSiblingIndex];
-
-    // if there is no previous sibling, go to parent
-    if(!previousSibling) {
-      return [parent, nodes[parent].value.length];
-    }
-
-    // this is likely a shared node, so we can't move to it until we refactor this function to use DOM nodes
-    if(!nodes[previousSibling]) {
-      return null;
-    }
-
-    // if previous sibling is collapsed, go to previous sibling
-    if(!nodes[previousSibling].isExpanded) {
-      return [previousSibling, nodes[previousSibling].value.length];
-    }
-
-    // if current has previous sibling and previous sibling has children, find the very last child recursively
-    if(previousSibling && nodes[previousSibling].children.length > 0) {
-      const lastChild = findLastChild(nodes, previousSibling);
-      return [lastChild, nodes[lastChild].value.length];
-    }
-
-    // if current has previous sibling, but previous sibling has no children, move to previous sibling
-    if(previousSibling && nodes[previousSibling].children.length === 0) {
-      return [previousSibling, nodes[previousSibling].value.length];
-    }
-
-    return null;
-  }
+  // function findPreviousVisibleNode(id: string, offset: number, parentId: string): [id: string, offset: number ]| null {
+  //   if(offset !== 0) {
+  //     return null;
+  //   }
+  //
+  //   const parent = parentId;
+  //   const previousSiblingIndex = nodes[parent]?.children?.indexOf(id) - 1;
+  //   const previousSibling = nodes[parent]?.children[previousSiblingIndex];
+  //
+  //   // if there is no previous sibling, go to parent
+  //   if(!previousSibling) {
+  //     return [parent, nodes[parent].value.length];
+  //   }
+  //
+  //   // this is likely a shared node, so we can't move to it until we refactor this function to use DOM nodes
+  //   if(!nodes[previousSibling]) {
+  //     return null;
+  //   }
+  //
+  //   // if previous sibling is collapsed, go to previous sibling
+  //   if(!nodes[previousSibling].isExpanded) {
+  //     return [previousSibling, nodes[previousSibling].value.length];
+  //   }
+  //
+  //   // if current has previous sibling and previous sibling has children, find the very last child recursively
+  //   if(previousSibling && nodes[previousSibling].children.length > 0) {
+  //     const lastChild = findLastChild(nodes, previousSibling);
+  //     return [lastChild, nodes[lastChild].value.length];
+  //   }
+  //
+  //   // if current has previous sibling, but previous sibling has no children, move to previous sibling
+  //   if(previousSibling && nodes[previousSibling].children.length === 0) {
+  //     return [previousSibling, nodes[previousSibling].value.length];
+  //   }
+  //
+  //   return null;
+  // }
 
   // function findNextVisibleNode(id: string, offset: number): [id: string, offset: number] | null {
   //   if(offset !== nodes[id].value.length) {
@@ -744,14 +744,14 @@ const RootNode: React.FC = () => {
   }
 
   function handleDelete(nodes: NodesInterface, id: string, startOffset: number, endOffset: number) {
-    const data = onDelete(nodes, id, startOffset, endOffset);
+    const data = onDelete({ ...nodes }, id, startOffset, endOffset);
 
     if(!data) {
       return null;
     }
 
-    const moveTo = findPreviousVisibleNode(id, 0, nodes[id].parent);
-    console.log(moveTo);
+    setNodes(data.nodes);
+    moveCursorUp(id, 0);
   }
 
   return (

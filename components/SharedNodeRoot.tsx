@@ -78,14 +78,14 @@ const SharedNodeRoot: React.FC<Props> = ({
 
 
   function handleDelete(nodes: NodesInterface, id: string, startOffset: number, endOffset: number) {
-    const data = onDelete(nodes, id, startOffset, endOffset);
+    const data = onDelete({...nodes}, id, startOffset, endOffset);
 
     if(!data) {
       return null;
     }
 
     setNodes(data.nodes);
-    refocusInput(id, 0);
+    onMoveCursorUp(id, 0);
   }
 
   if(!nodes) {

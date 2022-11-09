@@ -144,7 +144,9 @@ export function indentRight(nodes: NodesInterface, id: string, offset: number) {
 }
 
 export function onDelete(nodes: NodesInterface, id: string, startOffset: number, endOffset: number) {
-  if(!nodes[id].isExpanded) {
+  const n = { ...nodes };
+
+  if(!n[id].isExpanded) {
 
     // if(nodes[id].value.length === 0) {
     //   // if you attempt to delete a collapsed node that's empty but has children,
@@ -162,18 +164,16 @@ export function onDelete(nodes: NodesInterface, id: string, startOffset: number,
     return null;
   }
 
-  if(startOffset === 0 && endOffset === nodes[id].value.length && nodes[id].value.length > 0) {
+  if(startOffset === 0 && endOffset === n[id].value.length && n[id].value.length > 0) {
     return null;
   }
-
-  const n = { ...nodes };
 
   // remove node as child of parent
   const parent = n[id].parent;
 
   // if the parent is root, and id is first child of root
 
-  if(parent === 'root' && id === nodes[parent].children[0]) {
+  if(parent === 'root' && id === n[parent].children[0]) {
     return null;
   }
 
