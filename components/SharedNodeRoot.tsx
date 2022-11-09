@@ -23,7 +23,7 @@ async function persistState(nodes: NodesInterface, owner: string) {
       'content-type': 'application/json'
     },
     body: JSON.stringify({
-      data: nodes,
+      nodes,
       owner
     })
   })

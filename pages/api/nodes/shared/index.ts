@@ -37,9 +37,11 @@ export default async function handler(
   }
 
   if(req.method === 'POST') {
-    console.log('will update firebase with new data');
-    const doc = await firebase.db.collection('nodes').doc(req.body.owner).get();
-    console.log(doc);
+    const doc = await firebase.db.collection('nodes').doc(req.body.owner);
+
+    await doc.set({
+      data: req.body.nodes
+    }, { merge: true });
 
     return res.status(200).json({});
   }
