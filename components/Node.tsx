@@ -169,14 +169,12 @@ const Node: React.FC<NodeProps> = ({
           </button>
         )}
         </span>
-        <div className={`relative w-full`}>
-          <NodeInput
-            id={id}
-            onChange={(value) => onChange(id, value)}
-            onKeyDown={(e) => handleKeyDown(e)}
-            value={value}
-          />
-        </div>
+        <NodeInput
+          id={id}
+          onChange={(value) => onChange(id, value)}
+          onKeyDown={(e) => handleKeyDown(e)}
+          value={value}
+        />
       </div>
       {!isDragging && (
         <div className={'relative left-9'}>

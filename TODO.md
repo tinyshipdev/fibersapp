@@ -13,6 +13,11 @@ ROADMAP
 - encrypt data when saving, i don't want to see other peoples data
 - open google doc in modal
 
+
+BUGS
+
+- if internet is disconnected and nodes disappear, on reconnect remote nodes are wiped :/
+
 ---
 
 TODO

@@ -55,27 +55,27 @@ function findLastChild(nodes: NodesInterface, id: string): string {
   return findLastChild(nodes, nodes[id]?.children[nodes[id]?.children.length - 1]);
 }
 
-function findNearestParentSibling(
-  nodes: NodesInterface,
-  id: string
-): string {
-  // keep searching up until the parent has a sibling
-  const parent = nodes[id].parent;
-  const grandparent = nodes[parent].parent;
-
-  if(parent === 'root') {
-    return id;
-  }
-
-  const parentIndex = nodes[grandparent]?.children?.indexOf(parent);
-  const sibling = nodes[grandparent]?.children[parentIndex + 1];
-
-  if(sibling) {
-    return sibling;
-  }
-
-  return findNearestParentSibling(nodes, parent);
-}
+// function findNearestParentSibling(
+//   nodes: NodesInterface,
+//   id: string
+// ): string {
+//   // keep searching up until the parent has a sibling
+//   const parent = nodes[id].parent;
+//   const grandparent = nodes[parent].parent;
+//
+//   if(parent === 'root') {
+//     return id;
+//   }
+//
+//   const parentIndex = nodes[grandparent]?.children?.indexOf(parent);
+//   const sibling = nodes[grandparent]?.children[parentIndex + 1];
+//
+//   if(sibling) {
+//     return sibling;
+//   }
+//
+//   return findNearestParentSibling(nodes, parent);
+// }
 
 function setCaretPosition(id: string, pos: number) {
   const el: any = document.getElementById(id);
@@ -340,89 +340,87 @@ const RootNode: React.FC = () => {
   // }
 
   // TODO: refactor this to use DOM nodes instead of our data structure
-  function findPreviousVisibleNode(id: string, offset: number): [id: string, offset: number] | null {
+  function findPreviousVisibleNode(id: string, offset: number, parentId: string): [id: string, offset: number ]| null {
     if(offset !== 0) {
       return null;
     }
 
-    const n = { ...nodes };
-
-    const parent = n[id].parent;
-    const previousSiblingIndex = n[parent]?.children?.indexOf(id) - 1;
-    const previousSibling = n[parent]?.children[previousSiblingIndex];
+    const parent = parentId;
+    const previousSiblingIndex = nodes[parent]?.children?.indexOf(id) - 1;
+    const previousSibling = nodes[parent]?.children[previousSiblingIndex];
 
     // if there is no previous sibling, go to parent
     if(!previousSibling) {
-      return [parent, n[parent].value.length];
+      return [parent, nodes[parent].value.length];
     }
 
     // this is likely a shared node, so we can't move to it until we refactor this function to use DOM nodes
-    if(!n[previousSibling]) {
+    if(!nodes[previousSibling]) {
       return null;
     }
 
     // if previous sibling is collapsed, go to previous sibling
-    if(!n[previousSibling].isExpanded) {
-      return [previousSibling, n[previousSibling].value.length];
+    if(!nodes[previousSibling].isExpanded) {
+      return [previousSibling, nodes[previousSibling].value.length];
     }
 
     // if current has previous sibling and previous sibling has children, find the very last child recursively
-    if(previousSibling && n[previousSibling].children.length > 0) {
-      const lastChild = findLastChild(n, previousSibling);
-      return [lastChild, n[lastChild].value.length];
+    if(previousSibling && nodes[previousSibling].children.length > 0) {
+      const lastChild = findLastChild(nodes, previousSibling);
+      return [lastChild, nodes[lastChild].value.length];
     }
 
     // if current has previous sibling, but previous sibling has no children, move to previous sibling
-    if(previousSibling && n[previousSibling].children.length === 0) {
-      return [previousSibling, n[previousSibling].value.length];
+    if(previousSibling && nodes[previousSibling].children.length === 0) {
+      return [previousSibling, nodes[previousSibling].value.length];
     }
 
     return null;
   }
 
-  function findNextVisibleNode(id: string, offset: number): [id: string, offset: number] | null {
-    if(offset !== nodes[id].value.length) {
-      return null;
-    }
-
-    const n = { ...nodes };
-    const parent = n[id].parent;
-    const currentIndex = n[parent]?.children.indexOf(id);
-    const sibling = n[parent]?.children[currentIndex + 1];
-
-    // if the current item is collapsed, and has a next sibling to the next sibling
-    if(!n[id].isExpanded && sibling) {
-      return [sibling, 0];
-    }
-
-    // if current item is collapsed, but doesn't have next sibling, go to nearest parent sibling
-    if(!n[id].isExpanded && !sibling) {
-      const nearestParentSibling = findNearestParentSibling(n, id);
-      return [nearestParentSibling, 0];
-    }
-
-    // if the current node has children, move to first child
-    if(n[id].children.length > 0) {
-      return [n[id]?.children[0], 0];
-    }
-
-    // if the current node does not have children, but has a sibling, move to sibling
-    if(n[id].children.length === 0 && sibling) {
-      return [sibling, 0];
-    }
-
-    // if the current node does not have children, and does not have a sibling
-    // find the nearest parent with a sibling
-    const nearestParentSibling = findNearestParentSibling(n, id);
-    // the finalCaretPosition is so if we're on the last element the caret stays at the end
-    let finalCaretPosition = 0;
-
-    if(id === nearestParentSibling) {
-      finalCaretPosition = n[nearestParentSibling].value.length;
-    }
-
-    return [nearestParentSibling, finalCaretPosition];
-  }
+  // function findNextVisibleNode(id: string, offset: number): [id: string, offset: number] | null {
+  //   if(offset !== nodes[id].value.length) {
+  //     return null;
+  //   }
+  //
+  //   const n = { ...nodes };
+  //   const parent = n[id].parent;
+  //   const currentIndex = n[parent]?.children.indexOf(id);
+  //   const sibling = n[parent]?.children[currentIndex + 1];
+  //
+  //   // if the current item is collapsed, and has a next sibling to the next sibling
+  //   if(!n[id].isExpanded && sibling) {
+  //     return [sibling, 0];
+  //   }
+  //
+  //   // if current item is collapsed, but doesn't have next sibling, go to nearest parent sibling
+  //   if(!n[id].isExpanded && !sibling) {
+  //     const nearestParentSibling = findNearestParentSibling(n, id);
+  //     return [nearestParentSibling, 0];
+  //   }
+  //
+  //   // if the current node has children, move to first child
+  //   if(n[id].children.length > 0) {
+  //     return [n[id]?.children[0], 0];
+  //   }
+  //
+  //   // if the current node does not have children, but has a sibling, move to sibling
+  //   if(n[id].children.length === 0 && sibling) {
+  //     return [sibling, 0];
+  //   }
+  //
+  //   // if the current node does not have children, and does not have a sibling
+  //   // find the nearest parent with a sibling
+  //   const nearestParentSibling = findNearestParentSibling(n, id);
+  //   // the finalCaretPosition is so if we're on the last element the caret stays at the end
+  //   let finalCaretPosition = 0;
+  //
+  //   if(id === nearestParentSibling) {
+  //     finalCaretPosition = n[nearestParentSibling].value.length;
+  //   }
+  //
+  //   return [nearestParentSibling, finalCaretPosition];
+  // }
 
   // function handleDelete(id: string, startOffset: number, endOffset: number) {
   //   if(!nodes[id].isExpanded) {
@@ -653,17 +651,49 @@ const RootNode: React.FC = () => {
   }
 
   function moveCursorUp(id: string, offset: number) {
-    const moveTo = findPreviousVisibleNode(id, offset);
-    if(moveTo) {
-      refocusInput(moveTo[0], moveTo[1]);
+    if(offset !== 0) {
+      return;
     }
+
+    const inputs = document.getElementsByTagName('input');
+    const item = inputs.namedItem(id);
+    let index = 0;
+
+    for(let i = 0; i < inputs.length; i++) {
+      if(inputs[i] === item) {
+        index = i;
+      }
+    }
+
+    const moveTo = inputs[Math.max(index - 1, 0)]
+
+    refocusInput(moveTo.id, moveTo.value.length);
   }
 
   function moveCursorDown(id: string, offset: number) {
-    const moveTo = findNextVisibleNode(id, offset);
-    if(moveTo) {
-      refocusInput(moveTo[0], moveTo[1]);
+    const inputs = document.getElementsByTagName('input');
+
+    const item = inputs.namedItem(id);
+
+    if(!item) {
+      return;
     }
+
+    if(offset !== item.value.length) {
+      return;
+    }
+
+    let index = 0;
+
+    for(let i = 0; i < inputs.length; i++) {
+      if(inputs[i] === item) {
+        index = i;
+      }
+    }
+
+    const moveTo = inputs[index + 1];
+
+    refocusInput(moveTo?.id, 0);
   }
 
   function undo() {
@@ -721,19 +751,8 @@ const RootNode: React.FC = () => {
       return null;
     }
 
-    const moveTo = findPreviousVisibleNode(id, 0);
-    if(startOffset === 0 && endOffset === 0 && nodes[id].value.length > 0) {
-      // append the current value to the previous node before deleting if we're not selecting anything
-      if(moveTo) {
-        data.nodes[moveTo[0]].value = data.nodes[moveTo[0]].value + data.nodes[id].value;
-      }
-    }
-
-    setNodes(data.nodes);
-
-    if(moveTo) {
-      refocusInput(moveTo[0], moveTo[1]);
-    }
+    const moveTo = findPreviousVisibleNode(id, 0, nodes[id].parent);
+    console.log(moveTo);
   }
 
   return (

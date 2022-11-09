@@ -20,6 +20,7 @@ const NodeInput: React.FC<NodeInputProps> = ({
 
   return (
     <div
+      className={'relative w-full'}
       onClick={() => {
         setIsFocused(true)
       }}
