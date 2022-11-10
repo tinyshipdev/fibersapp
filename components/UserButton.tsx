@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
-import {signOut, useSession} from "next-auth/react";
+import {useSession} from "next-auth/react";
 import {UserCircleIcon} from "@heroicons/react/24/outline";
+import firebase from "../lib/firebase-client";
 
 const UserButton: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,7 +20,7 @@ const UserButton: React.FC = () => {
         <div className={'absolute w-40 top-10 border bg-white border-slate-400 px-3 py-1 right-0 text-left drop-shadow rounded text-slate-600'}>
         <button
           className={'w-full text-left'}
-          onClick={() => signOut()}
+          onClick={() => firebase.auth.signOut()}
         >Sign out</button>
         </div>
       )}

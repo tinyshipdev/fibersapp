@@ -27,6 +27,9 @@ TODO
 
 DOING
 
+- use firebase for authentication
+- use firebase for realtime updates
+
 - shared branches
   - use DOM nodes to move cursor up and down as we can no longer rely on ids since we have multiple node roots objects
   - only allow drag and drop within the same context, i.e only drop shared nodes within shared nodes
