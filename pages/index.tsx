@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Homepage from "../components/Homepage";
 import AppRoot from "../components/AppRoot";
 import Head from "next/head";
@@ -7,22 +7,27 @@ import firebase from "../lib/firebase-client";
 import {ArrowPathIcon} from "@heroicons/react/24/outline";
 
 function App() {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState<any>(null);
 
-  onAuthStateChanged(firebase.auth, (user) => {
-    setLoading(true);
-    if (user) {
-      if(!userData) {
-        setUserData(user);
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(firebase.auth, (user) => {
+      if (user) {
+        if(!userData) {
+          setUserData(user);
+        }
+      } else {
+        if(userData) {
+          setUserData(null)
+        }
       }
-    } else {
-      if(userData) {
-        setUserData(null)
-      }
-    }
-    setLoading(false);
-  });
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [])
+
+
 
   if(loading) {
     return (

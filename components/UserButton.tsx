@@ -19,7 +19,7 @@ const UserButton: React.FC = () => {
         <div className={'absolute w-40 top-10 border bg-white border-slate-400 px-3 py-1 right-0 text-left drop-shadow rounded text-slate-600'}>
         <button
           className={'w-full text-left'}
-          onClick={() => firebase.auth.signOut()}
+          onClick={() => firebase.auth.signOut().then(() => location.href = '/')}
         >Sign out</button>
         </div>
       )}
