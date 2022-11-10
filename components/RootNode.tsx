@@ -80,6 +80,7 @@ const RootNode: React.FC = () => {
   const [isShortcutsModalOpen, setIsShortcutsModalOpen] = useState(false);
   const [nodes, setNodes] = useState<NodesInterface>(() => getDefaultNodes());
   const [isSaved, setIsSaved] = useState(false);
+  const [hasRemoteData, setHasRemoteData] = useState(false);
 
   const user = firebase.auth.currentUser;
 
@@ -113,6 +114,10 @@ const RootNode: React.FC = () => {
         const data = doc?.data();
         if(data) {
           setNodes(data.data);
+
+          if(!hasRemoteData) {
+            setHasRemoteData(true);
+          }
         }
       });
     }
@@ -124,7 +129,7 @@ const RootNode: React.FC = () => {
 
   useEffect(() => {
     const timer = setTimeout(async () => {
-      if(user) {
+      if(user && hasRemoteData) {
         await persistState(nodes, user.uid);
         setIsSaved(true);
       }
