@@ -1,17 +1,16 @@
 import React, {useState} from 'react';
-import {useSession} from "next-auth/react";
 import {UserCircleIcon} from "@heroicons/react/24/outline";
 import firebase from "../lib/firebase-client";
 
 const UserButton: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { data: session } = useSession();
+  const user = firebase.auth.currentUser;
 
   return (
     <div className={'relative flex items-center'}>
       <button onClick={() => setIsOpen(!isOpen)}>
-        {session?.user?.image && session?.user?.name ? (
-          <img src={session?.user?.image} alt={session?.user?.name} width={20} height={20} className={'rounded-full'}/>
+        {user?.photoURL ? (
+          <img src={user?.photoURL} alt={user?.displayName || ''} width={20} height={20} className={'rounded-full'}/>
         ) : (
           <UserCircleIcon className={'w-4 w-4 text-slate-500'}/>
         )}

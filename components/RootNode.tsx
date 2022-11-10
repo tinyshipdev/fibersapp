@@ -22,6 +22,9 @@ import {
   onExpand,
   refocusInput
 } from "../lib/nodes-controller";
+import { doc, onSnapshot, setDoc } from "firebase/firestore";
+
+import firebase from "../lib/firebase-client";
 
 enum HistoryType {
   CHANGE_TEXT,
@@ -55,27 +58,14 @@ const DEFAULT_NODES: NodesInterface = {
   },
 }
 
-async function fetchNodesFromRemote() {
-  const data = await fetch(`/api/nodes`, {
-    method: 'GET',
-  })
-
-  return await data?.json();
-}
-
 function getDefaultNodes() {
   return DEFAULT_NODES;
 }
 
-async function persistState(nodes: NodesInterface) {
-  const data = await fetch('/api/nodes', {
-    method: 'POST',
-    body: JSON.stringify({
-      data: nodes
-    })
-  })
-
-  return await data?.json();
+async function persistState(nodes: NodesInterface, userId: string) {
+  await setDoc(doc(firebase.db, "nodes", userId), {
+    data: nodes
+  });
 }
 
 interface HistoryItem {
@@ -90,6 +80,8 @@ const RootNode: React.FC = () => {
   const [isShortcutsModalOpen, setIsShortcutsModalOpen] = useState(false);
   const [nodes, setNodes] = useState<NodesInterface>(() => getDefaultNodes());
   const [isSaved, setIsSaved] = useState(false);
+
+  const user = firebase.auth.currentUser;
 
   // I wrote this in a rush, might want to refactor at some point
   const generateBreadcrumbTrail = useCallback((id: string): {id: string, value: string}[] => {
@@ -116,11 +108,11 @@ const RootNode: React.FC = () => {
   );
 
   useEffect(() => {
-    async function t() {
-      const data = await fetchNodesFromRemote();
-      setNodes(data.data);
+    if(user) {
+      onSnapshot(doc(firebase.db, "nodes", user.uid), (doc) => {
+        setNodes(doc?.data()?.data);
+      });
     }
-    t();
   }, []);
 
   useEffect(() => {
@@ -129,8 +121,10 @@ const RootNode: React.FC = () => {
 
   useEffect(() => {
     const timer = setTimeout(async () => {
-      await persistState(nodes);
-      setIsSaved(true);
+      if(user) {
+        await persistState(nodes, user.uid);
+        setIsSaved(true);
+      }
     }, 500);
 
     return () => {

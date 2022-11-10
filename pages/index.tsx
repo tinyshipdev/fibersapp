@@ -4,23 +4,36 @@ import AppRoot from "../components/AppRoot";
 import Head from "next/head";
 import { onAuthStateChanged } from "firebase/auth";
 import firebase from "../lib/firebase-client";
+import {ArrowPathIcon} from "@heroicons/react/24/outline";
 
 function App() {
+  const [loading, setLoading] = useState(false);
   const [userData, setUserData] = useState<any>(null);
 
   onAuthStateChanged(firebase.auth, (user) => {
+    setLoading(true);
     if (user) {
       if(!userData) {
-        console.log('will set user data');
         setUserData(user);
       }
     } else {
       if(userData) {
-        console.log('will unset user data')
         setUserData(null)
       }
     }
+    setLoading(false);
   });
+
+  if(loading) {
+    return (
+      <div>
+        <div className="fixed inset-0 bg-gray-200 bg-opacity-75 transition-opacity"></div>
+        <div className={'flex justify-center items-center h-screen'}>
+          <ArrowPathIcon className={'w-10 h-10 animate-spin text-slate-700'}/>
+        </div>
+      </div>
+    )
+  }
 
   if(userData) {
     return (
@@ -43,30 +56,6 @@ function App() {
       <Homepage/>
     </>
   );
-
-  // if(status === 'loading') {
-  //   return (
-  //     <div>
-  //       <div className="fixed inset-0 bg-gray-200 bg-opacity-75 transition-opacity"></div>
-  //       <div className={'flex justify-center items-center h-screen'}>
-  //         <ArrowPathIcon className={'w-10 h-10 animate-spin text-slate-700'}/>
-  //       </div>
-  //     </div>
-  //   )
-  // }
-  //
-  // if(session) {
-  //   return (
-  //     <>
-  //       <Head>
-  //         <title>fibers - follow your thoughts</title>
-  //         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
-  //       </Head>
-  //       <AppRoot/>
-  //     </>
-  //   );
-  // }
-
 
 }
 

@@ -1,17 +1,20 @@
 import React from 'react';
-import { useSession, signIn } from "next-auth/react"
 import UserButton from "./UserButton";
+import firebase from "../lib/firebase-client";
+import Link from "next/link";
 
 const LoginButton: React.FC = () => {
-  const { data: session } = useSession();
+  const user = firebase.auth.currentUser;
 
-  if (session) {
+  if (user) {
     return <UserButton/>
   }
 
   return (
     <>
-      <button onClick={() => signIn()}>Sign in</button>
+      <Link href={'/signin'}>
+        <button>Sign in</button>
+      </Link>
     </>
   )
 }

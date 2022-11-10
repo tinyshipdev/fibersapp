@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import firebase from '../../../../lib/firebase';
-import { getToken } from "next-auth/jwt"
 import {NodesInterface} from "../../../../components/RootNode";
 
 interface SharedNodePermissions {
@@ -29,12 +28,6 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-
-  const token = await getToken({ req });
-
-  if(!token) {
-    return res.status(401).json({ error: 'You are not authorized to view this page' });
-  }
 
   if(req.method === 'POST') {
     const doc = await firebase.db.collection('nodes').doc(req.body.owner);
