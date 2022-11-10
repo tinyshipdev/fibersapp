@@ -80,6 +80,7 @@ const RootNode: React.FC = () => {
   const [isShortcutsModalOpen, setIsShortcutsModalOpen] = useState(false);
   const [nodes, setNodes] = useState<NodesInterface>(() => getDefaultNodes());
   const [isSaved, setIsSaved] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
 
   const user = firebase.auth.currentUser;
 
@@ -111,6 +112,7 @@ const RootNode: React.FC = () => {
     if(user) {
       onSnapshot(doc(firebase.db, "nodes", user.uid), (doc) => {
         setNodes(doc?.data()?.data);
+        setHasFetched(true);
       });
     }
   }, []);
@@ -121,7 +123,7 @@ const RootNode: React.FC = () => {
 
   useEffect(() => {
     const timer = setTimeout(async () => {
-      if(user) {
+      if(user && hasFetched) {
         await persistState(nodes, user.uid);
         setIsSaved(true);
       }
