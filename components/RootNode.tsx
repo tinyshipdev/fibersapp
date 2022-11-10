@@ -58,10 +58,6 @@ const DEFAULT_NODES: NodesInterface = {
   },
 }
 
-function getDefaultNodes() {
-  return DEFAULT_NODES;
-}
-
 async function persistState(nodes: NodesInterface, userId: string) {
   await setDoc(doc(firebase.db, "nodes", userId), {
     data: nodes
@@ -78,8 +74,9 @@ const RootNode: React.FC = () => {
   const [draggedNode, setDraggedNode] = useState('');
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [isShortcutsModalOpen, setIsShortcutsModalOpen] = useState(false);
-  const [nodes, setNodes] = useState<NodesInterface | null>(null);
+  const [nodes, setNodes] = useState<NodesInterface>(DEFAULT_NODES);
   const [isSaved, setIsSaved] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
 
   const user = firebase.auth.currentUser;
 
@@ -111,10 +108,9 @@ const RootNode: React.FC = () => {
     if(user) {
       onSnapshot(doc(firebase.db, "nodes", user.uid), (doc) => {
         const data = doc?.data();
-        if(data) {
+        if(data?.data) {
           setNodes(data.data);
-        } else {
-          setNodes(DEFAULT_NODES);
+          setHasFetched(true);
         }
       });
     }
@@ -126,7 +122,7 @@ const RootNode: React.FC = () => {
 
   useEffect(() => {
     const timer = setTimeout(async () => {
-      if(user) {
+      if(user && hasFetched) {
         await persistState(nodes, user.uid);
         setIsSaved(true);
       }
@@ -135,7 +131,7 @@ const RootNode: React.FC = () => {
     return () => {
       clearTimeout(timer);
     }
-  }, [nodes]);
+  }, [nodes, hasFetched]);
 
   function updateHistory(items: {type: HistoryType, data: any}[]) {
     setHistory([...history.slice(-1000), ...items]);
