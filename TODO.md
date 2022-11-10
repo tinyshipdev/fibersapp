@@ -16,8 +16,6 @@ ROADMAP
 
 BUGS
 
-- if internet is disconnected and nodes disappear, on reconnect remote nodes are wiped :/
-
 ---
 
 TODO
@@ -27,18 +25,17 @@ TODO
 
 DOING
 
-- use firebase for authentication
-- use firebase for realtime updates
-
-- shared branches
-  - use DOM nodes to move cursor up and down as we can no longer rely on ids since we have multiple node roots objects
-  - only allow drag and drop within the same context, i.e only drop shared nodes within shared nodes
+- rework shared branches to use firestore security reviews
 
 ---
 
 DONE
 
-- ~~URGENT! firestore is making way too many writes, we will hit the limit very quickly if nothing is changed!~~
+- ~~use firebase for authentication~~
+- ~~use firebase for realtime updates~~
+- ~~shared branches wip~~
+  - ~~use DOM nodes to move cursor up and down as we can no longer rely on ids since we have multiple node roots objects~~
+  - ~~URGENT! firestore is making way too many writes, we will hit the limit very quickly if nothing is changed!~~
 - ~~cloud sync (save to database)~~
 - ~~fix unable to add child node when zoomed in~~
 - ~~if you attempt to delete a collapsed node that has child nodes, expand the node to show why you can't delete it~~
