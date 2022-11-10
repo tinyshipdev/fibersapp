@@ -78,9 +78,8 @@ const RootNode: React.FC = () => {
   const [draggedNode, setDraggedNode] = useState('');
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [isShortcutsModalOpen, setIsShortcutsModalOpen] = useState(false);
-  const [nodes, setNodes] = useState<NodesInterface>(() => getDefaultNodes());
+  const [nodes, setNodes] = useState<NodesInterface | null>(null);
   const [isSaved, setIsSaved] = useState(false);
-  const [hasRemoteData, setHasRemoteData] = useState(false);
 
   const user = firebase.auth.currentUser;
 
@@ -114,10 +113,8 @@ const RootNode: React.FC = () => {
         const data = doc?.data();
         if(data) {
           setNodes(data.data);
-
-          if(!hasRemoteData) {
-            setHasRemoteData(true);
-          }
+        } else {
+          setNodes(DEFAULT_NODES);
         }
       });
     }
@@ -129,7 +126,7 @@ const RootNode: React.FC = () => {
 
   useEffect(() => {
     const timer = setTimeout(async () => {
-      if(user && hasRemoteData) {
+      if(user) {
         await persistState(nodes, user.uid);
         setIsSaved(true);
       }
@@ -416,6 +413,10 @@ const RootNode: React.FC = () => {
       setNodes(data.nodes);
       moveCursorUp(id, 0);
     }
+  }
+
+  if(!nodes) {
+    return null;
   }
 
   return (
