@@ -110,8 +110,8 @@ const RootNode: React.FC = () => {
         const data = doc?.data();
         if(data?.data) {
           setNodes(data.data);
-          setHasFetched(true);
         }
+        setHasFetched(true);
       });
     }
   }, []);
