@@ -65,7 +65,8 @@ const SharedNodeRoot: React.FC<Props> = ({
         return;
       }
 
-      const p = dataDocSnap.data().collaborators[user.uid];
+      // @ts-ignore
+      const p = dataDocSnap.data().collaborators[user.email];
 
       if(p) {
         setPermissions(p);
