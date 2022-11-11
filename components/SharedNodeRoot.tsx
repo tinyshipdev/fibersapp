@@ -43,29 +43,29 @@ const SharedNodeRoot: React.FC<Props> = ({
 
   useEffect(() => {
     async function getInitialData() {
-      let owner;
-      const docRef = doc(firebase.db, "shared-nodes", id);
+
+      if(!user) {
+        return;
+      }
+
+      const docRef = doc(firebase.db, "shared-nodes", user.uid);
       const docSnap = await getDoc(docRef);
 
       if(!docSnap.exists()) {
         return;
       }
 
-      owner = docSnap.data().owner;
+      const owner = docSnap.data()[id]
       setOwner(owner);
 
-      if(!user) {
-        return;
-      }
-
-      const dataDocRef = doc(firebase.db, "shared-access", user.uid);
+      const dataDocRef = doc(firebase.db, "shared-access", owner);
       const dataDocSnap = await getDoc(dataDocRef);
 
       if(!dataDocSnap.exists()) {
         return;
       }
 
-      const p = dataDocSnap.data()[owner];
+      const p = dataDocSnap.data().collaborators[user.uid];
 
       if(p) {
         setPermissions(p);
