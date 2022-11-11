@@ -2,7 +2,6 @@ import React, {useEffect, useState} from 'react';
 import {NodesInterface} from "./RootNode";
 import Node from "./Node";
 import {
-  addNode,
   indentLeft,
   indentRight,
   onChange,
@@ -11,28 +10,13 @@ import {
   onExpand,
   refocusInput
 } from "../lib/nodes-controller";
+import {doc, getDoc, onSnapshot, setDoc} from "firebase/firestore";
+import firebase from "../lib/firebase-client";
 
-async function fetchSharedNodes(id: string, parentId: string) {
-  const data = await fetch(`/api/nodes/shared?id=${id}&parentId=${parentId}`, {
-    method: 'GET'
+async function persistState(nodes: NodesInterface, ownerId: string) {
+  await setDoc(doc(firebase.db, "nodes", ownerId), {
+    data: nodes
   });
-
-  return await data?.json();
-}
-
-async function persistState(nodes: NodesInterface, owner: string) {
-  const data = await fetch('/api/nodes/shared', {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json'
-    },
-    body: JSON.stringify({
-      nodes,
-      owner
-    })
-  })
-
-  return await data?.json();
 }
 
 interface Props {
@@ -48,25 +32,61 @@ const SharedNodeRoot: React.FC<Props> = ({
   onMoveCursorUp,
   onMoveCursorDown,
 }) => {
+
+  // we need to find the owner of this shared node
   const [owner, setOwner] = useState('');
   const [permissions, setPermissions] = useState<string[]>([]);
   const [nodes, setNodes] = useState<NodesInterface | null>(null);
+  const [hasFetched, setHasFetched] = useState(false);
+
+  const user = firebase.auth.currentUser;
 
   useEffect(() => {
-    async function getInitialNodes() {
-      const data = await fetchSharedNodes(id, parentId);
-      if(data.nodes) {
-        setNodes(data.nodes);
-        setPermissions(data.permissions);
-        setOwner(data.owner);
+    async function getInitialData() {
+      let owner;
+      const docRef = doc(firebase.db, "shared-nodes", id);
+      const docSnap = await getDoc(docRef);
+
+      if(!docSnap.exists()) {
+        return;
       }
+
+      owner = docSnap.data().owner;
+      setOwner(owner);
+
+      if(!user) {
+        return;
+      }
+
+      const dataDocRef = doc(firebase.db, "shared-access", user.uid);
+      const dataDocSnap = await getDoc(dataDocRef);
+
+      if(!dataDocSnap.exists()) {
+        return;
+      }
+
+      const p = dataDocSnap.data()[owner];
+
+      if(p) {
+        setPermissions(p);
+      }
+
+      onSnapshot(doc(firebase.db, "nodes", owner), (doc) => {
+        const data = doc?.data();
+        if(data?.data) {
+          setNodes(data.data);
+        }
+        setHasFetched(true);
+      });
+
     }
-    getInitialNodes();
+
+    getInitialData();
   }, []);
 
   useEffect(() => {
     const timer = setTimeout(async () => {
-      if(nodes) {
+      if(user && hasFetched && nodes) {
         await persistState(nodes, owner);
       }
     }, 500);
@@ -74,7 +94,7 @@ const SharedNodeRoot: React.FC<Props> = ({
     return () => {
       clearTimeout(timer);
     }
-  }, [nodes]);
+  }, [nodes, hasFetched]);
 
   function handleExpand(nodes: NodesInterface, id: string) {
     const data = onExpand(nodes, id);
@@ -98,6 +118,10 @@ const SharedNodeRoot: React.FC<Props> = ({
       setNodes(data.nodes);
       onMoveCursorUp(id, 0);
     }
+  }
+
+  function canDelete(currentId: string) {
+    return permissions.includes('delete') && currentId !== id;
   }
 
   if(!nodes) {
@@ -126,7 +150,7 @@ const SharedNodeRoot: React.FC<Props> = ({
         setNodes(data.nodes);
       }}
       onDelete={(id, startOffset, endOffset) => {
-        if(permissions.includes('edit')) {
+        if(canDelete(id)) {
           handleDelete(nodes, id, startOffset, endOffset);
         }
       }}
@@ -151,11 +175,11 @@ const SharedNodeRoot: React.FC<Props> = ({
           return;
         }
 
-        if(permissions.includes('edit')) {
-          const data = addNode(nodes, id, offset);
-          setNodes(data.nodes);
-          refocusInput(data.currentNode, offset);
-        }
+        // if(permissions.includes('edit')) {
+        //   const data = addNode(nodes, id, offset);
+        //   setNodes(data.nodes);
+        //   refocusInput(data.currentNode, offset);
+        // }
       }}
       onIndentLeft={(id, offset) => {
         if(!nodes[id]) {
