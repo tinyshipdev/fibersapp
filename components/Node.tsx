@@ -131,10 +131,12 @@ const Node: React.FC<NodeProps> = ({
           return (
             <SharedNodeRoot
               key={n}
-              id={n}
+              rootId={n}
               parentId={id}
               onMoveCursorUp={(id, offset) => onMoveCursorUp(id, offset)}
               onMoveCursorDown={(id, offset) => onMoveCursorDown(id, offset)}
+              onIndentRight={(id, offset) => onIndentRight(id, offset)}
+              onIndentLeft={(id, offset) => onIndentLeft(id, offset)}
             />
           )
         }
@@ -176,7 +178,7 @@ const Node: React.FC<NodeProps> = ({
     >
       <div className={`flex items-center group ${!nodes[id].isExpanded && nodes[id].children.length > 0 ? 'text-slate-800 font-bold' : ''}`}>
         <span className={'mr-2'}>
-          <ShareModal id={id} nodes={nodes} userId={userId} onShare={() => onShare(id)}/>
+          <ShareModal rootId={id} nodes={nodes} userId={userId} onShare={() => onShare(id)}/>
         </span>
         <button onClick={() => onZoom(id)}>
           <MagnifyingGlassPlusIcon className={'w-4 h-4 text-slate-400 opacity-0 group-hover:opacity-100 ease-in duration-100'}/>

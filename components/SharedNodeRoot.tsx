@@ -21,17 +21,21 @@ async function persistState(nodes: NodesInterface, id: string) {
 }
 
 interface Props {
-  id: string;
+  rootId: string;
   parentId: string;
   onMoveCursorUp: (id: string, offset: number) => void;
   onMoveCursorDown: (id: string, offset: number) => void;
+  onIndentRight: (id: string, offset: number) => void;
+  onIndentLeft: (id: string, offset: number) => void;
 }
 
 const SharedNodeRoot: React.FC<Props> = ({
-  id,
+  rootId,
   parentId,
   onMoveCursorUp,
   onMoveCursorDown,
+  onIndentRight,
+  onIndentLeft,
 }) => {
 
   // we need to find the owner of this shared node
@@ -46,7 +50,7 @@ const SharedNodeRoot: React.FC<Props> = ({
       return;
     }
 
-    onSnapshot(doc(firebase.db, "shared-nodes", id), (doc) => {
+    onSnapshot(doc(firebase.db, "shared-nodes", rootId), (doc) => {
       const data = doc?.data();
       if(data?.nodes) {
         setNodes(data.nodes);
@@ -63,7 +67,7 @@ const SharedNodeRoot: React.FC<Props> = ({
   useEffect(() => {
     const timer = setTimeout(async () => {
       if(user && hasFetched && nodes) {
-        await persistState(nodes, id);
+        await persistState(nodes, rootId);
       }
     }, 2000);
 
@@ -97,7 +101,7 @@ const SharedNodeRoot: React.FC<Props> = ({
   }
 
   function canDelete(currentId: string) {
-    return permissions.includes('delete') && currentId !== id;
+    return permissions.includes('delete') && currentId !== rootId;
   }
 
   if(!nodes || !user) {
@@ -106,8 +110,8 @@ const SharedNodeRoot: React.FC<Props> = ({
 
   return (
     <Node
-      id={id}
-      value={nodes[id].value}
+      id={rootId}
+      value={nodes[rootId].value}
       zoomedNode={parentId}
       isShared={true}
       onShare={() => console.log('maybe do not share this lol')}
@@ -120,59 +124,68 @@ const SharedNodeRoot: React.FC<Props> = ({
         }
       }}
       onExpand={(id) => {
-        const data = onExpand(nodes, id);
-        setNodes(data.nodes);
+        // const data = onExpand(nodes, id);
+        // setNodes(data.nodes);
       }}
       onCollapse={(id) => {
-        const data = onCollapse(nodes, id);
-        setNodes(data.nodes);
+        // const data = onCollapse(nodes, id);
+        // setNodes(data.nodes);
       }}
       onDelete={(id, startOffset, endOffset) => {
-        if(canDelete(id)) {
-          handleDelete(nodes, id, startOffset, endOffset);
-        }
+        // if(canDelete(id)) {
+        //   handleDelete(nodes, id, startOffset, endOffset);
+        // }
       }}
       onZoom={() => console.log('test')}
       onDrag={() => console.log('test')}
       onDropSibling={(id) => {
-        if(!nodes[id]) {
-          // call onDropSibling on parent instead
-          return;
-        }
+        // if(!nodes[id]) {
+        //   // call onDropSibling on parent instead
+        //   return;
+        // }
       }}
       onDropChild={() => {
-        if(!nodes[id]) {
-          // call onDropChild on parent instead
-          return;
-        }
+        // if(!nodes[id]) {
+        //   // call onDropChild on parent instead
+        //   return;
+        // }
       }}
       onAddNode={(nodeId, offset) => {
 
       }}
       onIndentLeft={(id, offset) => {
-        if(!nodes[id]) {
-          // call indent left on parent instead
+        if(id === rootId) {
+          onIndentLeft(id, offset);
           return;
         }
-
-        const data = indentLeft(nodes, id, offset);
-        if(data) {
-          setNodes(data.nodes);
-          refocusInput(id, offset);
-        }
+        // if(!nodes[id]) {
+        //   // call indent left on parent instead
+        //   return;
+        // }
+        //
+        // const data = indentLeft(nodes, id, offset);
+        // if(data) {
+        //   setNodes(data.nodes);
+        //   refocusInput(id, offset);
+        // }
       }}
       onIndentRight={(id, offset) => {
-        if(!nodes[id]) {
-          // call indent right on parent instead
-          // onIndentRight(id, offset)
+        console.log('right', id, rootId)
+        if(id === rootId) {
+          onIndentRight(id, offset);
           return;
         }
-
-        const data = indentRight(nodes, id, offset);
-        if(data) {
-          setNodes(data.nodes);
-          refocusInput(id, offset);
-        }
+        // if(!nodes[id]) {
+        //   // call indent right on parent instead
+        //   // onIndentRight(id, offset)
+        //   return;
+        // }
+        //
+        // const data = indentRight(nodes, id, offset);
+        // if(data) {
+        //   setNodes(data.nodes);
+        //   refocusInput(id, offset);
+        // }
       }}
       onMoveCursorUp={(id, offset) => {
         onMoveCursorUp(id, offset)

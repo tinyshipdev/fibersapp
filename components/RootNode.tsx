@@ -556,7 +556,9 @@ const RootNode: React.FC = () => {
               if(data) {
                 updateHistory([{ type: HistoryType.INDENT_LEFT, data: { id, offset: data.offset }}]);
                 setNodes(data.nodes);
-                refocusInput(id, offset);
+                setTimeout(() => {
+                  refocusInput(id, offset);
+                }, 0)
               }
             }}
             onIndentRight={(id, offset) => {
@@ -565,7 +567,9 @@ const RootNode: React.FC = () => {
               if(data) {
                 updateHistory([{ type: HistoryType.INDENT_RIGHT, data: { id, offset: data.offset }}]);
                 setNodes(data.nodes);
-                refocusInput(id, offset);
+                setTimeout(() => {
+                  refocusInput(id, offset);
+                }, 0)
               }
             }}
             onMoveCursorUp={(id, offset) => moveCursorUp(id, offset)}

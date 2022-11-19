@@ -4,14 +4,14 @@ import {NodesInterface} from "./RootNode";
 import {ShareIcon} from "@heroicons/react/24/outline";
 
 interface Props {
-  id: string;
+  rootId: string;
   nodes: NodesInterface;
   userId: string;
   onShare: () => void;
 }
 
 const ShareModal: React.FC<Props> = ({
-  id,
+  rootId,
   onShare,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,7 +24,7 @@ const ShareModal: React.FC<Props> = ({
           setIsOpen(false);
         }}
       >
-        <p>Invite user to {id}</p>
+        <p>Invite user to {rootId}</p>
         <p><button onClick={() => onShare()}>get share tree</button></p>
       </Modal>
       <button onClick={() => setIsOpen(true)}>
