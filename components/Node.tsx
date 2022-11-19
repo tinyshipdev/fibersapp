@@ -104,6 +104,7 @@ const Node: React.FC<NodeProps> = ({
               id={n}
               value={nodes[n].value}
               zoomedNode={zoomedNode}
+              isShared={isShared}
               nodes={nodes}
               userId={userId}
               onChange={(id, value) => onChange(id, value)}
@@ -179,7 +180,7 @@ const Node: React.FC<NodeProps> = ({
           onMouseOut={() => setIsDraggable(false)}
         >
         {nodes[id].isExpanded && nodes[id].children.length > 0 ? (
-          <button className={'w-6 h-6 text-slate-400 hover:text-black'} onClick={() => onCollapse(id)}>
+          <button className={`w-6 h-6 hover:text-black ${isShared ? 'text-green-400' : 'text-slate-400'}`} onClick={() => onCollapse(id)}>
             <ChevronDownIcon className={`${isShared ? 'text-teal-500' : ''}`}/>
           </button>
         ) : (
