@@ -146,18 +146,8 @@ const SharedNodeRoot: React.FC<Props> = ({
           return;
         }
       }}
-      onAddNode={(id, offset) => {
-        // if the current nodes parent doesn't exist in the shared nodes space,
-        // we need to check the higher level nodes and add there
-        if(!nodes[nodes[id].parent]) {
-          return;
-        }
+      onAddNode={(nodeId, offset) => {
 
-        if(permissions.includes('edit')) {
-          const data = addNode(nodes, id, offset);
-          setNodes(data.nodes);
-          refocusInput(data.currentNode, offset);
-        }
       }}
       onIndentLeft={(id, offset) => {
         if(!nodes[id]) {

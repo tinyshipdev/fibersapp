@@ -1,36 +1,14 @@
 Fibers - To do.
 
-ROADMAP
+V2 (Sharing)
 
-- add nodes to a "task list".
-- copy/paste nested lists from other applications and have them import correctly
-- lock nodes to prevent changing
-- key commands for markdown formatting
-- template lists
-  - i.e meeting notes that create a item for agenda, notes, next steps, etc
-  - create them via slash commands
-- version control
-- encrypt data when saving, i don't want to see other peoples data
-- open google doc in modal
-
-
-BUGS
+- rework node actions (indent left, indent right, add, delete, drag/drop) to work with shared context
 
 ---
 
-TODO
+MVP.
 
-
----
-
-DOING
-
-- rework shared branches to use firestore security reviews
-
----
-
-DONE
-
+- ~~rework shared branches to use firestore security reviews~~
 - ~~use firebase for authentication~~
 - ~~use firebase for realtime updates~~
 - ~~shared branches wip~~
@@ -85,3 +63,16 @@ DONE
   - ~~add task~~
 - ~~make text editable and reflected in state~~
 - ~~save state of app somewhere and reload saved state~~
+
+FUTURE ROADMAP
+
+- add nodes to a "task list".
+- copy/paste nested lists from other applications and have them import correctly
+- lock nodes to prevent changing
+- key commands for markdown formatting
+- template lists
+  - i.e meeting notes that create a item for agenda, notes, next steps, etc
+  - create them via slash commands
+- version control
+- encrypt data when saving, i don't want to see other peoples data
+- open google doc in modal
