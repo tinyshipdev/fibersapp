@@ -28,7 +28,7 @@ const ShareModal: React.FC<Props> = ({
         <p><button onClick={() => onShare()}>get share tree</button></p>
       </Modal>
       <button onClick={() => setIsOpen(true)}>
-        <ShareIcon className={'w-4 h-4 text-slate-400'}/>
+        <ShareIcon className={'w-4 h-4 text-slate-400 opacity-0 group-hover:opacity-100 ease-in duration-100'}/>
       </button>
     </>
   );

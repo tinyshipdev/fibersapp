@@ -50,7 +50,6 @@ const SharedNodeRoot: React.FC<Props> = ({
       const data = doc?.data();
       if(data?.nodes) {
         setNodes(data.nodes);
-
         if(data.owner === user.uid) {
           setPermissions(['view', 'edit', 'delete']);
         } else if(user.email) {

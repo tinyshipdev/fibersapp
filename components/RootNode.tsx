@@ -124,7 +124,6 @@ const RootNode: React.FC = () => {
       onSnapshot(doc(firebase.db, "nodes", user.uid), (doc) => {
         const data = doc?.data();
         if(data?.data) {
-          console.log(data.data);
           setNodes(data.data);
         }
         setHasFetched(true);
@@ -454,7 +453,7 @@ const RootNode: React.FC = () => {
     await setDoc(doc(firebase.db, 'shared-nodes', id), {
       owner: userId,
       collaborators: {
-        'test@test.com': {
+        'adam.g@miro.com': {
           permissions: ['view', 'edit', 'delete']
         }
       },

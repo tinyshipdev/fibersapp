@@ -97,7 +97,11 @@ const Node: React.FC<NodeProps> = ({
   const graphMap = (
     <ul className={'list-none'}>
       {nodes[id]?.children?.map((n: any) => {
-        if(nodes[n]) {
+        if(!nodes[n]) {
+          return null;
+        }
+
+        if(!nodes[n]?.shared) {
           return (
             <Node
               key={n}
@@ -142,17 +146,17 @@ const Node: React.FC<NodeProps> = ({
     return graphMap;
   }
 
-  if(nodes[id].shared) {
-    return (
-      <SharedNodeRoot
-        key={id}
-        id={id}
-        parentId={id}
-        onMoveCursorUp={(id, offset) => onMoveCursorUp(id, offset)}
-        onMoveCursorDown={(id, offset) => onMoveCursorDown(id, offset)}
-      />
-    )
-  }
+  // if(nodes[id]?.shared) {
+  //   return (
+  //     <SharedNodeRoot
+  //       key={id}
+  //       id={id}
+  //       parentId={id}
+  //       onMoveCursorUp={(id, offset) => onMoveCursorUp(id, offset)}
+  //       onMoveCursorDown={(id, offset) => onMoveCursorDown(id, offset)}
+  //     />
+  //   )
+  // }
 
   return (
     <li
@@ -171,7 +175,9 @@ const Node: React.FC<NodeProps> = ({
       }}
     >
       <div className={`flex items-center group ${!nodes[id].isExpanded && nodes[id].children.length > 0 ? 'text-slate-800 font-bold' : ''}`}>
-        <ShareModal id={id} nodes={nodes} userId={userId} onShare={() => onShare(id)}/>
+        <span className={'mr-2'}>
+          <ShareModal id={id} nodes={nodes} userId={userId} onShare={() => onShare(id)}/>
+        </span>
         <button onClick={() => onZoom(id)}>
           <MagnifyingGlassPlusIcon className={'w-4 h-4 text-slate-400 opacity-0 group-hover:opacity-100 ease-in duration-100'}/>
         </button>
