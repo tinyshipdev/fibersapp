@@ -25,6 +25,7 @@ import {
 import { doc, onSnapshot, setDoc } from "firebase/firestore";
 
 import firebase from "../lib/firebase-client";
+import {cloneDeep} from "lodash";
 
 enum HistoryType {
   CHANGE_TEXT,
@@ -43,6 +44,7 @@ export type NodeItem = {
   parent: string;
   isExpanded: boolean;
   children: string[];
+  shared?: boolean;
 }
 
 export type NodesInterface = {
@@ -54,8 +56,21 @@ const DEFAULT_NODES: NodesInterface = {
     value: 'root',
     parent: '',
     isExpanded: true,
-    children: ['']
+    children: [''],
   },
+}
+
+function generateTree(curr: string, nodes: NodesInterface, tree: string[]) {
+  if(nodes[curr].children.length === 0) {
+    return tree;
+  }
+
+  for(let i = 0; i < nodes[curr].children.length; i++) {
+    tree.push(nodes[curr].children[i]);
+    generateTree(nodes[curr].children[i], nodes, tree);
+  }
+
+  return tree;
 }
 
 async function persistState(nodes: NodesInterface, userId: string) {
@@ -109,6 +124,7 @@ const RootNode: React.FC = () => {
       onSnapshot(doc(firebase.db, "nodes", user.uid), (doc) => {
         const data = doc?.data();
         if(data?.data) {
+          console.log(data.data);
           setNodes(data.data);
         }
         setHasFetched(true);
@@ -411,7 +427,57 @@ const RootNode: React.FC = () => {
     }
   }
 
-  if(!nodes) {
+  async function handleShare(id: string) {
+
+    if(!user) {
+      return null;
+    }
+
+    const userId = user.uid;
+
+    const updatedNodes = cloneDeep(nodes);
+    // need to get all the nodes under id
+    // we will send this array of ids to the backend,
+    // the backend will then move the ids from nodes, to shared-nodes (or whatever we call it) along with permissions
+    const tree = [id, ...generateTree(id, updatedNodes, [])];
+
+    // get all the nodes from the tree
+
+    // add these nodes to the shared-nodes collection
+    // remove these nodes from the current users collection
+
+    const nodesToShare: NodesInterface = {};
+    for(let i = 0; i < tree.length; i++) {
+      nodesToShare[tree[i]] = updatedNodes[tree[i]];
+    }
+
+    await setDoc(doc(firebase.db, 'shared-nodes', id), {
+      owner: userId,
+      collaborators: {
+        'test@test.com': {
+          permissions: ['view', 'edit', 'delete']
+        }
+      },
+      nodes: nodesToShare
+    });
+
+    // delete these nodes from the current users private nodes
+    for(let i = 0; i < tree.length; i++) {
+      delete updatedNodes[tree[i]];
+    }
+
+    updatedNodes[id] = {
+      shared: true,
+      parent: nodes[id].parent,
+      children: [],
+      isExpanded: true,
+      value: ''
+    };
+
+    setNodes(updatedNodes);
+  }
+
+  if(!nodes || !user) {
     return null;
   }
 
@@ -474,19 +540,19 @@ const RootNode: React.FC = () => {
         <div
           className={'-ml-10'}
         >
-          <Node
-            id={zoomedNode}
-            zoomedNode={zoomedNode}
-            value={nodes[zoomedNode]?.value}
-            nodes={nodes}
-            onChange={(id, value) => {
-              const data = onChange(nodes, id, value);
-              updateHistory([{ type: HistoryType.CHANGE_TEXT, data: { id, value: data.previousValue }}]);
-              setNodes(data.nodes);
-            }}
-            onAddNode={(id, offset) => handleAddNode(id, offset)}
-            onIndentLeft={(id, offset) => {
-              const data = indentLeft(nodes, id, offset);
+        <Node
+          id={zoomedNode}
+          zoomedNode={zoomedNode}
+          value={nodes[zoomedNode]?.value}
+          nodes={nodes}
+          onChange={(id, value) => {
+            const data = onChange(nodes, id, value);
+            updateHistory([{ type: HistoryType.CHANGE_TEXT, data: { id, value: data.previousValue }}]);
+            setNodes(data.nodes);
+          }}
+          onAddNode={(id, offset) => handleAddNode(id, offset)}
+          onIndentLeft={(id, offset) => {
+            const data = indentLeft(nodes, id, offset);
 
               if(data) {
                 updateHistory([{ type: HistoryType.INDENT_LEFT, data: { id, offset: data.offset }}]);
@@ -514,6 +580,8 @@ const RootNode: React.FC = () => {
             onDrag={(id) => handleDrag(id)}
             onDropChild={(id) => handleDropChild(id)}
             onDropSibling={(id) => handleDropSibling(id)}
+            userId={user.uid}
+            onShare={(id) => handleShare(id)}
           />
           <div className={'ml-14 mt-2'}>
             <button onClick={() => {

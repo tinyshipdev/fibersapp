@@ -4,6 +4,7 @@ import {ChevronDownIcon, ChevronRightIcon} from "@heroicons/react/20/solid";
 import {MagnifyingGlassPlusIcon} from "@heroicons/react/24/outline";
 import NodeInput from "./NodeInput";
 import SharedNodeRoot from "./SharedNodeRoot";
+import ShareModal from "./ShareModal";
 
 interface NodeProps {
   id: string;
@@ -24,6 +25,8 @@ interface NodeProps {
   onMoveCursorUp: (id: string, offset: number) => void;
   onMoveCursorDown: (id: string, offset: number) => void;
   isShared?: boolean;
+  userId: string;
+  onShare: (id: string) => void;
 }
 
 const Node: React.FC<NodeProps> = ({
@@ -45,6 +48,8 @@ const Node: React.FC<NodeProps> = ({
   onMoveCursorUp,
   onMoveCursorDown,
   isShared= false,
+  userId,
+  onShare,
 }) => {
   const [isDraggable, setIsDraggable] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -100,6 +105,7 @@ const Node: React.FC<NodeProps> = ({
               value={nodes[n].value}
               zoomedNode={zoomedNode}
               nodes={nodes}
+              userId={userId}
               onChange={(id, value) => onChange(id, value)}
               onAddNode={(id, offset) => onAddNode(id, offset)}
               onIndentLeft={(id, offset) => onIndentLeft(id, offset)}
@@ -113,9 +119,10 @@ const Node: React.FC<NodeProps> = ({
               onDrag={(id) => onDrag(id)}
               onDropChild={(id) => onDropChild(id)}
               onDropSibling={(id) => onDropSibling(id)}
+              onShare={(id) => onShare(id)}
             />
           )
-        } else if(n) {
+        } else if(nodes[n]?.shared) {
           return (
             <SharedNodeRoot
               key={n}
@@ -132,6 +139,18 @@ const Node: React.FC<NodeProps> = ({
 
   if(id === zoomedNode) {
     return graphMap;
+  }
+
+  if(nodes[id].shared) {
+    return (
+      <SharedNodeRoot
+        key={id}
+        id={id}
+        parentId={id}
+        onMoveCursorUp={(id, offset) => onMoveCursorUp(id, offset)}
+        onMoveCursorDown={(id, offset) => onMoveCursorDown(id, offset)}
+      />
+    )
   }
 
   return (
@@ -151,6 +170,7 @@ const Node: React.FC<NodeProps> = ({
       }}
     >
       <div className={`flex items-center group ${!nodes[id].isExpanded && nodes[id].children.length > 0 ? 'text-slate-800 font-bold' : ''}`}>
+        <ShareModal id={id} nodes={nodes} userId={userId} onShare={() => onShare(id)}/>
         <button onClick={() => onZoom(id)}>
           <MagnifyingGlassPlusIcon className={'w-4 h-4 text-slate-400 opacity-0 group-hover:opacity-100 ease-in duration-100'}/>
         </button>

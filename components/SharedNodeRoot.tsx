@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {NodesInterface} from "./RootNode";
 import Node from "./Node";
 import {
+  addNode,
   indentLeft,
   indentRight,
   onChange,
@@ -10,12 +11,12 @@ import {
   onExpand,
   refocusInput
 } from "../lib/nodes-controller";
-import {doc, getDoc, onSnapshot, setDoc} from "firebase/firestore";
+import {doc, onSnapshot, updateDoc} from "firebase/firestore";
 import firebase from "../lib/firebase-client";
 
-async function persistState(nodes: NodesInterface, ownerId: string) {
-  await setDoc(doc(firebase.db, "nodes", ownerId), {
-    data: nodes
+async function persistState(nodes: NodesInterface, id: string) {
+  await updateDoc(doc(firebase.db, "shared-nodes", id), {
+    nodes
   });
 }
 
@@ -34,7 +35,6 @@ const SharedNodeRoot: React.FC<Props> = ({
 }) => {
 
   // we need to find the owner of this shared node
-  const [owner, setOwner] = useState('');
   const [permissions, setPermissions] = useState<string[]>([]);
   const [nodes, setNodes] = useState<NodesInterface | null>(null);
   const [hasFetched, setHasFetched] = useState(false);
@@ -42,55 +42,31 @@ const SharedNodeRoot: React.FC<Props> = ({
   const user = firebase.auth.currentUser;
 
   useEffect(() => {
-    async function getInitialData() {
-
-      if(!user) {
-        return;
-      }
-
-      const docRef = doc(firebase.db, "shared-nodes", user.uid);
-      const docSnap = await getDoc(docRef);
-
-      if(!docSnap.exists()) {
-        return;
-      }
-
-      const owner = docSnap.data()[id]
-      setOwner(owner);
-
-      const dataDocRef = doc(firebase.db, "shared-access", owner);
-      const dataDocSnap = await getDoc(dataDocRef);
-
-      if(!dataDocSnap.exists()) {
-        return;
-      }
-
-      // @ts-ignore
-      const p = dataDocSnap.data().collaborators[user.email];
-
-      if(p) {
-        setPermissions(p);
-      }
-
-      onSnapshot(doc(firebase.db, "nodes", owner), (doc) => {
-        const data = doc?.data();
-        if(data?.data) {
-          setNodes(data.data);
-        }
-        setHasFetched(true);
-      });
-
+    if(!user) {
+      return;
     }
 
-    getInitialData();
+    onSnapshot(doc(firebase.db, "shared-nodes", id), (doc) => {
+      const data = doc?.data();
+      if(data?.nodes) {
+        setNodes(data.nodes);
+
+        if(data.owner === user.uid) {
+          setPermissions(['view', 'edit', 'delete']);
+        } else if(user.email) {
+          setPermissions(data.collaborators[user.email].permissions);
+        }
+      }
+      setHasFetched(true);
+    });
   }, []);
 
   useEffect(() => {
     const timer = setTimeout(async () => {
       if(user && hasFetched && nodes) {
-        await persistState(nodes, owner);
+        await persistState(nodes, id);
       }
-    }, 500);
+    }, 2000);
 
     return () => {
       clearTimeout(timer);
@@ -125,7 +101,7 @@ const SharedNodeRoot: React.FC<Props> = ({
     return permissions.includes('delete') && currentId !== id;
   }
 
-  if(!nodes) {
+  if(!nodes || !user) {
     return null;
   }
 
@@ -135,6 +111,8 @@ const SharedNodeRoot: React.FC<Props> = ({
       value={nodes[id].value}
       zoomedNode={parentId}
       isShared={true}
+      onShare={() => console.log('maybe do not share this lol')}
+      userId={user.uid}
       nodes={nodes}
       onChange={(id, value) => {
         if(permissions.includes('edit')) {
@@ -176,11 +154,11 @@ const SharedNodeRoot: React.FC<Props> = ({
           return;
         }
 
-        // if(permissions.includes('edit')) {
-        //   const data = addNode(nodes, id, offset);
-        //   setNodes(data.nodes);
-        //   refocusInput(data.currentNode, offset);
-        // }
+        if(permissions.includes('edit')) {
+          const data = addNode(nodes, id, offset);
+          setNodes(data.nodes);
+          refocusInput(data.currentNode, offset);
+        }
       }}
       onIndentLeft={(id, offset) => {
         if(!nodes[id]) {
