@@ -491,6 +491,14 @@ const RootNode: React.FC = () => {
     await deleteDoc(doc(firebase.db, 'shared-nodes', sharedRootId))
   }
 
+  async function handleSharedNodeFetchError(sharedRootId: string) {
+    // remove this id from our nodes
+    const updatedNodes = cloneDeep(nodes);
+    updatedNodes[nodes[sharedRootId].parent].children = updatedNodes[nodes[sharedRootId].parent].children.filter((node) => node !== sharedRootId);
+    delete updatedNodes[sharedRootId];
+    setNodes(updatedNodes);
+  }
+
   if(!nodes || !user) {
     return null;
   }
@@ -600,7 +608,8 @@ const RootNode: React.FC = () => {
             onDropSibling={(id) => handleDropSibling(id)}
             userId={user.uid}
             onShare={(id) => handleShare(id)}
-          onRemoveSharedRoot={(sharedRootId) => removeSharedRoot(sharedRootId)}
+            onRemoveSharedRoot={(sharedRootId) => removeSharedRoot(sharedRootId)}
+            onSharedNodeFetchError={(sharedRootId) => handleSharedNodeFetchError(sharedRootId)}
           />
           <div className={'ml-14 mt-2'}>
             <button onClick={() => {

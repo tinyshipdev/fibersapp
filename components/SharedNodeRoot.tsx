@@ -28,6 +28,7 @@ interface Props {
   onIndentRight: (id: string, offset: number) => void;
   onIndentLeft: (id: string, offset: number) => void;
   onRemoveSharedRoot: (rootId: string) => void;
+  onSharedNodeFetchError: (rootId: string) => void;
 }
 
 const SharedNodeRoot: React.FC<Props> = ({
@@ -38,6 +39,7 @@ const SharedNodeRoot: React.FC<Props> = ({
   onIndentRight,
   onIndentLeft,
   onRemoveSharedRoot,
+  onSharedNodeFetchError,
 }) => {
   const [owner, setOwner] = useState('');
   const [permissions, setPermissions] = useState<string[]>([]);
@@ -63,9 +65,9 @@ const SharedNodeRoot: React.FC<Props> = ({
         }
       }
       setHasFetched(true);
-    }, (error) => {
-      console.log('error', error);
+    }, () => {
       // handle automatically removing this shared node from the users tree
+      onSharedNodeFetchError(rootId);
     });
 
     return () => unsub();
@@ -248,6 +250,7 @@ const SharedNodeRoot: React.FC<Props> = ({
         onMoveCursorDown(id, offset)
       }}
       onRemoveSharedRoot={(id) => onRemoveSharedRoot(id)}
+      onSharedNodeFetchError={(id) => onSharedNodeFetchError(id)}
     />
   );
 };
