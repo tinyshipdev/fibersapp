@@ -160,7 +160,11 @@ const SharedNodeRoot: React.FC<Props> = ({
       }}
       onDelete={async (id, startOffset, endOffset) => {
         if(id === rootId) {
-          if(owner === user.uid && nodes[id].value.length === 0) {
+          if(
+            owner === user.uid &&
+            nodes[id].value.length === 0 &&
+            nodes[id].children.length === 0
+          ) {
             onRemoveSharedRoot(rootId);
           }
           return;
