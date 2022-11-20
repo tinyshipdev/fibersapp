@@ -173,9 +173,6 @@ const SharedNodeRoot: React.FC<Props> = ({
       onZoom={() => {
         return null;
       }}
-      onDrag={() => {
-        return null;
-      }}
       onDropSibling={(id) => {
         if(id === rootId) {
           return;

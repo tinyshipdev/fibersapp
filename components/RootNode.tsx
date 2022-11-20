@@ -73,7 +73,6 @@ interface HistoryItem {
 
 const RootNode: React.FC = () => {
   const [zoomedNode, setZoomedNode] = useState('root');
-  const [draggedNode, setDraggedNode] = useState('');
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [isShortcutsModalOpen, setIsShortcutsModalOpen] = useState(false);
   const [nodes, setNodes] = useState<NodesInterface>(DEFAULT_NODES);
@@ -188,77 +187,73 @@ const RootNode: React.FC = () => {
     setZoomedNode(id);
   }
 
-  function handleDrag(id: string) {
-    setDraggedNode(id);
+  function validateDropConditions(dragId: string, dropId: string) {
+    return dragId !== dropId;
   }
 
-  function validateDropConditions(dropTarget: string) {
-    return dropTarget !== draggedNode;
-  }
-
-  function handleDropChild(dropTarget: string) {
-    if(!validateDropConditions(dropTarget)) {
+  function handleDropChild(dragId: string, dropId: string) {
+    if(!validateDropConditions(dragId, dropId)) {
       return;
     }
 
     const n = { ...nodes };
 
-    if(!n[draggedNode]) {
+    if(!n[dragId]) {
       // this is a shared node
       return;
     }
 
     // remove dragged node from child of it's parent
-    const parent = n[draggedNode].parent;
-    const indexOfDraggedNode = n[parent].children.indexOf(draggedNode);
+    const parent = n[dragId].parent;
+    const indexOfDraggedNode = n[parent].children.indexOf(dragId);
 
     updateHistory([{
       type: HistoryType.DROP_NODE,
       data: {
         previousParent: parent,
         indexOfNodeInPreviousParent: indexOfDraggedNode,
-        nodeId: draggedNode,
+        nodeId: dragId,
       }
     }]);
 
     n[parent].children.splice(indexOfDraggedNode, 1);
-    n[dropTarget].children.splice(0, 0, draggedNode);
-    n[draggedNode].parent = dropTarget;
+    n[dropId].children.splice(0, 0, dragId);
+    n[dragId].parent = dropId;
 
     setNodes(n);
   }
 
-  function handleDropSibling(dropTarget: string) {
-    if(!validateDropConditions(dropTarget)) {
+  function handleDropSibling(dragId: string, dropId: string) {
+    if(!validateDropConditions(dragId, dropId)) {
       return;
     }
 
     const n = {...nodes};
 
-    if(!n[draggedNode]) {
+    if(!n[dragId]) {
       // this is a shared node
       return;
     }
 
     // remove dragged node from child of it's parent
-    const parent = n[draggedNode].parent;
-    const indexOfDraggedNode = n[parent].children.indexOf(draggedNode);
+    const parent = n[dragId].parent;
+    const indexOfDraggedNode = n[parent].children.indexOf(dragId);
 
     updateHistory([{
       type: HistoryType.DROP_NODE,
       data: {
         previousParent: parent,
         indexOfNodeInPreviousParent: indexOfDraggedNode,
-        nodeId: draggedNode,
+        nodeId: dragId,
       }
     }]);
 
     n[parent].children.splice(indexOfDraggedNode, 1);
 
-    const parentOfDropTarget = n[dropTarget].parent;
-    const indexOfDropTarget = n[parentOfDropTarget].children.indexOf(dropTarget);
-    n[parentOfDropTarget].children.splice(indexOfDropTarget + 1, 0, draggedNode);
-    n[draggedNode].parent = parentOfDropTarget;
+    const parentOfDropTarget = n[dropId].parent;
+    const indexOfDropTarget = n[parentOfDropTarget].children.indexOf(dropId);
+    n[parentOfDropTarget].children.splice(indexOfDropTarget + 1, 0, dragId);
+    n[dragId].parent = parentOfDropTarget;
 
     setNodes(n);
   }
@@ -540,9 +535,8 @@ const RootNode: React.FC = () => {
               handleDelete(nodes, id, startOffset, endOffset);
             }}
             onZoom={(id) => handleZoom(id)}
-            onDrag={(id) => handleDrag(id)}
-            onDropChild={(id) => handleDropChild(id)}
-            onDropSibling={(id) => handleDropSibling(id)}
+            onDropChild={(dragId, dropId) => handleDropChild(dragId, dropId)}
+            onDropSibling={(dragId, dropId) => handleDropSibling(dragId, dropId)}
             userId={user.uid}
             onShare={(newNodes) => {
               setNodes(newNodes);

@@ -1,10 +1,11 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {NodesInterface} from "./RootNode";
 import {ChevronDownIcon, ChevronRightIcon} from "@heroicons/react/20/solid";
 import {MagnifyingGlassPlusIcon} from "@heroicons/react/24/outline";
 import NodeInput from "./NodeInput";
 import SharedNodeRoot from "./SharedNodeRoot";
 import ShareModal from "./ShareModal";
+import {useDrag, useDrop} from "react-dnd";
 
 interface NodeProps {
   id: string;
@@ -16,9 +17,8 @@ interface NodeProps {
   onCollapse: (id: string) => void;
   onDelete: (id: string, startOffset: number, endOffset: number) => void;
   onZoom: (id: string) => void;
-  onDrag: (id: string) => void;
-  onDropSibling: (id: string) => void;
-  onDropChild:(id: string) => void;
+  onDropSibling: (dragId: string, dropId: string) => void;
+  onDropChild:(dragId: string, dropId: string) => void;
   onAddNode: (id: string, offset: number) => void;
   onIndentLeft: (id: string, offset: number) => void;
   onIndentRight: (id: string, offset: number) => void;
@@ -41,7 +41,6 @@ const Node: React.FC<NodeProps> = ({
   onCollapse,
   onDelete,
   onZoom,
-  onDrag,
   onDropChild,
   onDropSibling,
   onAddNode,
@@ -55,10 +54,33 @@ const Node: React.FC<NodeProps> = ({
   onRemoveSharedRoot,
   onSharedNodeFetchError
 }) => {
-  const [isDraggable, setIsDraggable] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const [isSiblingDraggedOver, setIsSiblingDraggedOver] = useState(false);
-  const [isChildDraggedOver, setIsChildDraggedOver] = useState(false);
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: 'NODE',
+    item: { id },
+    collect: (monitor) => ({
+      isDragging: !!monitor.isDragging()
+    })
+  }))
+
+  const [{ isSiblingOver }, dropSibling] = useDrop(() => ({
+    accept: 'NODE',
+    drop: (item: { id: string }) => {
+      onDropSibling(item.id, id);
+    },
+    collect: monitor => ({
+      isSiblingOver: !!monitor.isOver(),
+    }),
+  }))
+
+  const [{ isChildOver }, dropChild] = useDrop(() => ({
+    accept: 'NODE',
+    drop: (item: { id: string }) => {
+      onDropChild(item.id, id);
+    },
+    collect: monitor => ({
+      isChildOver: !!monitor.isOver(),
+    }),
+  }))
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     const startOffset = e.currentTarget.selectionStart || 0;
@@ -125,9 +147,8 @@ const Node: React.FC<NodeProps> = ({
               onCollapse={(id) => onCollapse(id)}
               onDelete={(id, startOffset, endOffset) => onDelete(id, startOffset, endOffset)}
               onZoom={(id) => onZoom(id)}
-              onDrag={(id) => onDrag(id)}
-              onDropChild={(id) => onDropChild(id)}
-              onDropSibling={(id) => onDropSibling(id)}
+              onDropChild={(dragId, dropId) => onDropChild(dragId, dropId)}
+              onDropSibling={(dragId, dropId) => onDropSibling(dragId, dropId)}
               onShare={(newNodes) => onShare(newNodes)}
               onRemoveSharedRoot={(sharedRootId) => onRemoveSharedRoot(sharedRootId)}
               onSharedNodeFetchError={(sharedRootId) => onSharedNodeFetchError(sharedRootId)}
@@ -173,16 +194,7 @@ const Node: React.FC<NodeProps> = ({
       key={id}
       className={`ml-10 relative`}
       data-id={id}
-      draggable={isDraggable}
-      onDragStart={(e: any) => {
-        e.stopPropagation();
-        setIsDragging(true);
-        onDrag(e.target.dataset.id);
-      }}
-      onDragEnd={(e) => {
-        e.stopPropagation();
-        setIsDragging(false)
-      }}
+      ref={drag}
     >
       <div className={`flex items-center group ${isShared ? 'ml-6' : ''} ${!nodes[id].isExpanded && nodes[id].children.length > 0 ? 'text-slate-800 font-bold' : ''}`}>
         {!isShared && (
@@ -193,10 +205,7 @@ const Node: React.FC<NodeProps> = ({
         <button onClick={() => onZoom(id)}>
           <MagnifyingGlassPlusIcon className={'w-4 h-4 text-slate-400 opacity-0 group-hover:opacity-100 ease-in duration-100'}/>
         </button>
-        <span
-          onMouseOver={() => setIsDraggable(true)}
-          onMouseOut={() => setIsDraggable(false)}
-        >
+        <span>
         {nodes[id].isExpanded && nodes[id].children.length > 0 ? (
           <button className={`w-6 h-6 hover:text-black ${isShared ? 'text-green-400' : 'text-slate-400'}`} onClick={() => onCollapse(id)}>
             <ChevronDownIcon className={`${isShared ? 'text-teal-500' : ''}`}/>
@@ -225,24 +234,26 @@ const Node: React.FC<NodeProps> = ({
         <div className={'relative left-9'}>
           <div className="flex">
             <div
-              className={`w-10 py-1 transition ease-in-out duration-100 ${isSiblingDraggedOver ? 'bg-slate-300' : ''}`}
-              onDragEnter={() => setIsSiblingDraggedOver(true)}
-              onDragLeave={() => setIsSiblingDraggedOver(false)}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={() => {
-                onDropSibling(id);
-                setIsSiblingDraggedOver(false)
-              }}
+              className={`w-10 py-1 transition ease-in-out duration-100 ${isSiblingOver ? 'bg-slate-300' : ''}`}
+              ref={dropSibling}
+              // onDragEnter={() => setIsSiblingDraggedOver(true)}
+              // onDragLeave={() => setIsSiblingDraggedOver(false)}
+              // onDragOver={(e) => e.preventDefault()}
+              // onDrop={() => {
+              //   onDropSibling(id);
+              //   setIsSiblingDraggedOver(false)
+              // }}
             />
             <div
-              className={`w-10 py-1 transition ease-in-out duration-100 ${isChildDraggedOver ? 'bg-slate-300' : ''}`}
-              onDragEnter={() => setIsChildDraggedOver(true)}
-              onDragLeave={() => setIsChildDraggedOver(false)}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={() => {
-                onDropChild(id);
-                setIsChildDraggedOver(false)
-              }}
+              className={`w-10 py-1 transition ease-in-out duration-100 ${isChildOver ? 'bg-slate-300' : ''}`}
+              ref={dropChild}
+              // onDragEnter={() => setIsChildDraggedOver(true)}
+              // onDragLeave={() => setIsChildDraggedOver(false)}
+              // onDragOver={(e) => e.preventDefault()}
+              // onDrop={() => {
+              //   onDropChild(id);
+              //   setIsChildDraggedOver(false)
+              // }}
             />
           </div>
         </div>
