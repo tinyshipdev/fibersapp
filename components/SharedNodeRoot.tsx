@@ -118,23 +118,31 @@ const SharedNodeRoot: React.FC<Props> = ({
       userId={user.uid}
       nodes={nodes}
       onChange={(id, value) => {
+        if(id === rootId) {
+          return;
+        }
+
         if(permissions.includes('edit')) {
           const data = onChange(nodes, id, value);
           setNodes(data.nodes);
         }
       }}
       onExpand={(id) => {
-        // const data = onExpand(nodes, id);
-        // setNodes(data.nodes);
+        const data = onExpand(nodes, id);
+        setNodes(data.nodes);
       }}
       onCollapse={(id) => {
-        // const data = onCollapse(nodes, id);
-        // setNodes(data.nodes);
+        const data = onCollapse(nodes, id);
+        setNodes(data.nodes);
       }}
       onDelete={(id, startOffset, endOffset) => {
-        // if(canDelete(id)) {
-        //   handleDelete(nodes, id, startOffset, endOffset);
-        // }
+        if(id === rootId) {
+          return;
+        }
+
+        if(canDelete(id)) {
+          handleDelete(nodes, id, startOffset, endOffset);
+        }
       }}
       onZoom={() => console.log('test')}
       onDrag={() => console.log('test')}
