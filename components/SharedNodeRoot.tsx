@@ -27,6 +27,7 @@ interface Props {
   onMoveCursorDown: (id: string, offset: number) => void;
   onIndentRight: (id: string, offset: number) => void;
   onIndentLeft: (id: string, offset: number) => void;
+  onRemoveSharedRoot: (rootId: string) => void;
 }
 
 const SharedNodeRoot: React.FC<Props> = ({
@@ -36,6 +37,7 @@ const SharedNodeRoot: React.FC<Props> = ({
   onMoveCursorDown,
   onIndentRight,
   onIndentLeft,
+  onRemoveSharedRoot,
 }) => {
   const [owner, setOwner] = useState('');
   const [permissions, setPermissions] = useState<string[]>([]);
@@ -61,6 +63,9 @@ const SharedNodeRoot: React.FC<Props> = ({
         }
       }
       setHasFetched(true);
+    }, (error) => {
+      console.log('error', error);
+      // handle automatically removing this shared node from the users tree
     });
 
     return () => unsub();
@@ -101,8 +106,6 @@ const SharedNodeRoot: React.FC<Props> = ({
       onMoveCursorUp(id, 0);
     }
   }
-
-
 
   if(!nodes || !user) {
     return null;
@@ -155,7 +158,9 @@ const SharedNodeRoot: React.FC<Props> = ({
       }}
       onDelete={async (id, startOffset, endOffset) => {
         if(id === rootId) {
-          // we will need to delete the node from being shared
+          if(owner === user.uid && nodes[id].value.length === 0) {
+            onRemoveSharedRoot(rootId);
+          }
           return;
         }
 
@@ -242,6 +247,7 @@ const SharedNodeRoot: React.FC<Props> = ({
       onMoveCursorDown={(id, offset) => {
         onMoveCursorDown(id, offset)
       }}
+      onRemoveSharedRoot={(id) => onRemoveSharedRoot(id)}
     />
   );
 };

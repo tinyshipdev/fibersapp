@@ -22,7 +22,7 @@ import {
   onExpand,
   refocusInput
 } from "../lib/nodes-controller";
-import { doc, onSnapshot, setDoc } from "firebase/firestore";
+import { doc, onSnapshot, setDoc, deleteDoc } from "firebase/firestore";
 
 import firebase from "../lib/firebase-client";
 import {cloneDeep} from "lodash";
@@ -56,7 +56,7 @@ const DEFAULT_NODES: NodesInterface = {
     value: 'root',
     parent: '',
     isExpanded: true,
-    children: [''],
+    children: [],
   },
 }
 
@@ -476,6 +476,21 @@ const RootNode: React.FC = () => {
     setNodes(updatedNodes);
   }
 
+  async function removeSharedRoot(sharedRootId: string) {
+    if(!user) {
+      return;
+    }
+
+    const updatedNodes = cloneDeep(nodes);
+
+    updatedNodes[nodes[sharedRootId].parent].children = updatedNodes[nodes[sharedRootId].parent].children.filter((node) => node !== sharedRootId);
+    delete updatedNodes[sharedRootId];
+
+    setNodes(updatedNodes);
+
+    await deleteDoc(doc(firebase.db, 'shared-nodes', sharedRootId))
+  }
+
   if(!nodes || !user) {
     return null;
   }
@@ -585,6 +600,7 @@ const RootNode: React.FC = () => {
             onDropSibling={(id) => handleDropSibling(id)}
             userId={user.uid}
             onShare={(id) => handleShare(id)}
+          onRemoveSharedRoot={(sharedRootId) => removeSharedRoot(sharedRootId)}
           />
           <div className={'ml-14 mt-2'}>
             <button onClick={() => {
