@@ -107,13 +107,15 @@ const RootNode: React.FC = () => {
 
   useEffect(() => {
     if(user) {
-      onSnapshot(doc(firebase.db, "nodes", user.uid), (doc) => {
+      const unsub = onSnapshot(doc(firebase.db, "nodes", user.uid), (doc) => {
         const data = doc?.data();
         if(data?.data) {
           setNodes(data.data);
         }
         setHasFetched(true);
       });
+
+      return () => unsub();
     }
   }, []);
 

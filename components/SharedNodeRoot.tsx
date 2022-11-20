@@ -49,28 +49,27 @@ const SharedNodeRoot: React.FC<Props> = ({
   const user = firebase.auth.currentUser;
 
   useEffect(() => {
-    if(!user) {
-      return;
+    if(user) {
+      const unsub = onSnapshot(doc(firebase.db, "shared-nodes", rootId), (doc) => {
+        const data = doc?.data();
+        if(data?.nodes) {
+          setNodes(data.nodes);
+
+          if(data.owner === user.uid) {
+            setOwner(data.owner);
+          } else if(user.email) {
+            setPermissions(data.collaborators[user.email].permissions);
+          }
+        }
+        setHasFetched(true);
+      }, () => {
+        // handle automatically removing this shared node from the users tree
+        onSharedNodeFetchError(rootId);
+      });
+
+      return () => unsub();
     }
 
-    const unsub = onSnapshot(doc(firebase.db, "shared-nodes", rootId), (doc) => {
-      const data = doc?.data();
-      if(data?.nodes) {
-        setNodes(data.nodes);
-
-        if(data.owner === user.uid) {
-          setOwner(data.owner);
-        } else if(user.email) {
-          setPermissions(data.collaborators[user.email].permissions);
-        }
-      }
-      setHasFetched(true);
-    }, () => {
-      // handle automatically removing this shared node from the users tree
-      onSharedNodeFetchError(rootId);
-    });
-
-    return () => unsub();
   }, []);
 
   useEffect(() => {
