@@ -196,16 +196,13 @@ const Node: React.FC<NodeProps> = ({
       data-id={id}
       ref={drag}
     >
-      <div className={`flex items-center group ${isShared ? 'ml-6' : ''} ${!nodes[id].isExpanded && nodes[id].children.length > 0 ? 'text-slate-800 font-bold' : ''}`}>
+      <div className={`flex items-center group ${isShared ? 'ml-4' : ''} ${!nodes[id].isExpanded && nodes[id].children.length > 0 ? 'text-slate-800 font-bold' : ''}`}>
         {!isShared && (
-          <span className={'mr-2'}>
-            <ShareModal rootId={id} nodes={nodes} userId={userId} onShare={(newNodes) => onShare(newNodes)}/>
-          </span>
+          <ShareModal rootId={id} nodes={nodes} userId={userId} onShare={(newNodes) => onShare(newNodes)}/>
         )}
-        <button onClick={() => onZoom(id)}>
+        <button onClick={() => onZoom(id)} className={'block ml-2'}>
           <MagnifyingGlassPlusIcon className={'w-4 h-4 text-slate-400 opacity-0 group-hover:opacity-100 ease-in duration-100'}/>
         </button>
-        <span>
         {nodes[id].isExpanded && nodes[id].children.length > 0 ? (
           <button className={`w-6 h-6 hover:text-black ${isShared ? 'text-green-400' : 'text-slate-400'}`} onClick={() => onCollapse(id)}>
             <ChevronDownIcon className={`${isShared ? 'text-teal-500' : ''}`}/>
@@ -222,7 +219,6 @@ const Node: React.FC<NodeProps> = ({
             <ChevronRightIcon className={`${isShared ? 'text-teal-500' : ''}`}/>
           </button>
         )}
-        </span>
         <NodeInput
           id={id}
           onChange={(value) => onChange(id, value)}

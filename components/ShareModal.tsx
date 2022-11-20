@@ -201,7 +201,7 @@ const ShareModal: React.FC<Props> = ({
         {stage === 'link' && (
           <div className={'text-center'}>
             <p className={'mb-2'}>Share this URL to the users you invited</p>
-            <a href={''} className={'font-bold text-cyan-500'}>{window.location.href}join?nid={rootId}</a>
+            <a href={`${window.location.href}join?nid=${rootId}`} className={'font-bold text-cyan-500'}>{window.location.href}join?nid={rootId}</a>
           </div>
         )}
 
