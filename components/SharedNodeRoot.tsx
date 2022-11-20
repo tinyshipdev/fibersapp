@@ -75,7 +75,7 @@ const SharedNodeRoot: React.FC<Props> = ({
 
   useEffect(() => {
     const timer = setTimeout(async () => {
-      if(user && hasFetched && nodes) {
+      if(user && hasFetched && nodes && canEdit()) {
         await persistState(nodes, rootId);
       }
     }, 2000);
@@ -89,7 +89,6 @@ const SharedNodeRoot: React.FC<Props> = ({
     const data = onExpand(nodes, id);
     setNodes(data.nodes);
   }
-
 
   function handleDelete(nodes: NodesInterface, id: string, startOffset: number, endOffset: number) {
     const data = onDelete({...nodes}, id, startOffset, endOffset);
@@ -141,10 +140,11 @@ const SharedNodeRoot: React.FC<Props> = ({
       userId={user.uid}
       nodes={nodes}
       onChange={(id, value) => {
-        if(canEdit()) {
-          const data = onChange(nodes, id, value);
-          setNodes(data.nodes);
+        if(!canEdit()) {
+          return;
         }
+        const data = onChange(nodes, id, value);
+        setNodes(data.nodes);
       }}
       onExpand={(id) => {
         if (canEdit()) {
@@ -187,28 +187,28 @@ const SharedNodeRoot: React.FC<Props> = ({
         }
       }}
       onAddNode={(id, offset) => {
-        if(id === rootId) {
-          if(canEdit()) {
-            const data = addNodeAsChild(nodes, id, offset);
-            if (data) {
-              setNodes(data.nodes);
-              setTimeout(() => {
-                refocusInput(data.currentNode, offset);
-              }, 0)
-            }
-          }
+        if(!canEdit()) {
           return;
         }
 
-        if(canEdit()) {
-          const data = addNode(nodes, id, offset);
-
+        if(id === rootId) {
+          const data = addNodeAsChild(nodes, id, offset);
           if (data) {
             setNodes(data.nodes);
             setTimeout(() => {
               refocusInput(data.currentNode, offset);
             }, 0)
           }
+        return;
+        }
+
+        const data = addNode(nodes, id, offset);
+
+        if (data) {
+          setNodes(data.nodes);
+          setTimeout(() => {
+            refocusInput(data.currentNode, offset);
+          }, 0)
         }
       }}
       onIndentLeft={(id, offset) => {

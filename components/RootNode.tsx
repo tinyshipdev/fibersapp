@@ -426,9 +426,13 @@ const RootNode: React.FC = () => {
     }
   }
 
-  async function handleShare(id: string) {
+  async function handleShare(id: string, email: string, permissions: string[]) {
 
     if(!user) {
+      return null;
+    }
+
+    if(!email || !permissions) {
       return null;
     }
 
@@ -453,8 +457,8 @@ const RootNode: React.FC = () => {
     await setDoc(doc(firebase.db, 'shared-nodes', id), {
       owner: userId,
       collaborators: {
-        'adam.g@miro.com': {
-          permissions: ['view', 'edit', 'delete']
+        [email]: {
+          permissions
         }
       },
       nodes: nodesToShare
@@ -607,7 +611,7 @@ const RootNode: React.FC = () => {
             onDropChild={(id) => handleDropChild(id)}
             onDropSibling={(id) => handleDropSibling(id)}
             userId={user.uid}
-            onShare={(id) => handleShare(id)}
+            onShare={(id, email, permissions) => handleShare(id, email, permissions)}
             onRemoveSharedRoot={(sharedRootId) => removeSharedRoot(sharedRootId)}
             onSharedNodeFetchError={(sharedRootId) => handleSharedNodeFetchError(sharedRootId)}
           />
