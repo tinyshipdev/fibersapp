@@ -11,7 +11,7 @@ import {
   onExpand,
   refocusInput
 } from "../lib/nodes-controller";
-import {doc, onSnapshot, updateDoc, deleteDoc} from "firebase/firestore";
+import {doc, onSnapshot, updateDoc} from "firebase/firestore";
 import firebase from "../lib/firebase-client";
 
 async function persistState(nodes: NodesInterface, id: string) {
@@ -27,8 +27,6 @@ interface Props {
   onMoveCursorDown: (id: string, offset: number) => void;
   onIndentRight: (id: string, offset: number) => void;
   onIndentLeft: (id: string, offset: number) => void;
-  onRemoveSharedRoot: (id: string) => void;
-
 }
 
 const SharedNodeRoot: React.FC<Props> = ({
@@ -38,7 +36,6 @@ const SharedNodeRoot: React.FC<Props> = ({
   onMoveCursorDown,
   onIndentRight,
   onIndentLeft,
-  onRemoveSharedRoot,
 }) => {
   const [owner, setOwner] = useState('');
   const [permissions, setPermissions] = useState<string[]>([]);
@@ -127,18 +124,12 @@ const SharedNodeRoot: React.FC<Props> = ({
     return permissions.includes('delete') || owner === user.uid;
   }
 
-  async function removeSharedNode() {
-    await deleteDoc(doc(firebase.db, 'shared-nodes', rootId));
-    onRemoveSharedRoot(rootId);
-  }
-
   return (
     <Node
       id={rootId}
       value={nodes[rootId].value}
       zoomedNode={parentId}
       isShared={true}
-      onRemoveSharedRoot={() => console.log('test')}
       onShare={() => {
         return null;
       }}
@@ -165,7 +156,6 @@ const SharedNodeRoot: React.FC<Props> = ({
       onDelete={async (id, startOffset, endOffset) => {
         if(id === rootId) {
           // we will need to delete the node from being shared
-          await removeSharedNode();
           return;
         }
 

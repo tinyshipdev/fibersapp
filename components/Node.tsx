@@ -27,7 +27,6 @@ interface NodeProps {
   isShared?: boolean;
   userId: string;
   onShare: (id: string) => void;
-  onRemoveSharedRoot: (id: string) => void;
 }
 
 const Node: React.FC<NodeProps> = ({
@@ -51,7 +50,6 @@ const Node: React.FC<NodeProps> = ({
   isShared= false,
   userId,
   onShare,
-  onRemoveSharedRoot,
 }) => {
   const [isDraggable, setIsDraggable] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -127,7 +125,6 @@ const Node: React.FC<NodeProps> = ({
               onDropChild={(id) => onDropChild(id)}
               onDropSibling={(id) => onDropSibling(id)}
               onShare={(id) => onShare(id)}
-              onRemoveSharedRoot={(id) => onRemoveSharedRoot(id)}
             />
           )
         } else if(nodes[n]?.shared) {
@@ -140,7 +137,6 @@ const Node: React.FC<NodeProps> = ({
               onMoveCursorDown={(id, offset) => onMoveCursorDown(id, offset)}
               onIndentRight={(id, offset) => onIndentRight(id, offset)}
               onIndentLeft={(id, offset) => onIndentLeft(id, offset)}
-              onRemoveSharedRoot={(id) => onRemoveSharedRoot(id)}
             />
           )
         }

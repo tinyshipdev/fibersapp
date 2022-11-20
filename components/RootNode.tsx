@@ -476,19 +476,6 @@ const RootNode: React.FC = () => {
     setNodes(updatedNodes);
   }
 
-  async function removeSharedRoot(id: string) {
-    if(!user) {
-      return;
-    }
-
-    const updatedNodes = cloneDeep(nodes);
-
-    updatedNodes[nodes[id].parent].children = updatedNodes[nodes[id].parent].children.filter((node) => node !== id);
-    delete updatedNodes[id];
-
-    setNodes(updatedNodes);
-  }
-
   if(!nodes || !user) {
     return null;
   }
@@ -598,9 +585,6 @@ const RootNode: React.FC = () => {
             onDropSibling={(id) => handleDropSibling(id)}
             userId={user.uid}
             onShare={(id) => handleShare(id)}
-            onRemoveSharedRoot={async (id) => {
-              await removeSharedRoot(id);
-            }}
           />
           <div className={'ml-14 mt-2'}>
             <button onClick={() => {
