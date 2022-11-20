@@ -494,7 +494,7 @@ const RootNode: React.FC = () => {
           </div>
         )}
         <div
-          className={'-ml-10'}
+          className={'-ml-10 whitespace-nowrap overflow-scroll min-h-screen'}
         >
         <Node
           id={zoomedNode}
