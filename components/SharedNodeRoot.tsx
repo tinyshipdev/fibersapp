@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {NodesInterface} from "./RootNode";
 import Node from "./Node";
 import {
+  addNode,
   indentLeft,
   indentRight,
   onChange,
@@ -146,6 +147,10 @@ const SharedNodeRoot: React.FC<Props> = ({
           return;
         }
 
+        if(nodes[id].parent === rootId) {
+          return;
+        }
+
         if(!permissions.includes('delete')) {
           return;
         }
@@ -171,6 +176,19 @@ const SharedNodeRoot: React.FC<Props> = ({
       onAddNode={(id, offset) => {
         if(id === rootId) {
           return;
+        }
+
+        if(!permissions.includes('edit')) {
+          return;
+        }
+
+        const data = addNode(nodes, id, offset);
+
+        if(data) {
+          setNodes(data.nodes);
+          setTimeout(() => {
+            refocusInput(data.currentNode, offset);
+          }, 0)
         }
       }}
       onIndentLeft={(id, offset) => {
