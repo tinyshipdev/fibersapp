@@ -176,7 +176,7 @@ const Node: React.FC<NodeProps> = ({
         setIsDragging(false)
       }}
     >
-      <div className={`flex items-center group ${!nodes[id].isExpanded && nodes[id].children.length > 0 ? 'text-slate-800 font-bold' : ''}`}>
+      <div className={`flex items-center group ${isShared ? 'ml-6' : ''} ${!nodes[id].isExpanded && nodes[id].children.length > 0 ? 'text-slate-800 font-bold' : ''}`}>
         {!isShared && (
           <span className={'mr-2'}>
             <ShareModal rootId={id} nodes={nodes} userId={userId} onShare={() => onShare(id)}/>
