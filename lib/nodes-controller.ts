@@ -1,15 +1,5 @@
 import {nanoid} from "nanoid";
-
-export type NodeItem = {
-  value: string;
-  parent: string;
-  isExpanded: boolean;
-  children: string[];
-}
-
-export type NodesInterface = {
-  [key: string]: NodeItem
-}
+import {NodesInterface} from "../components/RootNode";
 
 export function addNode(nodes: NodesInterface, id: string, offset: number) {
   let parentId = nodes[id].parent;
@@ -125,6 +115,10 @@ export function indentRight(nodes: NodesInterface, id: string, offset: number) {
 
   if(!n[previousKey]) {
     return null;
+  }
+
+  if(n[previousKey].shared) {
+    return;
   }
 
   // if the new parent is collapsed, expand it first, so we can see where this node went
