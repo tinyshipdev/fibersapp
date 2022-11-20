@@ -2,7 +2,6 @@ import React, {useEffect, useState} from 'react';
 import {NodesInterface} from "./RootNode";
 import Node from "./Node";
 import {
-  addNode,
   indentLeft,
   indentRight,
   onChange,
@@ -100,10 +99,6 @@ const SharedNodeRoot: React.FC<Props> = ({
     }
   }
 
-  function canDelete(currentId: string) {
-    return permissions.includes('delete') && currentId !== rootId;
-  }
-
   if(!nodes || !user) {
     return null;
   }
@@ -114,7 +109,9 @@ const SharedNodeRoot: React.FC<Props> = ({
       value={nodes[rootId].value}
       zoomedNode={parentId}
       isShared={true}
-      onShare={() => console.log('maybe do not share this lol')}
+      onShare={() => {
+        return null;
+      }}
       userId={user.uid}
       nodes={nodes}
       onChange={(id, value) => {
@@ -122,16 +119,25 @@ const SharedNodeRoot: React.FC<Props> = ({
           return;
         }
 
-        if(permissions.includes('edit')) {
-          const data = onChange(nodes, id, value);
-          setNodes(data.nodes);
+        if(!permissions.includes('edit')) {
+          return;
         }
+
+        const data = onChange(nodes, id, value);
+        setNodes(data.nodes);
       }}
       onExpand={(id) => {
+        if(!permissions.includes('edit')) {
+          return;
+        }
         const data = onExpand(nodes, id);
         setNodes(data.nodes);
       }}
       onCollapse={(id) => {
+        if(!permissions.includes('edit')) {
+          return;
+        }
+
         const data = onCollapse(nodes, id);
         setNodes(data.nodes);
       }}
@@ -140,26 +146,32 @@ const SharedNodeRoot: React.FC<Props> = ({
           return;
         }
 
-        if(canDelete(id)) {
-          handleDelete(nodes, id, startOffset, endOffset);
+        if(!permissions.includes('delete')) {
+          return;
+        }
+
+        handleDelete(nodes, id, startOffset, endOffset);
+      }}
+      onZoom={() => {
+        return null;
+      }}
+      onDrag={() => {
+        return null;
+      }}
+      onDropSibling={(id) => {
+        if(id === rootId) {
+          return;
         }
       }}
-      onZoom={() => console.log('test')}
-      onDrag={() => console.log('test')}
-      onDropSibling={(id) => {
-        // if(!nodes[id]) {
-        //   // call onDropSibling on parent instead
-        //   return;
-        // }
+      onDropChild={(id) => {
+        if(id === rootId) {
+          return;
+        }
       }}
-      onDropChild={() => {
-        // if(!nodes[id]) {
-        //   // call onDropChild on parent instead
-        //   return;
-        // }
-      }}
-      onAddNode={(nodeId, offset) => {
-
+      onAddNode={(id) => {
+        if(id === rootId) {
+          return;
+        }
       }}
       onIndentLeft={(id, offset) => {
         if(id === rootId) {
@@ -168,6 +180,10 @@ const SharedNodeRoot: React.FC<Props> = ({
         }
 
         if(nodes[id].parent === rootId) {
+          return;
+        }
+
+        if(!permissions.includes('edit')) {
           return;
         }
 
@@ -180,6 +196,10 @@ const SharedNodeRoot: React.FC<Props> = ({
       onIndentRight={(id, offset) => {
         if(id === rootId) {
           onIndentRight(id, offset);
+          return;
+        }
+
+        if(!permissions.includes('edit')) {
           return;
         }
 
