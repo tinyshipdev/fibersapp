@@ -141,7 +141,7 @@ const RootNode: React.FC = () => {
         await persistState(nodes, user.uid);
         setIsSaved(true);
       }
-    }, 500);
+    }, 2000);
 
     return () => {
       clearTimeout(timer);

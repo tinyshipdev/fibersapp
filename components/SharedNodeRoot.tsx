@@ -158,34 +158,28 @@ const SharedNodeRoot: React.FC<Props> = ({
           onIndentLeft(id, offset);
           return;
         }
-        // if(!nodes[id]) {
-        //   // call indent left on parent instead
-        //   return;
-        // }
-        //
-        // const data = indentLeft(nodes, id, offset);
-        // if(data) {
-        //   setNodes(data.nodes);
-        //   refocusInput(id, offset);
-        // }
+
+        if(nodes[id].parent === rootId) {
+          return;
+        }
+
+        const data = indentLeft(nodes, id, offset);
+        if(data) {
+          setNodes(data.nodes);
+          refocusInput(id, offset);
+        }
       }}
       onIndentRight={(id, offset) => {
-        console.log('right', id, rootId)
         if(id === rootId) {
           onIndentRight(id, offset);
           return;
         }
-        // if(!nodes[id]) {
-        //   // call indent right on parent instead
-        //   // onIndentRight(id, offset)
-        //   return;
-        // }
-        //
-        // const data = indentRight(nodes, id, offset);
-        // if(data) {
-        //   setNodes(data.nodes);
-        //   refocusInput(id, offset);
-        // }
+
+        const data = indentRight(nodes, id, offset);
+        if(data) {
+          setNodes(data.nodes);
+          refocusInput(id, offset);
+        }
       }}
       onMoveCursorUp={(id, offset) => {
         onMoveCursorUp(id, offset)
