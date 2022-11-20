@@ -231,29 +231,15 @@ const Node: React.FC<NodeProps> = ({
         />
       </div>
       {!isDragging && (
-        <div className={'relative left-9'}>
+        <div className={'relative ml-10'}>
           <div className="flex">
             <div
               className={`w-10 py-1 transition ease-in-out duration-100 ${isSiblingOver ? 'bg-slate-300' : ''}`}
               ref={dropSibling}
-              // onDragEnter={() => setIsSiblingDraggedOver(true)}
-              // onDragLeave={() => setIsSiblingDraggedOver(false)}
-              // onDragOver={(e) => e.preventDefault()}
-              // onDrop={() => {
-              //   onDropSibling(id);
-              //   setIsSiblingDraggedOver(false)
-              // }}
             />
             <div
               className={`w-10 py-1 transition ease-in-out duration-100 ${isChildOver ? 'bg-slate-300' : ''}`}
               ref={dropChild}
-              // onDragEnter={() => setIsChildDraggedOver(true)}
-              // onDragLeave={() => setIsChildDraggedOver(false)}
-              // onDragOver={(e) => e.preventDefault()}
-              // onDrop={() => {
-              //   onDropChild(id);
-              //   setIsChildDraggedOver(false)
-              // }}
             />
           </div>
         </div>
