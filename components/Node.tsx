@@ -177,9 +177,11 @@ const Node: React.FC<NodeProps> = ({
       }}
     >
       <div className={`flex items-center group ${!nodes[id].isExpanded && nodes[id].children.length > 0 ? 'text-slate-800 font-bold' : ''}`}>
-        <span className={'mr-2'}>
-          <ShareModal rootId={id} nodes={nodes} userId={userId} onShare={() => onShare(id)}/>
-        </span>
+        {!isShared && (
+          <span className={'mr-2'}>
+            <ShareModal rootId={id} nodes={nodes} userId={userId} onShare={() => onShare(id)}/>
+          </span>
+        )}
         <button onClick={() => onZoom(id)}>
           <MagnifyingGlassPlusIcon className={'w-4 h-4 text-slate-400 opacity-0 group-hover:opacity-100 ease-in duration-100'}/>
         </button>

@@ -38,7 +38,6 @@ const SharedNodeRoot: React.FC<Props> = ({
   onIndentLeft,
 }) => {
 
-  // we need to find the owner of this shared node
   const [permissions, setPermissions] = useState<string[]>([]);
   const [nodes, setNodes] = useState<NodesInterface | null>(null);
   const [hasFetched, setHasFetched] = useState(false);
@@ -54,6 +53,7 @@ const SharedNodeRoot: React.FC<Props> = ({
       const data = doc?.data();
       if(data?.nodes) {
         setNodes(data.nodes);
+
         if(data.owner === user.uid) {
           setPermissions(['view', 'edit', 'delete']);
         } else if(user.email) {
