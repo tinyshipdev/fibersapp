@@ -60,19 +60,6 @@ const DEFAULT_NODES: NodesInterface = {
   },
 }
 
-function generateTree(curr: string, nodes: NodesInterface, tree: string[]) {
-  if(nodes[curr].children.length === 0) {
-    return tree;
-  }
-
-  for(let i = 0; i < nodes[curr].children.length; i++) {
-    tree.push(nodes[curr].children[i]);
-    generateTree(nodes[curr].children[i], nodes, tree);
-  }
-
-  return tree;
-}
-
 async function persistState(nodes: NodesInterface, userId: string) {
   await setDoc(doc(firebase.db, "nodes", userId), {
     data: nodes
@@ -426,60 +413,6 @@ const RootNode: React.FC = () => {
     }
   }
 
-  async function handleShare(id: string, email: string, permissions: string[]) {
-
-    if(!user) {
-      return null;
-    }
-
-    if(!email || !permissions) {
-      return null;
-    }
-
-    const userId = user.uid;
-
-    const updatedNodes = cloneDeep(nodes);
-    // need to get all the nodes under id
-    // we will send this array of ids to the backend,
-    // the backend will then move the ids from nodes, to shared-nodes (or whatever we call it) along with permissions
-    const tree = [id, ...generateTree(id, updatedNodes, [])];
-
-    // get all the nodes from the tree
-
-    // add these nodes to the shared-nodes collection
-    // remove these nodes from the current users collection
-
-    const nodesToShare: NodesInterface = {};
-    for(let i = 0; i < tree.length; i++) {
-      nodesToShare[tree[i]] = updatedNodes[tree[i]];
-    }
-
-    await setDoc(doc(firebase.db, 'shared-nodes', id), {
-      owner: userId,
-      collaborators: {
-        [email]: {
-          permissions
-        }
-      },
-      nodes: nodesToShare
-    });
-
-    // delete these nodes from the current users private nodes
-    for(let i = 0; i < tree.length; i++) {
-      delete updatedNodes[tree[i]];
-    }
-
-    updatedNodes[id] = {
-      shared: true,
-      parent: nodes[id].parent,
-      children: [],
-      isExpanded: true,
-      value: ''
-    };
-
-    setNodes(updatedNodes);
-  }
-
   async function removeSharedRoot(sharedRootId: string) {
     if(!user) {
       return;
@@ -611,7 +544,9 @@ const RootNode: React.FC = () => {
             onDropChild={(id) => handleDropChild(id)}
             onDropSibling={(id) => handleDropSibling(id)}
             userId={user.uid}
-            onShare={(id, email, permissions) => handleShare(id, email, permissions)}
+            onShare={(newNodes) => {
+              setNodes(newNodes);
+            }}
             onRemoveSharedRoot={(sharedRootId) => removeSharedRoot(sharedRootId)}
             onSharedNodeFetchError={(sharedRootId) => handleSharedNodeFetchError(sharedRootId)}
           />

@@ -26,7 +26,7 @@ interface NodeProps {
   onMoveCursorDown: (id: string, offset: number) => void;
   isShared?: boolean;
   userId: string;
-  onShare: (id: string, email: string, permissions: string[]) => void;
+  onShare: (newNodes: NodesInterface) => void;
   onRemoveSharedRoot: (sharedRootId: string) => void;
   onSharedNodeFetchError: (rootId: string) => void;
 }
@@ -128,7 +128,7 @@ const Node: React.FC<NodeProps> = ({
               onDrag={(id) => onDrag(id)}
               onDropChild={(id) => onDropChild(id)}
               onDropSibling={(id) => onDropSibling(id)}
-              onShare={(id, email, permissions) => onShare(id, email, permissions)}
+              onShare={(newNodes) => onShare(newNodes)}
               onRemoveSharedRoot={(sharedRootId) => onRemoveSharedRoot(sharedRootId)}
               onSharedNodeFetchError={(sharedRootId) => onSharedNodeFetchError(sharedRootId)}
             />
@@ -187,7 +187,7 @@ const Node: React.FC<NodeProps> = ({
       <div className={`flex items-center group ${isShared ? 'ml-6' : ''} ${!nodes[id].isExpanded && nodes[id].children.length > 0 ? 'text-slate-800 font-bold' : ''}`}>
         {!isShared && (
           <span className={'mr-2'}>
-            <ShareModal rootId={id} nodes={nodes} userId={userId} onShare={(id, email, permissions) => onShare(id, email, permissions)}/>
+            <ShareModal rootId={id} nodes={nodes} userId={userId} onShare={(newNodes) => onShare(newNodes)}/>
           </span>
         )}
         <button onClick={() => onZoom(id)}>
