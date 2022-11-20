@@ -168,7 +168,7 @@ const SharedNodeRoot: React.FC<Props> = ({
           return;
         }
       }}
-      onAddNode={(id) => {
+      onAddNode={(id, offset) => {
         if(id === rootId) {
           return;
         }
