@@ -1,6 +1,42 @@
 import {nanoid} from "nanoid";
 import {NodesInterface} from "../components/RootNode";
 
+export function addNodeAsChild(nodes: NodesInterface, id: string, offset: number) {
+  let parentId = id;
+
+  const n = { ...nodes };
+  const nodeId = nanoid();
+
+  // if the cursor is at the start of the sentence, add a node BEFORE the current one
+  if(offset === 0 && n[id].value.length > 0) {
+    n[nodeId] = { value: '', isExpanded: true, children: [], parent: parentId };
+    let index = nodes[parentId]?.children.indexOf(id);
+    nodes[parentId]?.children.splice(index, 0, nodeId);
+  } else {
+    /**
+     * when we add a node below, we might be halfway through a word
+     * when we hit enter, we want to split the word and create a new node with the second
+     * half of that word.
+     */
+    let firstHalf = n[id].value.slice(0, offset);
+    let secondHalf = n[id].value.slice(offset);
+
+    n[id].value = firstHalf;
+    n[nodeId] = { value: secondHalf, isExpanded: true, children: [], parent: parentId };
+
+    let index = nodes[parentId]?.children.indexOf(id);
+    nodes[parentId]?.children.splice(index + 1, 0, nodeId);
+  }
+
+  return {
+    nodes: n,
+    currentNode: nodeId,
+    previousNode: id,
+    parentNode: parentId,
+    offset: 0
+  }
+}
+
 export function addNode(nodes: NodesInterface, id: string, offset: number) {
   let parentId = nodes[id].parent;
 

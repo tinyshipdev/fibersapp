@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {NodesInterface} from "./RootNode";
 import Node from "./Node";
 import {
-  addNode,
+  addNode, addNodeAsChild,
   indentLeft,
   indentRight,
   onChange,
@@ -11,7 +11,7 @@ import {
   onExpand,
   refocusInput
 } from "../lib/nodes-controller";
-import {doc, onSnapshot, updateDoc} from "firebase/firestore";
+import {doc, onSnapshot, updateDoc, deleteDoc} from "firebase/firestore";
 import firebase from "../lib/firebase-client";
 
 async function persistState(nodes: NodesInterface, id: string) {
@@ -27,6 +27,8 @@ interface Props {
   onMoveCursorDown: (id: string, offset: number) => void;
   onIndentRight: (id: string, offset: number) => void;
   onIndentLeft: (id: string, offset: number) => void;
+  onRemoveSharedRoot: (id: string) => void;
+
 }
 
 const SharedNodeRoot: React.FC<Props> = ({
@@ -36,8 +38,9 @@ const SharedNodeRoot: React.FC<Props> = ({
   onMoveCursorDown,
   onIndentRight,
   onIndentLeft,
+  onRemoveSharedRoot,
 }) => {
-
+  const [owner, setOwner] = useState('');
   const [permissions, setPermissions] = useState<string[]>([]);
   const [nodes, setNodes] = useState<NodesInterface | null>(null);
   const [hasFetched, setHasFetched] = useState(false);
@@ -49,19 +52,21 @@ const SharedNodeRoot: React.FC<Props> = ({
       return;
     }
 
-    onSnapshot(doc(firebase.db, "shared-nodes", rootId), (doc) => {
+    const unsub = onSnapshot(doc(firebase.db, "shared-nodes", rootId), (doc) => {
       const data = doc?.data();
       if(data?.nodes) {
         setNodes(data.nodes);
 
         if(data.owner === user.uid) {
-          setPermissions(['view', 'edit', 'delete']);
+          setOwner(data.owner);
         } else if(user.email) {
           setPermissions(data.collaborators[user.email].permissions);
         }
       }
       setHasFetched(true);
     });
+
+    return () => unsub();
   }, []);
 
   useEffect(() => {
@@ -100,8 +105,31 @@ const SharedNodeRoot: React.FC<Props> = ({
     }
   }
 
+
+
   if(!nodes || !user) {
     return null;
+  }
+
+  function canEdit() {
+    if(!user) {
+      return false;
+    }
+
+    return permissions.includes('edit') || owner === user.uid;
+  }
+
+  function canDelete() {
+    if(!user) {
+      return false;
+    }
+
+    return permissions.includes('delete') || owner === user.uid;
+  }
+
+  async function removeSharedNode() {
+    await deleteDoc(doc(firebase.db, 'shared-nodes', rootId));
+    onRemoveSharedRoot(rootId);
   }
 
   return (
@@ -110,52 +138,40 @@ const SharedNodeRoot: React.FC<Props> = ({
       value={nodes[rootId].value}
       zoomedNode={parentId}
       isShared={true}
+      onRemoveSharedRoot={() => console.log('test')}
       onShare={() => {
         return null;
       }}
       userId={user.uid}
       nodes={nodes}
       onChange={(id, value) => {
-        if(id === rootId) {
-          return;
+        if(canEdit()) {
+          const data = onChange(nodes, id, value);
+          setNodes(data.nodes);
         }
-
-        if(!permissions.includes('edit')) {
-          return;
-        }
-
-        const data = onChange(nodes, id, value);
-        setNodes(data.nodes);
       }}
       onExpand={(id) => {
-        if(!permissions.includes('edit')) {
-          return;
+        if (canEdit()) {
+          const data = onExpand(nodes, id);
+          setNodes(data.nodes);
         }
-        const data = onExpand(nodes, id);
-        setNodes(data.nodes);
       }}
       onCollapse={(id) => {
-        if(!permissions.includes('edit')) {
-          return;
+        if(canEdit()) {
+          const data = onCollapse(nodes, id);
+          setNodes(data.nodes);
         }
-
-        const data = onCollapse(nodes, id);
-        setNodes(data.nodes);
       }}
-      onDelete={(id, startOffset, endOffset) => {
+      onDelete={async (id, startOffset, endOffset) => {
         if(id === rootId) {
+          // we will need to delete the node from being shared
+          await removeSharedNode();
           return;
         }
 
-        if(nodes[id].parent === rootId) {
-          return;
+        if(canDelete()) {
+          handleDelete(nodes, id, startOffset, endOffset);
         }
-
-        if(!permissions.includes('delete')) {
-          return;
-        }
-
-        handleDelete(nodes, id, startOffset, endOffset);
       }}
       onZoom={() => {
         return null;
@@ -175,20 +191,27 @@ const SharedNodeRoot: React.FC<Props> = ({
       }}
       onAddNode={(id, offset) => {
         if(id === rootId) {
+          if(canEdit()) {
+            const data = addNodeAsChild(nodes, id, offset);
+            if (data) {
+              setNodes(data.nodes);
+              setTimeout(() => {
+                refocusInput(data.currentNode, offset);
+              }, 0)
+            }
+          }
           return;
         }
 
-        if(!permissions.includes('edit')) {
-          return;
-        }
+        if(canEdit()) {
+          const data = addNode(nodes, id, offset);
 
-        const data = addNode(nodes, id, offset);
-
-        if(data) {
-          setNodes(data.nodes);
-          setTimeout(() => {
-            refocusInput(data.currentNode, offset);
-          }, 0)
+          if (data) {
+            setNodes(data.nodes);
+            setTimeout(() => {
+              refocusInput(data.currentNode, offset);
+            }, 0)
+          }
         }
       }}
       onIndentLeft={(id, offset) => {
@@ -201,14 +224,12 @@ const SharedNodeRoot: React.FC<Props> = ({
           return;
         }
 
-        if(!permissions.includes('edit')) {
-          return;
-        }
-
-        const data = indentLeft(nodes, id, offset);
-        if(data) {
-          setNodes(data.nodes);
-          refocusInput(id, offset);
+        if(canEdit()) {
+          const data = indentLeft(nodes, id, offset);
+          if (data) {
+            setNodes(data.nodes);
+            refocusInput(id, offset);
+          }
         }
       }}
       onIndentRight={(id, offset) => {
@@ -217,14 +238,12 @@ const SharedNodeRoot: React.FC<Props> = ({
           return;
         }
 
-        if(!permissions.includes('edit')) {
-          return;
-        }
-
-        const data = indentRight(nodes, id, offset);
-        if(data) {
-          setNodes(data.nodes);
-          refocusInput(id, offset);
+        if(canEdit()) {
+          const data = indentRight(nodes, id, offset);
+          if (data) {
+            setNodes(data.nodes);
+            refocusInput(id, offset);
+          }
         }
       }}
       onMoveCursorUp={(id, offset) => {
