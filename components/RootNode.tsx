@@ -107,8 +107,13 @@ const RootNode: React.FC = () => {
 
   useEffect(() => {
     if(user) {
-      const unsub = onSnapshot(doc(firebase.db, "nodes", user.uid), (doc) => {
-        const data = doc?.data();
+      const unsub = onSnapshot(doc(firebase.db, "nodes", user.uid), (snap) => {
+        const data = snap?.data();
+        if(!data) {
+          setDoc(doc(firebase.db, 'nodes', user.uid), { data: DEFAULT_NODES});
+          return;
+        }
+
         if(data?.data) {
           setNodes(data.data);
         }
@@ -141,6 +146,10 @@ const RootNode: React.FC = () => {
   }
 
   function addNodeAsChild(id: string) {
+    if(!user) {
+      return null;
+    }
+
     const n = { ...nodes };
     const nodeId = nanoid();
 
@@ -151,7 +160,12 @@ const RootNode: React.FC = () => {
     updateHistory([
       { type: HistoryType.ADD_NODE, data: { currentNode: nodeId, previousNode, parentNode: id }}
     ]);
-    setNodes(n);
+
+    updateDoc(doc(firebase.db, 'nodes', user.uid), {
+      [`data.${nodeId}`]: { value: '', isExpanded: true, children: [], parent: id },
+      [`data.${id}.children`]: n[id].children,
+    })
+    // setNodes(n);
     refocusInput(nodeId, 0);
   }
 
@@ -462,6 +476,59 @@ const RootNode: React.FC = () => {
     setNodes(updatedNodes);
   }
 
+  function handleIndentLeft(id: string, offset: number) {
+    if(!user) {
+      return;
+    }
+
+    const data = indentLeft(nodes, id, offset);
+
+    if(data) {
+      updateHistory([{ type: HistoryType.INDENT_LEFT, data: { id, offset: data.offset }}]);
+
+      updateDoc(doc(firebase.db, 'nodes', user.uid), {
+        [`data.${id}.parent`]: data.nodes[id].parent,
+        [`data.${data.grandparent}.children`]: data.nodes[data.grandparent].children,
+        [`data.${data.parent}.children`]: data.nodes[data.parent].children
+      })
+
+      setTimeout(() => {
+        refocusInput(id, offset);
+      }, 0)
+    }
+  }
+
+  function handleIndentRight(id: string, offset: number) {
+    if(!user) {
+      return null
+    }
+
+    const data = indentRight(nodes, id, offset);
+
+    if(data) {
+      updateHistory([{ type: HistoryType.INDENT_RIGHT, data: { id, offset: data.offset }}]);
+
+      updateDoc(doc(firebase.db, 'nodes', user.uid), {
+        [`data.${id}.parent`]: data.nodes[id].parent,
+        [`data.${data.parent}.children`]: data.nodes[data.parent].children,
+        [`data.${data.previousKey}.children`]: data.nodes[data.previousKey].children,
+      })
+
+      setTimeout(() => {
+        refocusInput(id, offset);
+      }, 0)
+    }
+  }
+
+  function handleChange(id: string, value: string) {
+    /**
+     * it's okay that this function updates nodes, we're updating the DB with debounce inside Node.tsx
+     */
+    const data = onChange(nodes, id, value);
+    updateHistory([{ type: HistoryType.CHANGE_TEXT, data: { id, value: data.previousValue }}]);
+    setNodes(data.nodes);
+  }
+
   if(!nodes || !user) {
     return null;
   }
@@ -530,50 +597,22 @@ const RootNode: React.FC = () => {
           zoomedNode={zoomedNode}
           value={nodes[zoomedNode]?.value}
           nodes={nodes}
-          onChange={(id, value) => {
-            const data = onChange(nodes, id, value);
-            updateHistory([{ type: HistoryType.CHANGE_TEXT, data: { id, value: data.previousValue }}]);
-            setNodes(data.nodes);
-          }}
+          onChange={(id, value) => handleChange(id, value)}
           onAddNode={(id, offset) => handleAddNode(id, offset)}
-          onIndentLeft={(id, offset) => {
-            const data = indentLeft(nodes, id, offset);
-
-              if(data) {
-                updateHistory([{ type: HistoryType.INDENT_LEFT, data: { id, offset: data.offset }}]);
-                setNodes(data.nodes);
-                setTimeout(() => {
-                  refocusInput(id, offset);
-                }, 0)
-              }
-            }}
-            onIndentRight={(id, offset) => {
-              const data = indentRight(nodes, id, offset);
-
-              if(data) {
-                updateHistory([{ type: HistoryType.INDENT_RIGHT, data: { id, offset: data.offset }}]);
-                setNodes(data.nodes);
-                setTimeout(() => {
-                  refocusInput(id, offset);
-                }, 0)
-              }
-            }}
-            onMoveCursorUp={(id, offset) => moveCursorUp(id, offset)}
-            onMoveCursorDown={(id, offset) => moveCursorDown(id, offset)}
-            onExpand={(id) => handleExpand(nodes, id)}
-            onCollapse={(id) => handleCollapse(nodes, id)}
-            onDelete={(id, startOffset, endOffset) => {
-              handleDelete(nodes, id, startOffset, endOffset);
-            }}
-            onZoom={(id) => handleZoom(id)}
-            onDropChild={(dragId, dropId) => handleDropChild(dragId, dropId)}
-            onDropSibling={(dragId, dropId) => handleDropSibling(dragId, dropId)}
-            userId={user.uid}
-            onShare={(newNodes) => {
-              setNodes(newNodes);
-            }}
-            onRemoveSharedRoot={(sharedRootId) => removeSharedRoot(sharedRootId)}
-            onSharedNodeFetchError={(sharedRootId) => handleSharedNodeFetchError(sharedRootId)}
+          onIndentLeft={(id, offset) => handleIndentLeft(id, offset)}
+          onIndentRight={(id, offset) => handleIndentRight(id, offset)}
+          onMoveCursorUp={(id, offset) => moveCursorUp(id, offset)}
+          onMoveCursorDown={(id, offset) => moveCursorDown(id, offset)}
+          onExpand={(id) => handleExpand(nodes, id)}
+          onCollapse={(id) => handleCollapse(nodes, id)}
+          onDelete={(id, startOffset, endOffset) => handleDelete(nodes, id, startOffset, endOffset)}
+          onZoom={(id) => handleZoom(id)}
+          onDropChild={(dragId, dropId) => handleDropChild(dragId, dropId)}
+          onDropSibling={(dragId, dropId) => handleDropSibling(dragId, dropId)}
+          userId={user.uid}
+          onShare={(newNodes) => setNodes(newNodes)}
+          onRemoveSharedRoot={(sharedRootId) => removeSharedRoot(sharedRootId)}
+          onSharedNodeFetchError={(sharedRootId) => handleSharedNodeFetchError(sharedRootId)}
           />
           <div className={'ml-14 mt-2'}>
             <button onClick={() => {

@@ -132,6 +132,8 @@ export function indentLeft(nodes: NodesInterface, id: string, offset: number) {
   return {
     offset: offset || 0,
     nodes: n,
+    parent,
+    grandparent,
   }
 }
 
@@ -170,6 +172,8 @@ export function indentRight(nodes: NodesInterface, id: string, offset: number) {
   return {
     offset: offset || 0,
     nodes: n,
+    parent: parentId,
+    previousKey,
   }
 }
 
