@@ -183,10 +183,17 @@ const RootNode: React.FC = () => {
   }
 
   function undoExpand(id: string) {
+    if(!user) {
+      return;
+    }
+
     const n = { ...nodes };
 
     n[id].isExpanded = false;
-    setNodes(n);
+
+    updateDoc(doc(firebase.db, 'nodes', user.uid), {
+      [`data.${id}.isExpanded`]: n[id].isExpanded
+    })
   }
 
   function handleCollapse(nodes: NodesInterface, id: string) {
@@ -202,9 +209,16 @@ const RootNode: React.FC = () => {
   }
 
   function undoCollapse(id: string) {
+    if(!user) {
+      return;
+    }
+
     const n = { ...nodes };
     n[id].isExpanded = true;
-    setNodes(n);
+
+    updateDoc(doc(firebase.db, 'nodes', user.uid), {
+      [`data.${id}.isExpanded`]: n[id].isExpanded
+    })
   }
 
   function handleZoom(id: string) {
@@ -221,6 +235,10 @@ const RootNode: React.FC = () => {
   }
 
   function handleDropChild(dragId: string, dropId: string) {
+    if(!user) {
+      return;
+    }
+
     if(!validateDropConditions(dragId, dropId)) {
       return;
     }
@@ -249,10 +267,18 @@ const RootNode: React.FC = () => {
     n[dropId].children.splice(0, 0, dragId);
     n[dragId].parent = dropId;
 
-    setNodes(n);
+    updateDoc(doc(firebase.db, 'nodes', user.uid), {
+      [`data.${parent}.children`]: n[parent].children,
+      [`data.${dropId}.children`]: n[dropId].children,
+      [`data.${dragId}.parent`]: n[dragId].parent,
+    })
   }
 
   function handleDropSibling(dragId: string, dropId: string) {
+    if(!user) {
+      return;
+    }
+
     if(!validateDropConditions(dragId, dropId)) {
       return;
     }
@@ -284,29 +310,46 @@ const RootNode: React.FC = () => {
     n[parentOfDropTarget].children.splice(indexOfDropTarget + 1, 0, dragId);
     n[dragId].parent = parentOfDropTarget;
 
-    setNodes(n);
+    updateDoc(doc(firebase.db, 'nodes', user.uid), {
+      [`data.${parent}.children`]: n[parent].children,
+      [`data.${parentOfDropTarget}.children`]: n[parentOfDropTarget].children,
+      [`data.${dragId}.parent`]: n[dragId].parent,
+    })
   }
 
   function undoAddNode(currentId: string, previousId: string, parentId: string) {
+    if(!user) return;
+
     const n = { ...nodes };
     // n[previousId].value = n[previousId].value + n[currentId].value;
     n[parentId].children = n[parentId].children.filter((child) => child !== currentId);
     delete n[currentId];
-    setNodes(n);
+
+    updateDoc(doc(firebase.db, 'nodes', user.uid), {
+      [`data.${parentId}.children`]: n[parentId].children,
+      [`data.${currentId}`]: deleteField(),
+    })
+
     refocusInput(previousId, n[previousId]?.value?.length);
   }
 
   function undoDeleteNode(nodeId: string, nodeData: NodeItem, indexOfNodeInParent: number) {
+    if(!user) return;
     const n = { ...nodes };
 
     n[nodeId] = nodeData;
     n[nodeData.parent].children.splice(indexOfNodeInParent, 0, nodeId);
 
-    setNodes(n);
+    updateDoc(doc(firebase.db, 'nodes', user.uid), {
+      [`data.${nodeId}`]: nodeData,
+      [`data.${nodeData.parent}.children`]: n[nodeData.parent].children,
+    })
+
     refocusInput(nodeId, n[nodeId]?.value?.length);
   }
 
   function undoDropNode(previousParent: string, indexOfNodeInPreviousParent: number, nodeId: string) {
+    if(!user) return;
     const n = { ...nodes };
 
     const currentParent = n[nodeId].parent;
@@ -315,13 +358,23 @@ const RootNode: React.FC = () => {
     n[currentParent].children = n[currentParent].children.filter((id) => id !== nodeId);
     n[nodeId].parent = previousParent;
 
-    setNodes(n);
+    updateDoc(doc(firebase.db, 'nodes', user.uid), {
+      [`data.${previousParent}.children`]: n[previousParent].children,
+      [`data.${currentParent}.children`]: n[currentParent].children,
+      [`data.${nodeId}.parent`]: previousParent,
+    })
+
     refocusInput(nodeId, n[nodeId]?.value?.length);
   }
 
   function undoChangeText(id: string, value: string) {
+    if(!user) return;
     const n = { ...nodes };
     n[id].value = value;
+
+    updateDoc(doc(firebase.db, 'nodes', user.uid), {
+      [`data.${id}.value`]: n[id].value,
+    })
     setNodes(n);
   }
 
@@ -460,20 +513,28 @@ const RootNode: React.FC = () => {
 
     const updatedNodes = cloneDeep(nodes);
 
-    updatedNodes[nodes[sharedRootId].parent].children = updatedNodes[nodes[sharedRootId].parent].children.filter((node) => node !== sharedRootId);
-    delete updatedNodes[sharedRootId];
+    // updatedNodes[nodes[sharedRootId].parent].children = updatedNodes[nodes[sharedRootId].parent].children.filter((node) => node !== sharedRootId);
+    // delete updatedNodes[sharedRootId];
 
-    setNodes(updatedNodes);
+    updateDoc(doc(firebase.db, 'nodes', user.uid), {
+      [`data.${nodes[sharedRootId].parent}.children`]: updatedNodes[nodes[sharedRootId].parent].children.filter((node) => node !== sharedRootId),
+      [`data.${sharedRootId}`]: deleteField(),
+    })
 
     await deleteDoc(doc(firebase.db, 'shared-nodes', sharedRootId))
   }
 
   async function handleSharedNodeFetchError(sharedRootId: string) {
+    if(!user) return;
     // remove this id from our nodes
     const updatedNodes = cloneDeep(nodes);
-    updatedNodes[nodes[sharedRootId].parent].children = updatedNodes[nodes[sharedRootId].parent].children.filter((node) => node !== sharedRootId);
-    delete updatedNodes[sharedRootId];
-    setNodes(updatedNodes);
+    // updatedNodes[nodes[sharedRootId].parent].children = updatedNodes[nodes[sharedRootId].parent].children.filter((node) => node !== sharedRootId);
+    // delete updatedNodes[sharedRootId];
+
+    updateDoc(doc(firebase.db, 'nodes', user.uid), {
+      [`data.${nodes[sharedRootId].parent}.children`]: updatedNodes[nodes[sharedRootId].parent].children.filter((node) => node !== sharedRootId),
+      [`data.${sharedRootId}`]: deleteField(),
+    })
   }
 
   function handleIndentLeft(id: string, offset: number) {
