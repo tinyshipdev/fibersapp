@@ -60,12 +60,6 @@ const DEFAULT_NODES: NodesInterface = {
   },
 }
 
-async function persistState(nodes: NodesInterface, userId: string) {
-  await setDoc(doc(firebase.db, "nodes", userId), {
-    data: nodes
-  });
-}
-
 interface HistoryItem {
   type: HistoryType,
   data: any,
@@ -115,7 +109,7 @@ const RootNode: React.FC = () => {
         }
 
         if(data?.data) {
-          setNodes(data.data);
+          setNodes(data?.data);
         }
         setHasFetched(true);
       });
@@ -230,29 +224,22 @@ const RootNode: React.FC = () => {
     setZoomedNode(id);
   }
 
-  function validateDropConditions(dragId: string, dropId: string) {
-    return dragId !== dropId;
-  }
 
   function handleDropChild(dragId: string, dropId: string) {
-    if(!user) {
-      return;
-    }
+    if(!user) return;
+    if(dragId === dropId) return;
 
-    if(!validateDropConditions(dragId, dropId)) {
-      return;
-    }
+    const n = cloneDeep(nodes);
 
-    const n = { ...nodes };
-
-    if(!n[dragId]) {
-      // this is a shared node
-      return;
-    }
+    if(!n[dragId]) return;
 
     // remove dragged node from child of it's parent
     const parent = n[dragId].parent;
     const indexOfDraggedNode = n[parent].children.indexOf(dragId);
+
+    n[parent].children.splice(indexOfDraggedNode, 1);
+    n[dropId].children.splice(0, 0, dragId);
+    n[dragId].parent = dropId;
 
     updateHistory([{
       type: HistoryType.DROP_NODE,
@@ -262,10 +249,6 @@ const RootNode: React.FC = () => {
         nodeId: dragId,
       }
     }]);
-
-    n[parent].children.splice(indexOfDraggedNode, 1);
-    n[dropId].children.splice(0, 0, dragId);
-    n[dragId].parent = dropId;
 
     updateDoc(doc(firebase.db, 'nodes', user.uid), {
       [`data.${parent}.children`]: n[parent].children,
@@ -275,25 +258,34 @@ const RootNode: React.FC = () => {
   }
 
   function handleDropSibling(dragId: string, dropId: string) {
-    if(!user) {
-      return;
-    }
+    if(!user) return;
+    if(dragId === dropId) return;
 
-    if(!validateDropConditions(dragId, dropId)) {
-      return;
-    }
+    const n = cloneDeep(nodes);
 
-    const n = {...nodes};
+    if(!n[dragId]) return;
 
-    if(!n[dragId]) {
-      // this is a shared node
-      return;
-    }
-
-    // remove dragged node from child of it's parent
+    // 1. update parent to remove dragId as child
     const parent = n[dragId].parent;
     const indexOfDraggedNode = n[parent].children.indexOf(dragId);
+    n[parent].children.splice(indexOfDraggedNode, 1);
 
+    // 2. add dragged node as a child of the dropped nodes parent
+    const parentOfDropTarget = n[dropId].parent;
+    const indexOfDropTarget = n[parentOfDropTarget].children.indexOf(dropId);
+    n[parentOfDropTarget].children.splice(indexOfDropTarget + 1, 0, dragId);
+
+    // 3. update dragged nodes parent to be the parent of the dropped node
+    n[dragId].parent = parentOfDropTarget;
+
+    // 4. update firebase
+    updateDoc(doc(firebase.db, 'nodes', user.uid), {
+      [`data.${parent}.children`]: n[parent].children,
+      [`data.${parentOfDropTarget}.children`]: n[parentOfDropTarget].children,
+      [`data.${dragId}.parent`]: n[dragId].parent,
+    })
+
+    // 5. update local undo history
     updateHistory([{
       type: HistoryType.DROP_NODE,
       data: {
@@ -303,18 +295,6 @@ const RootNode: React.FC = () => {
       }
     }]);
 
-    n[parent].children.splice(indexOfDraggedNode, 1);
-
-    const parentOfDropTarget = n[dropId].parent;
-    const indexOfDropTarget = n[parentOfDropTarget].children.indexOf(dropId);
-    n[parentOfDropTarget].children.splice(indexOfDropTarget + 1, 0, dragId);
-    n[dragId].parent = parentOfDropTarget;
-
-    updateDoc(doc(firebase.db, 'nodes', user.uid), {
-      [`data.${parent}.children`]: n[parent].children,
-      [`data.${parentOfDropTarget}.children`]: n[parentOfDropTarget].children,
-      [`data.${dragId}.parent`]: n[dragId].parent,
-    })
   }
 
   function undoAddNode(currentId: string, previousId: string, parentId: string) {
@@ -671,8 +651,8 @@ const RootNode: React.FC = () => {
           onCollapse={(id) => handleCollapse(nodes, id)}
           onDelete={(id, startOffset, endOffset) => handleDelete(nodes, id, startOffset, endOffset)}
           onZoom={(id) => handleZoom(id)}
-          onDropChild={(dragId, dropId) => handleDropChild(dragId, dropId)}
           onDropSibling={(dragId, dropId) => handleDropSibling(dragId, dropId)}
+          onDropChild={(dragId, dropId) => handleDropChild(dragId, dropId)}
           userId={user.uid}
           onShare={(newNodes) => setNodes(newNodes)}
           onRemoveSharedRoot={(sharedRootId) => removeSharedRoot(sharedRootId)}

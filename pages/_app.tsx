@@ -8,12 +8,12 @@ function App({
    pageProps: { session, ...pageProps },
  }: AppProps) {
   return (
-    <div>
-      <DndProvider backend={HTML5Backend}>
+    <DndProvider debugMode={true} backend={HTML5Backend}>
+      <div>
         <Component {...pageProps} />
         <div id={"modal"}/>
-      </DndProvider>
-    </div>
+      </div>
+    </DndProvider>
   )
 }
 

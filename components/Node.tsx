@@ -20,7 +20,7 @@ interface NodeProps {
   onDelete: (id: string, startOffset: number, endOffset: number) => void;
   onZoom: (id: string) => void;
   onDropSibling: (dragId: string, dropId: string) => void;
-  onDropChild:(dragId: string, dropId: string) => void;
+  onDropChild: (dragId: string, dropId: string) => void;
   onAddNode: (id: string, offset: number) => void;
   onIndentLeft: (id: string, offset: number) => void;
   onIndentRight: (id: string, offset: number) => void;
@@ -43,8 +43,8 @@ const Node: React.FC<NodeProps> = ({
   onCollapse,
   onDelete,
   onZoom,
-  onDropChild,
   onDropSibling,
+  onDropChild,
   onAddNode,
   onIndentLeft,
   onIndentRight,
@@ -76,7 +76,7 @@ const Node: React.FC<NodeProps> = ({
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging()
     })
-  }))
+  }), [])
 
   const [{ isSiblingOver }, dropSibling] = useDrop(() => ({
     accept: 'NODE',
@@ -86,7 +86,7 @@ const Node: React.FC<NodeProps> = ({
     collect: monitor => ({
       isSiblingOver: !!monitor.isOver(),
     }),
-  }))
+  }), [nodes]) // use drop is memoized so need to add nodes so we have the most recent onDropSibling
 
   const [{ isChildOver }, dropChild] = useDrop(() => ({
     accept: 'NODE',
@@ -96,7 +96,7 @@ const Node: React.FC<NodeProps> = ({
     collect: monitor => ({
       isChildOver: !!monitor.isOver(),
     }),
-  }))
+  }), [nodes])
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     const startOffset = e.currentTarget.selectionStart || 0;
@@ -163,8 +163,8 @@ const Node: React.FC<NodeProps> = ({
               onCollapse={(id) => onCollapse(id)}
               onDelete={(id, startOffset, endOffset) => onDelete(id, startOffset, endOffset)}
               onZoom={(id) => onZoom(id)}
-              onDropChild={(dragId, dropId) => onDropChild(dragId, dropId)}
               onDropSibling={(dragId, dropId) => onDropSibling(dragId, dropId)}
+              onDropChild={(dragId, dropId) => onDropChild(dragId, dropId)}
               onShare={(newNodes) => onShare(newNodes)}
               onRemoveSharedRoot={(sharedRootId) => onRemoveSharedRoot(sharedRootId)}
               onSharedNodeFetchError={(sharedRootId) => onSharedNodeFetchError(sharedRootId)}
@@ -192,18 +192,6 @@ const Node: React.FC<NodeProps> = ({
   if(id === zoomedNode) {
     return graphMap;
   }
-
-  // if(nodes[id]?.shared) {
-  //   return (
-  //     <SharedNodeRoot
-  //       key={id}
-  //       id={id}
-  //       parentId={id}
-  //       onMoveCursorUp={(id, offset) => onMoveCursorUp(id, offset)}
-  //       onMoveCursorDown={(id, offset) => onMoveCursorDown(id, offset)}
-  //     />
-  //   )
-  // }
 
   return (
     <li
