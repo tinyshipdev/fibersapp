@@ -488,6 +488,7 @@ const RootNode: React.FC = () => {
 
       updateDoc(doc(firebase.db, 'nodes', user.uid), {
         [`data.${id}.parent`]: data.nodes[id].parent,
+        [`data.${id}.value`]: data.nodes[id].value,
         [`data.${data.grandparent}.children`]: data.nodes[data.grandparent].children,
         [`data.${data.parent}.children`]: data.nodes[data.parent].children
       })
@@ -505,11 +506,13 @@ const RootNode: React.FC = () => {
 
     const data = indentRight(nodes, id, offset);
 
+
     if(data) {
       updateHistory([{ type: HistoryType.INDENT_RIGHT, data: { id, offset: data.offset }}]);
 
       updateDoc(doc(firebase.db, 'nodes', user.uid), {
         [`data.${id}.parent`]: data.nodes[id].parent,
+        [`data.${id}.value`]: data.nodes[id].value,
         [`data.${data.parent}.children`]: data.nodes[data.parent].children,
         [`data.${data.previousKey}.children`]: data.nodes[data.previousKey].children,
       })
