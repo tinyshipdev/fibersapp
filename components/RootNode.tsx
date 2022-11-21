@@ -22,7 +22,7 @@ import {
   onExpand,
   refocusInput
 } from "../lib/nodes-controller";
-import { doc, onSnapshot, setDoc, deleteDoc } from "firebase/firestore";
+import {doc, onSnapshot, setDoc, deleteDoc, updateDoc, deleteField} from "firebase/firestore";
 
 import firebase from "../lib/firebase-client";
 import {cloneDeep} from "lodash";
@@ -126,7 +126,7 @@ const RootNode: React.FC = () => {
   useEffect(() => {
     const timer = setTimeout(async () => {
       if(user && hasFetched) {
-        await persistState(nodes, user.uid);
+        // await persistState(nodes, user.uid);
         setIsSaved(true);
       }
     }, 2000);
@@ -156,9 +156,16 @@ const RootNode: React.FC = () => {
   }
 
   function handleExpand(nodes: NodesInterface, id: string) {
+    if(!user) {
+      return;
+    }
+
     const data = onExpand(nodes, id);
     updateHistory([{ type: HistoryType.EXPAND_NODE, data: { id }}]);
-    setNodes(data.nodes);
+
+    updateDoc(doc(firebase.db, 'nodes', user.uid), {
+      [`data.${id}.isExpanded`]: data.nodes[id].isExpanded
+    })
   }
 
   function undoExpand(id: string) {
@@ -169,9 +176,15 @@ const RootNode: React.FC = () => {
   }
 
   function handleCollapse(nodes: NodesInterface, id: string) {
+    if(!user) {
+      return;
+    }
+
     const data = onCollapse(nodes, id);
     updateHistory([{ type: HistoryType.COLLAPSE_NODE, data: { id }}]);
-    setNodes(data.nodes);
+    updateDoc(doc(firebase.db, 'nodes', user.uid), {
+      [`data.${id}.isExpanded`]: data.nodes[id].isExpanded
+    })
   }
 
   function undoCollapse(id: string) {
@@ -384,15 +397,28 @@ const RootNode: React.FC = () => {
   }
 
   function handleAddNode(id: string, offset: number) {
+    if(!user) {
+      return;
+    }
+
     const data = addNode(nodes, id, offset);
     updateHistory([
       { type: HistoryType.ADD_NODE, data: { currentNode: data.currentNode, previousNode: data.previousNode, parentNode: data.parentNode }}
     ]);
-    setNodes(data.nodes);
+
+    updateDoc(doc(firebase.db, 'nodes', user.uid), {
+      [`data.${id}.value`]: data.nodes[id].value,
+      [`data.${nodes[id].parent}.children`]: data.nodes[nodes[id].parent].children,
+      [`data.${data.currentNode}`]: data.nodes[data.currentNode]
+    })
     refocusInput(data.currentNode, 0);
   }
 
   function handleDelete(nodes: NodesInterface, id: string, startOffset: number, endOffset: number) {
+    if(!user) {
+      return;
+    }
+
     const data = onDelete({ ...nodes }, id, startOffset, endOffset);
 
     if(!data) {
@@ -405,7 +431,10 @@ const RootNode: React.FC = () => {
     }
 
     if(data.nodes) {
-      setNodes(data.nodes);
+      updateDoc(doc(firebase.db, 'nodes', user.uid), {
+        [`data.${id}`]: deleteField(),
+        [`data.${nodes[id].parent}.children`]: nodes[nodes[id].parent].children
+      })
       moveCursorUp(id, 0);
     }
   }
@@ -494,7 +523,7 @@ const RootNode: React.FC = () => {
           </div>
         )}
         <div
-          className={'-ml-10 whitespace-nowrap overflow-scroll min-h-screen'}
+          className={'-ml-10 whitespace-nowrap overflow-x-scroll min-h-screen'}
         >
         <Node
           id={zoomedNode}

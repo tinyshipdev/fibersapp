@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {NodesInterface} from "./RootNode";
 import {ChevronDownIcon, ChevronRightIcon} from "@heroicons/react/20/solid";
 import {MagnifyingGlassPlusIcon} from "@heroicons/react/24/outline";
@@ -6,6 +6,8 @@ import NodeInput from "./NodeInput";
 import SharedNodeRoot from "./SharedNodeRoot";
 import ShareModal from "./ShareModal";
 import {useDrag, useDrop} from "react-dnd";
+import {doc, updateDoc} from "firebase/firestore";
+import firebase from "../lib/firebase-client";
 
 interface NodeProps {
   id: string;
@@ -54,6 +56,20 @@ const Node: React.FC<NodeProps> = ({
   onRemoveSharedRoot,
   onSharedNodeFetchError
 }) => {
+  const [debouncedValue, setDebouncedValue] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if(debouncedValue !== '') {
+        updateDoc(doc(firebase.db, 'nodes', userId), {
+          [`data.${id}.value`]: value
+        });
+      }
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [debouncedValue]);
+
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'NODE',
     item: { id },
@@ -221,7 +237,10 @@ const Node: React.FC<NodeProps> = ({
         )}
         <NodeInput
           id={id}
-          onChange={(value) => onChange(id, value)}
+          onChange={(value) => {
+            onChange(id, value);
+            setDebouncedValue(value);
+          }}
           onKeyDown={(e) => handleKeyDown(e)}
           value={value}
         />
