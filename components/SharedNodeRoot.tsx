@@ -135,6 +135,7 @@ const SharedNodeRoot: React.FC<Props> = ({
       isShared={true}
       userId={user.uid}
       nodes={nodes}
+      onDebounceChange={() => console.log('')}
       onChange={(id, value) => {
         if(!canEdit()) {
           return;

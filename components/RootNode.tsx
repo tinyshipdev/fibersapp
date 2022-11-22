@@ -71,7 +71,6 @@ const RootNode: React.FC = () => {
   const [isShortcutsModalOpen, setIsShortcutsModalOpen] = useState(false);
   const [nodes, setNodes] = useState<NodesInterface>(DEFAULT_NODES);
   const [isSaved, setIsSaved] = useState(false);
-  const [hasFetched, setHasFetched] = useState(false);
 
   const user = firebase.auth.currentUser;
 
@@ -104,36 +103,19 @@ const RootNode: React.FC = () => {
       const unsub = onSnapshot(doc(firebase.db, "nodes", user.uid), (snap) => {
         const data = snap?.data();
         if(!data) {
-          setDoc(doc(firebase.db, 'nodes', user.uid), { data: DEFAULT_NODES});
+          setDoc(doc(firebase.db, 'nodes', user.uid), { data: DEFAULT_NODES}).then(() => setIsSaved(true));
           return;
         }
 
         if(data?.data) {
           setNodes(data?.data);
+          setIsSaved(true);
         }
-        setHasFetched(true);
       });
 
       return () => unsub();
     }
   }, []);
-
-  useEffect(() => {
-    setIsSaved(false);
-  }, [nodes]);
-
-  useEffect(() => {
-    const timer = setTimeout(async () => {
-      if(user && hasFetched) {
-        // await persistState(nodes, user.uid);
-        setIsSaved(true);
-      }
-    }, 2000);
-
-    return () => {
-      clearTimeout(timer);
-    }
-  }, [nodes, hasFetched]);
 
   function updateHistory(items: {type: HistoryType, data: any}[]) {
     setHistory([...history.slice(-1000), ...items]);
@@ -158,7 +140,7 @@ const RootNode: React.FC = () => {
     updateDoc(doc(firebase.db, 'nodes', user.uid), {
       [`data.${nodeId}`]: { value: '', isExpanded: true, children: [], parent: id },
       [`data.${id}.children`]: n[id].children,
-    })
+    }).then(() => setIsSaved(true))
     refocusInput(nodeId, 0);
   }
 
@@ -172,7 +154,7 @@ const RootNode: React.FC = () => {
 
     updateDoc(doc(firebase.db, 'nodes', user.uid), {
       [`data.${id}.isExpanded`]: data.nodes[id].isExpanded
-    })
+    }).then(() => setIsSaved(true))
   }
 
   function undoExpand(id: string) {
@@ -186,7 +168,7 @@ const RootNode: React.FC = () => {
 
     updateDoc(doc(firebase.db, 'nodes', user.uid), {
       [`data.${id}.isExpanded`]: n[id].isExpanded
-    })
+    }).then(() => setIsSaved(true))
   }
 
   function handleCollapse(nodes: NodesInterface, id: string) {
@@ -198,7 +180,7 @@ const RootNode: React.FC = () => {
     updateHistory([{ type: HistoryType.COLLAPSE_NODE, data: { id }}]);
     updateDoc(doc(firebase.db, 'nodes', user.uid), {
       [`data.${id}.isExpanded`]: data.nodes[id].isExpanded
-    })
+    }).then(() => setIsSaved(true))
   }
 
   function undoCollapse(id: string) {
@@ -211,7 +193,7 @@ const RootNode: React.FC = () => {
 
     updateDoc(doc(firebase.db, 'nodes', user.uid), {
       [`data.${id}.isExpanded`]: n[id].isExpanded
-    })
+    }).then(() => setIsSaved(true))
   }
 
   function handleZoom(id: string) {
@@ -253,7 +235,7 @@ const RootNode: React.FC = () => {
       [`data.${parent}.children`]: n[parent].children,
       [`data.${dropId}.children`]: n[dropId].children,
       [`data.${dragId}.parent`]: n[dragId].parent,
-    })
+    }).then(() => setIsSaved(true))
   }
 
   function handleDropSibling(dragId: string, dropId: string) {
@@ -282,7 +264,7 @@ const RootNode: React.FC = () => {
       [`data.${parent}.children`]: n[parent].children,
       [`data.${parentOfDropTarget}.children`]: n[parentOfDropTarget].children,
       [`data.${dragId}.parent`]: n[dragId].parent,
-    })
+    }).then(() => setIsSaved(true))
 
     // 5. update local undo history
     updateHistory([{
@@ -307,7 +289,7 @@ const RootNode: React.FC = () => {
     updateDoc(doc(firebase.db, 'nodes', user.uid), {
       [`data.${parentId}.children`]: n[parentId].children,
       [`data.${currentId}`]: deleteField(),
-    })
+    }).then(() => setIsSaved(true))
 
     refocusInput(previousId, n[previousId]?.value?.length);
   }
@@ -322,7 +304,7 @@ const RootNode: React.FC = () => {
     updateDoc(doc(firebase.db, 'nodes', user.uid), {
       [`data.${nodeId}`]: nodeData,
       [`data.${nodeData.parent}.children`]: n[nodeData.parent].children,
-    })
+    }).then(() => setIsSaved(true))
 
     refocusInput(nodeId, n[nodeId]?.value?.length);
   }
@@ -341,7 +323,7 @@ const RootNode: React.FC = () => {
       [`data.${previousParent}.children`]: n[previousParent].children,
       [`data.${currentParent}.children`]: n[currentParent].children,
       [`data.${nodeId}.parent`]: previousParent,
-    })
+    }).then(() => setIsSaved(true))
 
     refocusInput(nodeId, n[nodeId]?.value?.length);
   }
@@ -353,7 +335,7 @@ const RootNode: React.FC = () => {
 
     updateDoc(doc(firebase.db, 'nodes', user.uid), {
       [`data.${id}.value`]: n[id].value,
-    })
+    }).then(() => setIsSaved(true))
     setNodes(n);
   }
 
@@ -456,7 +438,7 @@ const RootNode: React.FC = () => {
       [`data.${id}.value`]: data.nodes[id].value,
       [`data.${nodes[id].parent}.children`]: data.nodes[nodes[id].parent].children,
       [`data.${data.currentNode}`]: data.nodes[data.currentNode]
-    })
+    }).then(() => setIsSaved(true))
     refocusInput(data.currentNode, 0);
   }
 
@@ -480,7 +462,7 @@ const RootNode: React.FC = () => {
       updateDoc(doc(firebase.db, 'nodes', user.uid), {
         [`data.${id}`]: deleteField(),
         [`data.${nodes[id].parent}.children`]: nodes[nodes[id].parent].children
-      })
+      }).then(() => setIsSaved(true))
       moveCursorUp(id, 0);
     }
   }
@@ -492,28 +474,22 @@ const RootNode: React.FC = () => {
 
     const updatedNodes = cloneDeep(nodes);
 
-    // updatedNodes[nodes[sharedRootId].parent].children = updatedNodes[nodes[sharedRootId].parent].children.filter((node) => node !== sharedRootId);
-    // delete updatedNodes[sharedRootId];
-
     updateDoc(doc(firebase.db, 'nodes', user.uid), {
       [`data.${nodes[sharedRootId].parent}.children`]: updatedNodes[nodes[sharedRootId].parent].children.filter((node) => node !== sharedRootId),
       [`data.${sharedRootId}`]: deleteField(),
-    })
+    }).then(() => setIsSaved(true))
 
     await deleteDoc(doc(firebase.db, 'shared-nodes', sharedRootId))
   }
 
   async function handleSharedNodeFetchError(sharedRootId: string) {
     if(!user) return;
-    // remove this id from our nodes
     const updatedNodes = cloneDeep(nodes);
-    // updatedNodes[nodes[sharedRootId].parent].children = updatedNodes[nodes[sharedRootId].parent].children.filter((node) => node !== sharedRootId);
-    // delete updatedNodes[sharedRootId];
 
     updateDoc(doc(firebase.db, 'nodes', user.uid), {
       [`data.${nodes[sharedRootId].parent}.children`]: updatedNodes[nodes[sharedRootId].parent].children.filter((node) => node !== sharedRootId),
       [`data.${sharedRootId}`]: deleteField(),
-    })
+    }).then(() => setIsSaved(true))
   }
 
   function handleIndentLeft(id: string, offset: number) {
@@ -531,7 +507,7 @@ const RootNode: React.FC = () => {
         [`data.${id}.value`]: data.nodes[id].value,
         [`data.${data.grandparent}.children`]: data.nodes[data.grandparent].children,
         [`data.${data.parent}.children`]: data.nodes[data.parent].children
-      })
+      }).then(() => setIsSaved(true))
 
       setTimeout(() => {
         refocusInput(id, offset);
@@ -555,7 +531,7 @@ const RootNode: React.FC = () => {
         [`data.${id}.value`]: data.nodes[id].value,
         [`data.${data.parent}.children`]: data.nodes[data.parent].children,
         [`data.${data.previousKey}.children`]: data.nodes[data.previousKey].children,
-      })
+      }).then(() => setIsSaved(true))
 
       setTimeout(() => {
         refocusInput(id, offset);
@@ -564,12 +540,22 @@ const RootNode: React.FC = () => {
   }
 
   function handleChange(id: string, value: string) {
+    setIsSaved(false);
     /**
      * it's okay that this function updates nodes, we're updating the DB with debounce inside Node.tsx
      */
     const data = onChange(nodes, id, value);
-    updateHistory([{ type: HistoryType.CHANGE_TEXT, data: { id, value: data.previousValue }}]);
     setNodes(data.nodes);
+  }
+
+  function handleDebouncedChange(id: string, value: string) {
+    if(!user) return;
+    updateDoc(doc(firebase.db, 'nodes', user.uid), {
+      [`data.${id}.value`]: value
+    }).then(() => {
+      updateHistory([{ type: HistoryType.CHANGE_TEXT, data: { id, value }}]);
+      setIsSaved(true);
+    });
   }
 
   if(!nodes || !user) {
@@ -641,6 +627,7 @@ const RootNode: React.FC = () => {
           value={nodes[zoomedNode]?.value}
           nodes={nodes}
           onChange={(id, value) => handleChange(id, value)}
+          onDebounceChange={(id, value) => handleDebouncedChange(id, value)}
           onAddNode={(id, offset) => handleAddNode(id, offset)}
           onIndentLeft={(id, offset) => handleIndentLeft(id, offset)}
           onIndentRight={(id, offset) => handleIndentRight(id, offset)}

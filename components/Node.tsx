@@ -6,8 +6,6 @@ import NodeInput from "./NodeInput";
 import SharedNodeRoot from "./SharedNodeRoot";
 import ShareModal from "./ShareModal";
 import {useDrag, useDrop} from "react-dnd";
-import {doc, updateDoc} from "firebase/firestore";
-import firebase from "../lib/firebase-client";
 
 interface NodeProps {
   id: string;
@@ -15,6 +13,7 @@ interface NodeProps {
   zoomedNode: string;
   nodes: NodesInterface;
   onChange: (id: string, value: string) => void;
+  onDebounceChange: (id: string, value: string) => void;
   onExpand: (id: string) => void;
   onCollapse: (id: string) => void;
   onDelete: (id: string, startOffset: number, endOffset: number) => void;
@@ -38,6 +37,7 @@ const Node: React.FC<NodeProps> = ({
   zoomedNode,
   nodes,
   onChange,
+  onDebounceChange,
   onExpand,
   onCollapse,
   onDelete,
@@ -54,14 +54,17 @@ const Node: React.FC<NodeProps> = ({
   onRemoveSharedRoot,
   onSharedNodeFetchError
 }) => {
+  const [isMounted, setIsMounted] = useState(false);
   const [debouncedValue, setDebouncedValue] = useState('');
 
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
     const timer = setTimeout(() => {
-      if(debouncedValue !== '' && !isShared) {
-        updateDoc(doc(firebase.db, 'nodes', userId), {
-          [`data.${id}.value`]: value
-        });
+      if(isMounted && !isShared) {
+        onDebounceChange(id, value);
       }
     }, 1000);
 
@@ -152,6 +155,7 @@ const Node: React.FC<NodeProps> = ({
               nodes={nodes}
               userId={userId}
               onChange={(id, value) => onChange(id, value)}
+              onDebounceChange={(id, value) => onDebounceChange(id, value)}
               onAddNode={(id, offset) => onAddNode(id, offset)}
               onIndentLeft={(id, offset) => onIndentLeft(id, offset)}
               onIndentRight={(id, offset) => onIndentRight(id, offset)}
