@@ -3,14 +3,13 @@ import Modal from "./Modal";
 import {NodesInterface} from "./RootNode";
 import {EnvelopeIcon, ShareIcon} from "@heroicons/react/24/outline";
 import {cloneDeep} from "lodash";
-import {doc, setDoc} from "firebase/firestore";
+import {deleteField, doc, setDoc, updateDoc} from "firebase/firestore";
 import firebase from "../lib/firebase-client";
 
 interface Props {
   rootId: string;
   nodes: NodesInterface;
   userId: string;
-  onShare: (newNodes: NodesInterface) => void;
 }
 
 function generateTree(curr: string, nodes: NodesInterface, tree: string[]) {
@@ -27,16 +26,15 @@ function generateTree(curr: string, nodes: NodesInterface, tree: string[]) {
 }
 
 const ShareModal: React.FC<Props> = ({
-                                       rootId,
-                                       onShare,
-                                       userId,
-                                       nodes,
-                                     }) => {
+ rootId,
+ userId,
+ nodes,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [permissions, setPermissions] = useState<Set<string>>(new Set());
   const [stage, setStage] = useState<'form' | 'link'>('form');
-  const [newNodes, setNewNodes] = useState<NodesInterface>();
+  const [nodesData, setNodesData] = useState<{ [key: string]: any }>();
 
   async function handleShare(id: string, email: string, permissions: string[]) {
     if (!email || !permissions) {
@@ -69,9 +67,12 @@ const ShareModal: React.FC<Props> = ({
       nodes: nodesToShare
     });
 
+    let nodesToDelete: {[key: string]: any} = {};
+
     // delete these nodes from the current users private nodes
     for (let i = 0; i < tree.length; i++) {
       delete updatedNodes[tree[i]];
+      nodesToDelete[`data.${tree[i]}`] = deleteField()
     }
 
     updatedNodes[id] = {
@@ -82,17 +83,20 @@ const ShareModal: React.FC<Props> = ({
       value: ''
     };
 
-    return updatedNodes;
+    return {
+      ...nodesToDelete,
+      [`data.${id}`]: updatedNodes[id],
+    };
   }
 
   async function handleSubmit() {
     if (!email || permissions.size === 0) {
       return;
     }
-    const newNodes = await handleShare(rootId, email, Array.from(permissions));
+    const data = await handleShare(rootId, email, Array.from(permissions));
 
-    if(newNodes) {
-      setNewNodes(newNodes);
+    if(data) {
+      setNodesData(data);
       setStage('link');
     }
   }
@@ -112,9 +116,7 @@ const ShareModal: React.FC<Props> = ({
       <Modal
         isOpen={isOpen}
         onClose={() => {
-          if(newNodes) {
-            onShare(newNodes);
-          }
+          updateDoc(doc(firebase.db, 'nodes', userId), nodesData);
           setIsOpen(false);
         }}
       >
@@ -190,7 +192,7 @@ const ShareModal: React.FC<Props> = ({
                 <button
                   type="submit"
                   className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                  Invite
+                  Continue
                 </button>
               </div>
 
@@ -203,6 +205,7 @@ const ShareModal: React.FC<Props> = ({
             <p className={'mb-2'}>Share this URL to the users you invited</p>
             <a href={`${window.location.href}join?nid=${rootId}`} className={'font-bold text-cyan-500'}>{window.location.href}join?nid={rootId}</a>
           </div>
+
         )}
 
       </Modal>

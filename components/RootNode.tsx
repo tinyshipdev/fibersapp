@@ -144,7 +144,7 @@ const RootNode: React.FC = () => {
       return null;
     }
 
-    const n = { ...nodes };
+    const n = cloneDeep(nodes);
     const nodeId = nanoid();
 
     const previousNode = n[id].children[n[id].children.length - 1];
@@ -159,7 +159,6 @@ const RootNode: React.FC = () => {
       [`data.${nodeId}`]: { value: '', isExpanded: true, children: [], parent: id },
       [`data.${id}.children`]: n[id].children,
     })
-    // setNodes(n);
     refocusInput(nodeId, 0);
   }
 
@@ -654,7 +653,6 @@ const RootNode: React.FC = () => {
           onDropSibling={(dragId, dropId) => handleDropSibling(dragId, dropId)}
           onDropChild={(dragId, dropId) => handleDropChild(dragId, dropId)}
           userId={user.uid}
-          onShare={(newNodes) => setNodes(newNodes)}
           onRemoveSharedRoot={(sharedRootId) => removeSharedRoot(sharedRootId)}
           onSharedNodeFetchError={(sharedRootId) => handleSharedNodeFetchError(sharedRootId)}
           />

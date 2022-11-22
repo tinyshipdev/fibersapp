@@ -133,9 +133,6 @@ const SharedNodeRoot: React.FC<Props> = ({
       value={nodes[rootId].value}
       zoomedNode={parentId}
       isShared={true}
-      onShare={() => {
-        return null;
-      }}
       userId={user.uid}
       nodes={nodes}
       onChange={(id, value) => {
@@ -199,16 +196,16 @@ const SharedNodeRoot: React.FC<Props> = ({
               refocusInput(data.currentNode, offset);
             }, 0)
           }
-        return;
-        }
+          return;
+        } else {
+          const data = addNode(nodes, id, offset);
 
-        const data = addNode(nodes, id, offset);
-
-        if (data) {
-          setNodes(data.nodes);
-          setTimeout(() => {
-            refocusInput(data.currentNode, offset);
-          }, 0)
+          if (data) {
+            setNodes(data.nodes);
+            setTimeout(() => {
+              refocusInput(data.currentNode, offset);
+            }, 0)
+          }
         }
       }}
       onIndentLeft={(id, offset) => {

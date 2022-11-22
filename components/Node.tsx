@@ -28,7 +28,6 @@ interface NodeProps {
   onMoveCursorDown: (id: string, offset: number) => void;
   isShared?: boolean;
   userId: string;
-  onShare: (newNodes: NodesInterface) => void;
   onRemoveSharedRoot: (sharedRootId: string) => void;
   onSharedNodeFetchError: (rootId: string) => void;
 }
@@ -52,7 +51,6 @@ const Node: React.FC<NodeProps> = ({
   onMoveCursorDown,
   isShared= false,
   userId,
-  onShare,
   onRemoveSharedRoot,
   onSharedNodeFetchError
 }) => {
@@ -60,7 +58,7 @@ const Node: React.FC<NodeProps> = ({
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      if(debouncedValue !== '') {
+      if(debouncedValue !== '' && !isShared) {
         updateDoc(doc(firebase.db, 'nodes', userId), {
           [`data.${id}.value`]: value
         });
@@ -165,7 +163,6 @@ const Node: React.FC<NodeProps> = ({
               onZoom={(id) => onZoom(id)}
               onDropSibling={(dragId, dropId) => onDropSibling(dragId, dropId)}
               onDropChild={(dragId, dropId) => onDropChild(dragId, dropId)}
-              onShare={(newNodes) => onShare(newNodes)}
               onRemoveSharedRoot={(sharedRootId) => onRemoveSharedRoot(sharedRootId)}
               onSharedNodeFetchError={(sharedRootId) => onSharedNodeFetchError(sharedRootId)}
             />
@@ -202,7 +199,7 @@ const Node: React.FC<NodeProps> = ({
     >
       <div className={`flex items-center group ${isShared ? 'ml-4' : ''} ${!nodes[id].isExpanded && nodes[id].children.length > 0 ? 'text-slate-800 font-bold' : ''}`}>
         {!isShared && (
-          <ShareModal rootId={id} nodes={nodes} userId={userId} onShare={(newNodes) => onShare(newNodes)}/>
+          <ShareModal rootId={id} nodes={nodes} userId={userId}/>
         )}
         <button onClick={() => onZoom(id)} className={'block ml-2'}>
           <MagnifyingGlassPlusIcon className={'w-4 h-4 text-slate-400 opacity-0 group-hover:opacity-100 ease-in duration-100'}/>
