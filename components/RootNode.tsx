@@ -609,7 +609,13 @@ const RootNode: React.FC = () => {
           <div className={'px-6'}>
             <NodeTitleInput
               value={nodes[zoomedNode]?.value}
+              onDebounceChange={(value) => {
+                updateDoc(doc(firebase.db, 'nodes', user.uid), {
+                  [`data.${zoomedNode}.value`]: value
+                }).then(() => setIsSaved(true))
+              }}
               onChange={(value) => {
+                setIsSaved(false);
                 const data = onChange(nodes, zoomedNode, value);
                 updateHistory([{ type: HistoryType.CHANGE_TEXT, data: { id: zoomedNode, value: data.previousValue }}]);
                 setNodes(data.nodes);
