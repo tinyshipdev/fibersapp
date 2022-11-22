@@ -201,13 +201,15 @@ const Node: React.FC<NodeProps> = ({
       data-id={id}
       ref={drag}
     >
-      <div className={`flex items-center group ${isShared ? 'ml-4' : ''} ${!nodes[id].isExpanded && nodes[id].children.length > 0 ? 'text-slate-800 font-bold' : ''}`}>
+      <div className={`flex items-center group ${isShared ? 'ml-10' : ''} ${!nodes[id].isExpanded && nodes[id].children.length > 0 ? 'text-slate-800 font-bold' : ''}`}>
         {!isShared && (
+          <>
           <ShareModal rootId={id} nodes={nodes} userId={userId}/>
+          <button onClick={() => onZoom(id)} className={'block ml-2'}>
+            <MagnifyingGlassPlusIcon className={'w-4 h-4 text-slate-400 opacity-0 group-hover:opacity-100 ease-in duration-100'}/>
+          </button>
+          </>
         )}
-        <button onClick={() => onZoom(id)} className={'block ml-2'}>
-          <MagnifyingGlassPlusIcon className={'w-4 h-4 text-slate-400 opacity-0 group-hover:opacity-100 ease-in duration-100'}/>
-        </button>
         {nodes[id].isExpanded && nodes[id].children.length > 0 ? (
           <button className={`w-6 h-6 hover:text-black ${isShared ? 'text-green-400' : 'text-slate-400'}`} onClick={() => onCollapse(id)}>
             <ChevronDownIcon className={`${isShared ? 'text-teal-500' : ''}`}/>
