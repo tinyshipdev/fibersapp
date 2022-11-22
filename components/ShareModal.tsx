@@ -116,7 +116,9 @@ const ShareModal: React.FC<Props> = ({
       <Modal
         isOpen={isOpen}
         onClose={() => {
-          updateDoc(doc(firebase.db, 'nodes', userId), nodesData);
+          if(stage === 'link') {
+            updateDoc(doc(firebase.db, 'nodes', userId), nodesData);
+          }
           setIsOpen(false);
         }}
       >
