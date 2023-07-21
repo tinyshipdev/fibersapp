@@ -3,9 +3,11 @@ import { nanoid } from 'nanoid'
 import Node from "./Node";
 import BreadcrumbTrail from "./BreadcrumbTrail";
 import {
+  ArrowDownTrayIcon,
   ArrowPathIcon,
   ArrowUturnLeftIcon,
   ArrowUturnRightIcon,
+  FolderIcon,
   PlusIcon,
   QuestionMarkCircleIcon
 } from "@heroicons/react/24/outline";
@@ -59,6 +61,43 @@ const DEFAULT_NODES: NodesInterface = {
 interface HistoryItem {
   type: HistoryType,
   data: any,
+}
+
+async function writeFile(fileHandle: any, contents: any) {
+  const writable = await fileHandle.createWritable();
+  await writable.write(contents);
+  await writable.close();
+}
+
+async function download(filename: any, text: string) {
+  // @ts-ignore
+  if(window.showSaveFilePicker) {
+    try {
+      const opts = {
+        types: [
+          {
+            description: "Fibers File",
+            accept: { "text/plain": [".fibers"] },
+          },
+        ],
+      };
+      // @ts-ignore
+      const fileHandle = await window.showSaveFilePicker(opts)
+    
+      await writeFile(fileHandle, text);
+    } catch {}
+  } else {
+    let element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
+  } 
 }
 
 const RootNode: React.FC = () => {
@@ -444,7 +483,7 @@ const RootNode: React.FC = () => {
         <div className={'flex items-center'}>
           <div className="mr-10">
             <button onClick={() => undo()} disabled={history.length <= 0}>
-              <ArrowUturnLeftIcon className={`w-4 h-4 mr-5 ${history.length > 0 ? 'text-slate-500' : 'text-slate-300'}`}/>
+              <ArrowUturnLeftIcon className={`w-4 h-4 mr-6 ${history.length > 0 ? 'text-slate-500' : 'text-slate-300'}`}/>
             </button>
             <button disabled={true}>
               <ArrowUturnRightIcon className={'w-4 h-4 text-slate-300'}/>
@@ -456,7 +495,6 @@ const RootNode: React.FC = () => {
           {!isSaved && (
             <div className={'flex items-center text-slate-400 mr-4'}>
               <ArrowPathIcon className={'w-4 mr-2 animate-spin'}/>
-              {/* <span className={'text-sm'}>Saving...</span> */}
             </div>
           )}
           <span className={'mr-6 flex items-center'}>
@@ -464,6 +502,14 @@ const RootNode: React.FC = () => {
               <QuestionMarkCircleIcon className={'w-4 text-slate-500'}/>
             </button>
           </span>
+          <div className="ml-12 flex items-center">
+            <button className='mr-6'>
+              <FolderIcon className={'w-4 h-4 text-slate-500'}/>
+            </button>
+            <button onClick={() => download('Untitled.fibers', JSON.stringify(nodes))}>
+              <ArrowDownTrayIcon className={'w-4 h-4 text-slate-500'}/>
+            </button>
+          </div>
         </div>
       </div>
 
