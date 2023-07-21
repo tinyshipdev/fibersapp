@@ -75,11 +75,14 @@ const RootNode: React.FC = () => {
   }, [])
 
   useEffect(() => {
+    setIsSaved(false)
     localStorage.setItem('fibers-nodes', JSON.stringify(nodes));
 
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       setIsSaved(true)
-    }, 1000);
+    }, 1000); 
+
+    return () => clearTimeout(timer)
   }, [nodes])
 
   // I wrote this in a rush, might want to refactor at some point
@@ -132,7 +135,6 @@ const RootNode: React.FC = () => {
     const data = onExpand(nodes, id);
     updateHistory([{ type: HistoryType.EXPAND_NODE, data: { id }}]);
     setNodes(data.nodes)
-    setIsSaved(true)
   }
 
   function undoExpand(id: string) {
@@ -141,21 +143,18 @@ const RootNode: React.FC = () => {
     n[id].isExpanded = false;
 
     setNodes(n)
-    setIsSaved(true)
   }
 
   function handleCollapse(nodes: NodesInterface, id: string) {
     const data = onCollapse(nodes, id);
     updateHistory([{ type: HistoryType.COLLAPSE_NODE, data: { id }}]);
     setNodes(data.nodes)
-    setIsSaved(true)
   }
 
   function undoCollapse(id: string) {
     const n = cloneDeep(nodes);
     n[id].isExpanded = true;
     setNodes(n)
-    setIsSaved(true)
   }
 
   function handleZoom(id: string) {
@@ -193,7 +192,6 @@ const RootNode: React.FC = () => {
     }]);
 
     setNodes(n);
-    setIsSaved(true)
   }
 
   function handleDropSibling(dragId: string, dropId: string) {
@@ -218,7 +216,6 @@ const RootNode: React.FC = () => {
 
     // 4. update database
     setNodes(n);
-    setIsSaved(true)
 
     // 5. update local undo history
     updateHistory([{
@@ -239,7 +236,6 @@ const RootNode: React.FC = () => {
     delete n[currentId];
 
     setNodes(n)
-    setIsSaved(true)
 
     refocusInput(previousId, n[previousId]?.value?.length);
   }
@@ -251,7 +247,6 @@ const RootNode: React.FC = () => {
     n[nodeData.parent].children.splice(indexOfNodeInParent, 0, nodeId);
 
     setNodes(n)
-    setIsSaved(true)
 
     refocusInput(nodeId, n[nodeId]?.value?.length);
   }
@@ -266,7 +261,6 @@ const RootNode: React.FC = () => {
     n[nodeId].parent = previousParent;
 
     setNodes(n)
-    setIsSaved(true)
 
     refocusInput(nodeId, n[nodeId]?.value?.length);
   }
@@ -275,7 +269,6 @@ const RootNode: React.FC = () => {
     const n = cloneDeep(nodes);
     n[id].value = value;
 
-    setIsSaved(true)
     setNodes(n);
   }
 
@@ -371,7 +364,6 @@ const RootNode: React.FC = () => {
     ]);
 
     setNodes(data.nodes);
-    setIsSaved(true)
     refocusInput(data.currentNode, 0);
   }
 
@@ -389,7 +381,6 @@ const RootNode: React.FC = () => {
 
     if(data.nodes) {
       setNodes(data.nodes)
-      setIsSaved(true)
       moveCursorUp(id, 0);
     }
   }
@@ -401,7 +392,6 @@ const RootNode: React.FC = () => {
       updateHistory([{ type: HistoryType.INDENT_LEFT, data: { id, offset: data.offset }}]);
 
       setNodes(data.nodes)
-      setIsSaved(true)
 
       setTimeout(() => {
         refocusInput(id, offset);
@@ -416,7 +406,6 @@ const RootNode: React.FC = () => {
       updateHistory([{ type: HistoryType.INDENT_RIGHT, data: { id, offset: data.offset }}]);
 
       setNodes(data.nodes)
-      setIsSaved(true)
 
       setTimeout(() => {
         refocusInput(id, offset);
@@ -425,7 +414,6 @@ const RootNode: React.FC = () => {
   }
 
   function handleChange(id: string, value: string) {
-    setIsSaved(false);
     /**
      * it's okay that this function updates nodes, we're updating the DB with debounce inside Node.tsx
      */
@@ -468,7 +456,7 @@ const RootNode: React.FC = () => {
           {!isSaved && (
             <div className={'flex items-center text-slate-400 mr-4'}>
               <ArrowPathIcon className={'w-4 mr-2 animate-spin'}/>
-              <span className={'text-sm'}>Saving...</span>
+              {/* <span className={'text-sm'}>Saving...</span> */}
             </div>
           )}
           <span className={'mr-6 flex items-center'}>
