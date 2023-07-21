@@ -508,37 +508,29 @@ const RootNode: React.FC = () => {
       }}
     >
       <ShortcutsModal isOpen={isShortcutsModalOpen} onClose={() => setIsShortcutsModalOpen(false)}/>
-      <div className="bg-slate-50 px-10 py-2 mb-12 border-b flex items-center justify-between">
-        <div className={'flex items-center'}>
-          <div className="mr-10">
-            <button onClick={() => undo()} disabled={history.length <= 0}>
-              <ArrowUturnLeftIcon className={`w-4 h-4 mr-6 ${history.length > 0 ? 'text-slate-500' : 'text-slate-300'}`}/>
-            </button>
-            <button disabled={true}>
-              <ArrowUturnRightIcon className={'w-4 h-4 text-slate-300'}/>
-            </button>
-          </div>
-          <BreadcrumbTrail zoomedNode={zoomedNode} links={breadcrumbs} onClick={(id) => handleZoom(id)} />
+      <div className="bg-slate-50 px-10 py-8 mb-12 border-b flex items-center justify-between">
+        <div className={'flex items-center gap-8'}>
+          <button onClick={() => undo()} disabled={history.length <= 0}>
+            <ArrowUturnLeftIcon className={`w-4 h-4 ${history.length > 0 ? 'text-slate-500' : 'text-slate-200'}`}/>
+          </button>
+          <button disabled={true}>
+            <ArrowUturnRightIcon className={'w-4 h-4 text-slate-200'}/>
+          </button>
+         <BreadcrumbTrail zoomedNode={zoomedNode} links={breadcrumbs} onClick={(id) => handleZoom(id)} />
         </div>
-        <div className={'flex items-center'}>
+        <div className={'flex items-center gap-8'}>
           {!isSaved && (
-            <div className={'flex items-center text-slate-400 mr-4'}>
-              <ArrowPathIcon className={'w-4 mr-2 animate-spin'}/>
-            </div>
+            <ArrowPathIcon className={'w-4 animate-spin text-slate-400'}/>
           )}
-          <span className={'mr-6 flex items-center'}>
-            <button onClick={() => setIsShortcutsModalOpen(true)}>
-              <QuestionMarkCircleIcon className={'w-4 text-slate-500'}/>
-            </button>
-          </span>
-          <div className="ml-12 flex items-center">
-            <button className='mr-6' onClick={() => openFile()}>
-              <FolderIcon className={'w-4 h-4 text-slate-500'}/>
-            </button>
-            <button onClick={() => download('Untitled.fibers', JSON.stringify(nodes))}>
-              <ArrowDownTrayIcon className={'w-4 h-4 text-slate-500'}/>
-            </button>
-          </div>
+          <button onClick={() => openFile()}>
+            <FolderIcon className={'w-4 h-4 text-slate-500'}/>
+          </button>
+          <button onClick={() => download('Untitled.fibers', JSON.stringify(nodes))}>
+            <ArrowDownTrayIcon className={'w-4 h-4 text-slate-500'}/>
+          </button>
+          <button onClick={() => setIsShortcutsModalOpen(true)}>
+            <QuestionMarkCircleIcon className={'w-4 text-slate-500'}/>
+          </button>
         </div>
       </div>
 
