@@ -124,6 +124,35 @@ const RootNode: React.FC = () => {
     return () => clearTimeout(timer)
   }, [nodes])
 
+  function openFile() {
+    let input = document.createElement('input');
+    input.type = 'file';
+    input.accept = ".fibers"
+    input.onchange = _ => {
+      if(input.files) {
+        if (input.files.length > 0) {
+          const file = input.files.item(0);
+          const reader = new FileReader();
+  
+          reader.addEventListener(
+            "load",
+            () => {
+                if(JSON.parse(reader.result as string)) {
+                  setNodes(JSON.parse(reader.result as string));
+                }
+            },
+            false,
+          );
+  
+          if(file) {
+            reader.readAsText(file)
+          }
+        }
+      }
+    };
+    input.click();
+  }
+
   // I wrote this in a rush, might want to refactor at some point
   const generateBreadcrumbTrail = useCallback((id: string): {id: string, value: string}[] => {
     let links = [{ id: 'root', value: 'root' }];
@@ -503,7 +532,7 @@ const RootNode: React.FC = () => {
             </button>
           </span>
           <div className="ml-12 flex items-center">
-            <button className='mr-6'>
+            <button className='mr-6' onClick={() => openFile()}>
               <FolderIcon className={'w-4 h-4 text-slate-500'}/>
             </button>
             <button onClick={() => download('Untitled.fibers', JSON.stringify(nodes))}>
