@@ -1,17 +1,18 @@
 import {nanoid} from "nanoid";
 import {NodesInterface} from "../components/RootNode";
+import {cloneDeep} from "lodash";
 
 export function addNodeAsChild(nodes: NodesInterface, id: string, offset: number) {
   let parentId = id;
 
-  const n = { ...nodes };
+  const n = cloneDeep(nodes);
   const nodeId = nanoid();
 
   // if the cursor is at the start of the sentence, add a node BEFORE the current one
   if(offset === 0 && n[id].value.length > 0) {
     n[nodeId] = { value: '', isExpanded: true, children: [], parent: parentId };
-    let index = nodes[parentId]?.children.indexOf(id);
-    nodes[parentId]?.children.splice(index, 0, nodeId);
+    let index = n[parentId]?.children.indexOf(id);
+    n[parentId]?.children.splice(index, 0, nodeId);
   } else {
     /**
      * when we add a node below, we might be halfway through a word
@@ -24,8 +25,8 @@ export function addNodeAsChild(nodes: NodesInterface, id: string, offset: number
     n[id].value = firstHalf;
     n[nodeId] = { value: secondHalf, isExpanded: true, children: [], parent: parentId };
 
-    let index = nodes[parentId]?.children.indexOf(id);
-    nodes[parentId]?.children.splice(index + 1, 0, nodeId);
+    let index = n[parentId]?.children.indexOf(id);
+    n[parentId]?.children.splice(index + 1, 0, nodeId);
   }
 
   return {
@@ -38,16 +39,15 @@ export function addNodeAsChild(nodes: NodesInterface, id: string, offset: number
 }
 
 export function addNode(nodes: NodesInterface, id: string, offset: number) {
-  let parentId = nodes[id].parent;
-
-  const n = { ...nodes };
+  const n = cloneDeep(nodes);
+  let parentId = n[id].parent;
   const nodeId = nanoid();
 
   // if the cursor is at the start of the sentence, add a node BEFORE the current one
   if(offset === 0 && n[id].value.length > 0) {
     n[nodeId] = { value: '', isExpanded: true, children: [], parent: parentId };
-    let index = nodes[parentId]?.children.indexOf(id);
-    nodes[parentId]?.children.splice(index, 0, nodeId);
+    let index = n[parentId]?.children.indexOf(id);
+    n[parentId]?.children.splice(index, 0, nodeId);
   } else {
     /**
      * when we add a node below, we might be halfway through a word
@@ -60,8 +60,8 @@ export function addNode(nodes: NodesInterface, id: string, offset: number) {
     n[id].value = firstHalf;
     n[nodeId] = { value: secondHalf, isExpanded: true, children: [], parent: parentId };
 
-    let index = nodes[parentId]?.children.indexOf(id);
-    nodes[parentId]?.children.splice(index + 1, 0, nodeId);
+    let index = n[parentId]?.children.indexOf(id);
+    n[parentId]?.children.splice(index + 1, 0, nodeId);
   }
 
   return {
@@ -86,7 +86,7 @@ export function onChange(nodes: NodesInterface, id: string, value: string) {
 }
 
 export function onExpand(nodes: NodesInterface, id: string) {
-  const n = { ...nodes };
+  const n = cloneDeep(nodes);
 
   if(!n[id].isExpanded) {
     n[id].isExpanded = true;
@@ -96,7 +96,7 @@ export function onExpand(nodes: NodesInterface, id: string) {
 }
 
 export function onCollapse(nodes: NodesInterface, id: string) {
-  const n = { ...nodes };
+  const n = cloneDeep(nodes);
 
   if(n[id].isExpanded) {
     n[id].isExpanded = false;
@@ -106,7 +106,7 @@ export function onCollapse(nodes: NodesInterface, id: string) {
 }
 
 export function indentLeft(nodes: NodesInterface, id: string, offset: number) {
-  const n = { ...nodes };
+  const n = cloneDeep(nodes);
 
   let parent = n[id].parent;
 
@@ -138,7 +138,7 @@ export function indentLeft(nodes: NodesInterface, id: string, offset: number) {
 }
 
 export function indentRight(nodes: NodesInterface, id: string, offset: number) {
-  const n = { ...nodes };
+  const n = cloneDeep(nodes);
 
   let parentId = n[id].parent;
 
@@ -178,7 +178,7 @@ export function indentRight(nodes: NodesInterface, id: string, offset: number) {
 }
 
 export function onDelete(nodes: NodesInterface, id: string, startOffset: number, endOffset: number) {
-  const n = { ...nodes };
+  const n = cloneDeep(nodes);
 
   if(!n[id].isExpanded) {
 

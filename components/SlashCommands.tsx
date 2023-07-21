@@ -1,7 +1,6 @@
 import React from 'react';
 import InsertTodayDate from "../plugins/commands/insert-today-date";
 import {CalendarDaysIcon} from "@heroicons/react/24/outline";
-// import ExampleModalCommand from "../plugins/commands/example-modal-command";
 
 interface SlashCommandsProps {
   onComplete: (value: string) => void;
@@ -13,11 +12,6 @@ const plugins = [
     name: InsertTodayDate.name,
     component: InsertTodayDate.component
   },
-  // {
-  //   id: ExampleModalCommand.id,
-  //   name: ExampleModalCommand.name,
-  //   component: ExampleModalCommand.component
-  // }
 ];
 
 const SlashCommands: React.FC<SlashCommandsProps> = ({

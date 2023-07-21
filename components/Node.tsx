@@ -1,10 +1,8 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {NodesInterface} from "./RootNode";
 import {ChevronDownIcon, ChevronRightIcon} from "@heroicons/react/20/solid";
 import {MagnifyingGlassPlusIcon} from "@heroicons/react/24/outline";
 import NodeInput from "./NodeInput";
-import SharedNodeRoot from "./SharedNodeRoot";
-import ShareModal from "./ShareModal";
 import {useDrag, useDrop} from "react-dnd";
 
 interface NodeProps {
@@ -13,7 +11,6 @@ interface NodeProps {
   zoomedNode: string;
   nodes: NodesInterface;
   onChange: (id: string, value: string) => void;
-  onDebounceChange: (id: string, value: string) => void;
   onExpand: (id: string) => void;
   onCollapse: (id: string) => void;
   onDelete: (id: string, startOffset: number, endOffset: number) => void;
@@ -25,10 +22,6 @@ interface NodeProps {
   onIndentRight: (id: string, offset: number) => void;
   onMoveCursorUp: (id: string, offset: number) => void;
   onMoveCursorDown: (id: string, offset: number) => void;
-  isShared?: boolean;
-  userId: string;
-  onRemoveSharedRoot: (sharedRootId: string) => void;
-  onSharedNodeFetchError: (rootId: string) => void;
 }
 
 const Node: React.FC<NodeProps> = ({
@@ -37,7 +30,6 @@ const Node: React.FC<NodeProps> = ({
   zoomedNode,
   nodes,
   onChange,
-  onDebounceChange,
   onExpand,
   onCollapse,
   onDelete,
@@ -48,29 +40,8 @@ const Node: React.FC<NodeProps> = ({
   onIndentLeft,
   onIndentRight,
   onMoveCursorUp,
-  onMoveCursorDown,
-  isShared= false,
-  userId,
-  onRemoveSharedRoot,
-  onSharedNodeFetchError
+  onMoveCursorDown
 }) => {
-  const [isMounted, setIsMounted] = useState(false);
-  const [debouncedValue, setDebouncedValue] = useState('');
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if(isMounted && !isShared) {
-        onDebounceChange(id, value);
-      }
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [debouncedValue]);
-
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'NODE',
     item: { id },
@@ -144,48 +115,27 @@ const Node: React.FC<NodeProps> = ({
           return null;
         }
 
-        if(!nodes[n]?.shared) {
-          return (
-            <Node
-              key={n}
-              id={n}
-              value={nodes[n].value}
-              zoomedNode={zoomedNode}
-              isShared={isShared}
-              nodes={nodes}
-              userId={userId}
-              onChange={(id, value) => onChange(id, value)}
-              onDebounceChange={(id, value) => onDebounceChange(id, value)}
-              onAddNode={(id, offset) => onAddNode(id, offset)}
-              onIndentLeft={(id, offset) => onIndentLeft(id, offset)}
-              onIndentRight={(id, offset) => onIndentRight(id, offset)}
-              onMoveCursorUp={(id, offset) => onMoveCursorUp(id, offset)}
-              onMoveCursorDown={(id, offset) => onMoveCursorDown(id, offset)}
-              onExpand={(id) => onExpand(id)}
-              onCollapse={(id) => onCollapse(id)}
-              onDelete={(id, startOffset, endOffset) => onDelete(id, startOffset, endOffset)}
-              onZoom={(id) => onZoom(id)}
-              onDropSibling={(dragId, dropId) => onDropSibling(dragId, dropId)}
-              onDropChild={(dragId, dropId) => onDropChild(dragId, dropId)}
-              onRemoveSharedRoot={(sharedRootId) => onRemoveSharedRoot(sharedRootId)}
-              onSharedNodeFetchError={(sharedRootId) => onSharedNodeFetchError(sharedRootId)}
-            />
-          )
-        } else if(nodes[n]?.shared) {
-          return (
-            <SharedNodeRoot
-              key={n}
-              rootId={n}
-              parentId={id}
-              onMoveCursorUp={(id, offset) => onMoveCursorUp(id, offset)}
-              onMoveCursorDown={(id, offset) => onMoveCursorDown(id, offset)}
-              onIndentRight={(id, offset) => onIndentRight(id, offset)}
-              onIndentLeft={(id, offset) => onIndentLeft(id, offset)}
-              onRemoveSharedRoot={(sharedRootId) => onRemoveSharedRoot(sharedRootId)}
-              onSharedNodeFetchError={(sharedRootId) => onSharedNodeFetchError(sharedRootId)}
-            />
-          )
-        }
+        return (
+          <Node
+            key={n}
+            id={n}
+            value={nodes[n].value}
+            zoomedNode={zoomedNode}
+            nodes={nodes}
+            onChange={(id, value) => onChange(id, value)}
+            onAddNode={(id, offset) => onAddNode(id, offset)}
+            onIndentLeft={(id, offset) => onIndentLeft(id, offset)}
+            onIndentRight={(id, offset) => onIndentRight(id, offset)}
+            onMoveCursorUp={(id, offset) => onMoveCursorUp(id, offset)}
+            onMoveCursorDown={(id, offset) => onMoveCursorDown(id, offset)}
+            onExpand={(id) => onExpand(id)}
+            onCollapse={(id) => onCollapse(id)}
+            onDelete={(id, startOffset, endOffset) => onDelete(id, startOffset, endOffset)}
+            onZoom={(id) => onZoom(id)}
+            onDropSibling={(dragId, dropId) => onDropSibling(dragId, dropId)}
+            onDropChild={(dragId, dropId) => onDropChild(dragId, dropId)}
+          />
+        )
       })}
     </ul>
   )
@@ -201,18 +151,13 @@ const Node: React.FC<NodeProps> = ({
       data-id={id}
       ref={drag}
     >
-      <div className={`flex items-center group ${isShared ? 'ml-10' : ''} ${!nodes[id].isExpanded && nodes[id].children.length > 0 ? 'text-slate-800 font-bold' : ''}`}>
-        {!isShared && (
-          <>
-          <ShareModal rootId={id} nodes={nodes} userId={userId}/>
-          <button onClick={() => onZoom(id)} className={'block ml-2'}>
-            <MagnifyingGlassPlusIcon className={'w-4 h-4 text-slate-400 opacity-0 group-hover:opacity-100 ease-in duration-100'}/>
-          </button>
-          </>
-        )}
+      <div className={`flex items-center group ${!nodes[id].isExpanded && nodes[id].children.length > 0 ? 'text-slate-800 font-bold' : ''}`}>
+        <button onClick={() => onZoom(id)} className={'block ml-2'}>
+          <MagnifyingGlassPlusIcon className={'w-4 h-4 text-slate-400 opacity-0 group-hover:opacity-100 ease-in duration-100'}/>
+        </button>
         {nodes[id].isExpanded && nodes[id].children.length > 0 ? (
-          <button className={`w-6 h-6 hover:text-black ${isShared ? 'text-green-400' : 'text-slate-400'}`} onClick={() => onCollapse(id)}>
-            <ChevronDownIcon className={`${isShared ? 'text-teal-500' : ''}`}/>
+          <button className={`w-6 h-6 hover:text-black text-slate-400`} onClick={() => onCollapse(id)}>
+            <ChevronDownIcon/>
           </button>
         ) : (
           <button
@@ -223,14 +168,13 @@ const Node: React.FC<NodeProps> = ({
               }
             }}
           >
-            <ChevronRightIcon className={`${isShared ? 'text-teal-500' : ''}`}/>
+            <ChevronRightIcon/>
           </button>
         )}
         <NodeInput
           id={id}
           onChange={(value) => {
             onChange(id, value);
-            setDebouncedValue(value);
           }}
           onKeyDown={(e) => handleKeyDown(e)}
           value={value}
