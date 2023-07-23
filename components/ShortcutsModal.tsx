@@ -32,6 +32,12 @@ const ShortcutsModal: React.FC<ShortcutsModalProps> = ({
             <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
               <div className="">
                 <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+
+                  <div className="flex justify-center items-center flex-col">
+                    <img className="w-40" src="/logo-full-black.svg" alt="fibers logo"/>
+                    <p className='text-center text-sm ml-4 mb-20'><span className="text-slate-500">made by</span> <a href="https://adamgray.dev">@ahdumgray</a></p>
+                  </div>
+
                   <h3 className="text-lg font-medium leading-6 text-gray-900" id="modal-title">Keyboard Shortcuts</h3>
 
                   <div className="mt-2 w-full">
@@ -51,7 +57,8 @@ const ShortcutsModal: React.FC<ShortcutsModalProps> = ({
                 </div>
               </div>
             </div>
-            <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+            <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 justify-between items-center">
+              
               <button
                 type="button"
                 className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
