@@ -35,7 +35,7 @@ const ShortcutsModal: React.FC<ShortcutsModalProps> = ({
 
                   <div className="flex justify-center items-center flex-col">
                     <img className="w-40" src="/logo-full-black.svg" alt="fibers logo"/>
-                    <p className='text-center text-sm ml-4 mb-20'><span className="text-slate-500">made by</span> <a href="https://adamgray.dev">@ahdumgray</a></p>
+                    <p className='text-center text-sm ml-4 mb-20'><span className="text-slate-500">made by</span> <a href="https://tinyship.dev">@tinyshipdev</a></p>
                   </div>
 
                   <h3 className="text-lg font-medium leading-6 text-gray-900" id="modal-title">Keyboard Shortcuts</h3>
